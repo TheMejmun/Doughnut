@@ -12,8 +12,9 @@
 #include <vulkan/vulkan.h>
 #include <stb_image.h>
 
+using namespace Doughnut::GFX::Vk;
 
-void VulkanImages::createTextureImage() {
+void Images::createTextureImage() {
     int texWidth, texHeight, texChannels;
     stbi_uc *pixels = stbi_load("resources/textures/planet-albedo.png", &texWidth, &texHeight, &texChannels,
                                 STBI_rgb_alpha);
@@ -31,7 +32,7 @@ void VulkanImages::createTextureImage() {
     stbi_image_free(pixels);
 }
 
-void VulkanImages::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+void Images::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
                                VkImageUsageFlags usage,
                                VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) {
     VkImageCreateInfo imageInfo{};
@@ -49,26 +50,26 @@ void VulkanImages::createImage(uint32_t width, uint32_t height, VkFormat format,
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateImage(VulkanDevices::logical, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+    if (vkCreateImage(Devices::logical, &imageInfo, nullptr, &image) != VK_SUCCESS) {
         THROW("Failed to create image!");
     }
 
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(VulkanDevices::logical, image, &memRequirements);
+    vkGetImageMemoryRequirements(Devices::logical, image, &memRequirements);
 
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = VulkanMemory::findMemoryType(memRequirements.memoryTypeBits, properties);
+    allocInfo.memoryTypeIndex = Memory::findMemoryType(memRequirements.memoryTypeBits, properties);
 
-    if (vkAllocateMemory(VulkanDevices::logical, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+    if (vkAllocateMemory(Devices::logical, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
         THROW("Failed to allocate image memory!");
     }
 
-    vkBindImageMemory(VulkanDevices::logical, image, imageMemory, 0);
+    vkBindImageMemory(Devices::logical, image, imageMemory, 0);
 }
 
-VkImageView VulkanImages::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
+VkImageView Images::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     viewInfo.image = image;
@@ -88,7 +89,7 @@ VkImageView VulkanImages::createImageView(VkImage image, VkFormat format, VkImag
     viewInfo.subresourceRange.layerCount = 1;
 
     VkImageView imageView;
-    if (vkCreateImageView(VulkanDevices::logical, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+    if (vkCreateImageView(Devices::logical, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
         THROW("Failed to create texture image view!");
     }
 

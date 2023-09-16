@@ -16,11 +16,11 @@
 struct RenderState {
     std::string title{};
 
-    GLFWwindow* window = nullptr;
+    GLFWwindow *window = nullptr;
 
     UiState uiState{};
 
-    VulkanState vulkanState{};
+    Doughnut::GFX::Vk::State vulkanState{};
 };
 
 #endif //REALTIME_CELL_COLLAPSE_RENDER_STATE_H

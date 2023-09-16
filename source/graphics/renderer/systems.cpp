@@ -9,22 +9,24 @@
 
 // SYSTEMS THAT PLUG INTO THE ECS
 
+using namespace Doughnut::GFX;
+
 void Renderer::uploadRenderables(ECS &ecs) {
     auto entities = ecs.requestEntities(Renderer::EvaluatorToAllocate);
     for (auto components: entities) {
         auto &mesh = *components->renderMesh;
-        VulkanBuffers::uploadVertices(mesh.vertices);
-        VulkanBuffers::uploadIndices(mesh.indices);
+        Vk::Buffers::uploadVertices(mesh.vertices);
+        Vk::Buffers::uploadIndices(mesh.indices);
         mesh.isAllocated = true;
     }
 }
 
 void Renderer::uploadSimplifiedMeshes(ECS &ecs) {
-    if (VulkanBuffers::waitingForFence) {
+    if (Vk::Buffers::waitingForFence) {
         DBG "Waiting for fence" ENDL;
-        if (VulkanBuffers::isTransferQueueReady()) {
+        if (Vk::Buffers::isTransferQueueReady()) {
             DBG "Ready" ENDL;
-            VulkanBuffers::finishTransfer();
+            Vk::Buffers::finishTransfer();
         } else {
             DBG "Not ready" ENDL;
             return;
@@ -34,7 +36,7 @@ void Renderer::uploadSimplifiedMeshes(ECS &ecs) {
     auto entities = ecs.requestEntities(Renderer::EvaluatorToAllocateSimplifiedMesh);
 
     uint32_t bufferToUse = 1;
-    if (VulkanBuffers::meshBufferToUse == 1) bufferToUse = 2;
+    if (Vk::Buffers::meshBufferToUse == 1) bufferToUse = 2;
 
     bool uploadedAny = false;
 
@@ -43,7 +45,7 @@ void Renderer::uploadSimplifiedMeshes(ECS &ecs) {
             PerformanceLogging::meshUploadStarted();
             auto &mesh = *components->renderMeshSimplifiable;
             // TODO this upload produced a bad access error
-            VulkanBuffers::uploadMesh(mesh.vertices, mesh.indices, true, bufferToUse);
+            Vk::Buffers::uploadMesh(mesh.vertices, mesh.indices, true, bufferToUse);
             mesh.isAllocated = true;
             mesh.bufferIndex = bufferToUse;
             mesh.updateSimplifiedMesh = false;
@@ -80,11 +82,11 @@ void Renderer::updateUniformBuffer(const sec &delta, ECS &ecs) {
 
     ubo.view = camera.camera->getView(*camera.transform);
 
-    ubo.proj = camera.camera->getProjection(VulkanSwapchain::aspectRatio);
+    ubo.proj = camera.camera->getProjection(Vk::Swapchain::aspectRatio);
 
     // TODO replace with push constants for small objects:
     // https://registry.khronos.org/vulkan/site/guide/latest/push_constants.html
 
-    VulkanBuffers::nextUniformBuffer();
-    memcpy(VulkanBuffers::getCurrentUniformBufferMapping(), &ubo, sizeof(ubo));
+    Vk::Buffers::nextUniformBuffer();
+    memcpy(Vk::Buffers::getCurrentUniformBufferMapping(), &ubo, sizeof(ubo));
 }

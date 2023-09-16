@@ -10,11 +10,13 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-// Global
-VkInstance VulkanInstance::instance = nullptr;
+using namespace Doughnut::GFX::Vk;
 
-void VulkanInstance::create(const std::string &title) {
-    INF "Creating VulkanInstance" ENDL;
+// Global
+VkInstance Instance::instance = nullptr;
+
+void Instance::create(const std::string &title) {
+    INF "Creating Instance" ENDL;
 
     // App Info
     VkApplicationInfo appInfo{};
@@ -44,17 +46,17 @@ void VulkanInstance::create(const std::string &title) {
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
     // Extensions final
-    VulkanInstance::printAvailableExtensions();
+    Instance::printAvailableExtensions();
     createInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
     // Validation layers
-    if (VulkanValidation::ENABLE_VALIDATION_LAYERS) {
-        if (!VulkanValidation::checkValidationLayerSupport()) {
+    if (Validation::ENABLE_VALIDATION_LAYERS) {
+        if (!Validation::checkValidationLayerSupport()) {
             THROW("Validation layers not available!");
         }
-        createInfo.enabledLayerCount = static_cast<uint32_t>(VulkanValidation::VALIDATION_LAYERS.size());
-        createInfo.ppEnabledLayerNames = VulkanValidation::VALIDATION_LAYERS.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(Validation::VALIDATION_LAYERS.size());
+        createInfo.ppEnabledLayerNames = Validation::VALIDATION_LAYERS.data();
     } else {
         createInfo.enabledLayerCount = 0;
     }
@@ -66,7 +68,7 @@ void VulkanInstance::create(const std::string &title) {
     }
 }
 
-void VulkanInstance::printAvailableExtensions() {
+void Instance::printAvailableExtensions() {
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
@@ -79,8 +81,8 @@ void VulkanInstance::printAvailableExtensions() {
     }
 }
 
-void VulkanInstance::destroy() {
-    INF "Destroying VulkanInstance" ENDL;
+void Instance::destroy() {
+    INF "Destroying Instance" ENDL;
 
     vkDestroyInstance(instance, nullptr);
 }

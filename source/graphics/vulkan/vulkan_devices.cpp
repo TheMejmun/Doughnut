@@ -11,32 +11,34 @@
 #include <set>
 #include <cstdint>
 
+using namespace Doughnut::GFX::Vk;
+
 // Constant
-extern const std::vector<const char *> VulkanDevices::REQUIRED_DEVICE_EXTENSIONS = {
+extern const std::vector<const char *> Devices::REQUIRED_DEVICE_EXTENSIONS = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
-extern const std::string VulkanDevices::PORTABILITY_EXTENSION = "VK_KHR_portability_subset";
+extern const std::string Devices::PORTABILITY_EXTENSION = "VK_KHR_portability_subset";
 
 // Global
-VkPhysicalDevice VulkanDevices::physical = nullptr;
-VkDevice VulkanDevices::logical = nullptr;
-VkQueue VulkanDevices::graphicsQueue = nullptr;
-VkQueue VulkanDevices::presentQueue = nullptr;
-VulkanDevices::QueueFamilyIndices VulkanDevices::queueFamilyIndices{};
-VulkanDevices::OptionalFeatures  VulkanDevices::optionalFeatures{};
+VkPhysicalDevice Devices::physical = nullptr;
+VkDevice Devices::logical = nullptr;
+VkQueue Devices::graphicsQueue = nullptr;
+VkQueue Devices::presentQueue = nullptr;
+Devices::QueueFamilyIndices Devices::queueFamilyIndices{};
+Devices::OptionalFeatures  Devices::optionalFeatures{};
 
-void VulkanDevices::create() {
-    INF "Creating VulkanDevices" ENDL;
+void Devices::create() {
+    INF "Creating Devices" ENDL;
 
-    VulkanDevices::pickPhysical();
-    VulkanDevices::createLogical();
+    Devices::pickPhysical();
+    Devices::createLogical();
 }
 
-void VulkanDevices::printAvailablePhysicalDevices() {
+void Devices::printAvailablePhysicalDevices() {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(VulkanInstance::instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(Instance::instance, &deviceCount, nullptr);
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(VulkanInstance::instance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(Instance::instance, &deviceCount, devices.data());
 
     VRB "Available physical devices:" ENDL;
 
@@ -47,46 +49,46 @@ void VulkanDevices::printAvailablePhysicalDevices() {
     }
 }
 
-void VulkanDevices::pickPhysical() {
+void Devices::pickPhysical() {
     printAvailablePhysicalDevices();
 
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(VulkanInstance::instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(Instance::instance, &deviceCount, nullptr);
 
     if (deviceCount == 0) {
-        THROW("Failed to find GPUs with Vulkan support!");
+        THROW("Failed to find GPUs with  support!");
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(VulkanInstance::instance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(Instance::instance, &deviceCount, devices.data());
 
     for (const auto &device: devices) {
         if (isPhysicalDeviceSuitable(device, true)) {
-            VulkanDevices::physical = device;
+            Devices::physical = device;
             break;
         } else if (isPhysicalDeviceSuitable(device, false)) {
-            VulkanDevices::physical = device;
+            Devices::physical = device;
             // Keep looking for a better one
         }
     }
 
     VkPhysicalDeviceProperties deviceProperties;
-    vkGetPhysicalDeviceProperties(VulkanDevices::physical, &deviceProperties);
+    vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
     INF "Picked physical device: " << deviceProperties.deviceName ENDL;
 
-    if (VulkanDevices::physical == VK_NULL_HANDLE) {
+    if (Devices::physical == VK_NULL_HANDLE) {
         THROW("Failed to find a suitable GPU!");
     }
 
-    VulkanDevices::queueFamilyIndices = VulkanDevices::findQueueFamilies(VulkanDevices::physical);
-    VulkanDevices::queueFamilyIndices.print();
+    Devices::queueFamilyIndices = Devices::findQueueFamilies(Devices::physical);
+    Devices::queueFamilyIndices.print();
 
     VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceFeatures(VulkanDevices::physical, &deviceFeatures);
-    VulkanDevices::optionalFeatures.supportsWireframeMode = deviceFeatures.fillModeNonSolid;
+    vkGetPhysicalDeviceFeatures(Devices::physical, &deviceFeatures);
+    Devices::optionalFeatures.supportsWireframeMode = deviceFeatures.fillModeNonSolid;
 }
 
-bool VulkanDevices::isPhysicalDeviceSuitable(VkPhysicalDevice device, bool strictMode) {
+bool Devices::isPhysicalDeviceSuitable(VkPhysicalDevice device, bool strictMode) {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
@@ -100,29 +102,29 @@ bool VulkanDevices::isPhysicalDeviceSuitable(VkPhysicalDevice device, bool stric
     }
 
     // Supports required queues
-    QueueFamilyIndices indices = VulkanDevices::findQueueFamilies(device);
+    QueueFamilyIndices indices = Devices::findQueueFamilies(device);
     suitable = suitable && indices.isComplete();
 
     // Supports required extensions
     suitable = suitable && checkExtensionSupport(device);
 
     // Supports required swapchain features
-    auto swapchainSupport = VulkanSwapchain::querySwapchainSupport(device);
+    auto swapchainSupport = Swapchain::querySwapchainSupport(device);
     bool swapchainAdequate = !swapchainSupport.formats.empty() && !swapchainSupport.presentModes.empty();
     suitable = suitable && swapchainAdequate;
 
     return suitable;
 }
 
-bool VulkanDevices::checkExtensionSupport(VkPhysicalDevice device) {
+bool Devices::checkExtensionSupport(VkPhysicalDevice device) {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-    std::set<std::string> requiredExtensions(VulkanDevices::REQUIRED_DEVICE_EXTENSIONS.begin(),
-                                             VulkanDevices::REQUIRED_DEVICE_EXTENSIONS.end());
+    std::set<std::string> requiredExtensions(Devices::REQUIRED_DEVICE_EXTENSIONS.begin(),
+                                             Devices::REQUIRED_DEVICE_EXTENSIONS.end());
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -137,7 +139,7 @@ bool VulkanDevices::checkExtensionSupport(VkPhysicalDevice device) {
     return requiredExtensions.empty();
 }
 
-bool VulkanDevices::checkPortabilityMode(VkPhysicalDevice device) {
+bool Devices::checkPortabilityMode(VkPhysicalDevice device) {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -153,7 +155,7 @@ bool VulkanDevices::checkPortabilityMode(VkPhysicalDevice device) {
     return false;
 }
 
-VulkanDevices::QueueFamilyIndices VulkanDevices::findQueueFamilies(VkPhysicalDevice device) {
+Devices::QueueFamilyIndices Devices::findQueueFamilies(VkPhysicalDevice device) {
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
@@ -165,7 +167,7 @@ VulkanDevices::QueueFamilyIndices VulkanDevices::findQueueFamilies(VkPhysicalDev
     int i = 0;
     for (const auto &queueFamily: queueFamilies) {
         VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, VulkanSwapchain::surface, &presentSupport);
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, Swapchain::surface, &presentSupport);
 
         // Look for transfer queue that is not a graphics queue
         if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT &&
@@ -191,8 +193,8 @@ VulkanDevices::QueueFamilyIndices VulkanDevices::findQueueFamilies(VkPhysicalDev
     return indices;
 }
 
-void VulkanDevices::createLogical() {
-    auto indices = VulkanDevices::queueFamilyIndices;
+void Devices::createLogical() {
+    auto indices = Devices::queueFamilyIndices;
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     // If the indices are the same, the set will merge them -> Only one single queue creation.
@@ -211,7 +213,7 @@ void VulkanDevices::createLogical() {
 
     // Define the features we will use as queried in isPhysicalDeviceSuitable
     VkPhysicalDeviceFeatures deviceFeatures{};
-    deviceFeatures.fillModeNonSolid = VulkanDevices::optionalFeatures.supportsWireframeMode;
+    deviceFeatures.fillModeNonSolid = Devices::optionalFeatures.supportsWireframeMode;
 
     VkDeviceCreateInfo createInfo{};
 
@@ -221,52 +223,52 @@ void VulkanDevices::createLogical() {
     createInfo.pEnabledFeatures = &deviceFeatures;
 
     std::vector<const char *> requiredExtensions = REQUIRED_DEVICE_EXTENSIONS;
-    if (checkPortabilityMode(VulkanDevices::physical)) {
+    if (checkPortabilityMode(Devices::physical)) {
         requiredExtensions.push_back(PORTABILITY_EXTENSION.c_str());
     }
 
     createInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
-    if (VulkanValidation::ENABLE_VALIDATION_LAYERS) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(VulkanValidation::VALIDATION_LAYERS.size());
-        createInfo.ppEnabledLayerNames = VulkanValidation::VALIDATION_LAYERS.data();
+    if (Validation::ENABLE_VALIDATION_LAYERS) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(Validation::VALIDATION_LAYERS.size());
+        createInfo.ppEnabledLayerNames = Validation::VALIDATION_LAYERS.data();
     } else {
         createInfo.enabledLayerCount = 0;
     }
 
-    if (vkCreateDevice(VulkanDevices::physical, &createInfo, nullptr, &VulkanDevices::logical) !=
+    if (vkCreateDevice(Devices::physical, &createInfo, nullptr, &Devices::logical) !=
         VK_SUCCESS) {
         THROW("Failed to create logical device!");
     }
 
     // Get each queue
-    vkGetDeviceQueue(VulkanDevices::logical, indices.graphicsFamily.value(), 0, &VulkanDevices::graphicsQueue);
-    vkGetDeviceQueue(VulkanDevices::logical, indices.presentFamily.value(), 0, &VulkanDevices::presentQueue);
+    vkGetDeviceQueue(Devices::logical, indices.graphicsFamily.value(), 0, &Devices::graphicsQueue);
+    vkGetDeviceQueue(Devices::logical, indices.presentFamily.value(), 0, &Devices::presentQueue);
 }
 
 
-bool VulkanDevices::QueueFamilyIndices::isComplete() const {
+bool Devices::QueueFamilyIndices::isComplete() const {
     return this->graphicsFamily.has_value() &&
            this->presentFamily.has_value() &&
            this->transferFamily.has_value();
 }
 
-bool VulkanDevices::QueueFamilyIndices::isUnifiedGraphicsPresentQueue() const {
+bool Devices::QueueFamilyIndices::isUnifiedGraphicsPresentQueue() const {
     if (!this->graphicsFamily.has_value() ||
         !this->presentFamily.has_value())
         return false;
     return this->graphicsFamily.value() == this->presentFamily.value();
 }
 
-bool VulkanDevices::QueueFamilyIndices::hasUniqueTransferQueue() const {
+bool Devices::QueueFamilyIndices::hasUniqueTransferQueue() const {
     if (!this->graphicsFamily.has_value() ||
         !this->presentFamily.has_value())
         return false;
     return !(this->graphicsFamily.value() == this->transferFamily.value());
 }
 
-void VulkanDevices::QueueFamilyIndices::print() {
+void Devices::QueueFamilyIndices::print() {
     VRB
         "QueueFamilyIndices:"
                 << " Graphics: " << this->graphicsFamily.value()
@@ -275,8 +277,8 @@ void VulkanDevices::QueueFamilyIndices::print() {
                 ENDL;
 }
 
-void VulkanDevices::destroy() {
-    INF "Destroying VulkanDevices" ENDL;
+void Devices::destroy() {
+    INF "Destroying Devices" ENDL;
 
-    vkDestroyDevice(VulkanDevices::logical, nullptr);
+    vkDestroyDevice(Devices::logical, nullptr);
 }

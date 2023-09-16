@@ -153,7 +153,7 @@ void simplify(const Components *camera, const Components *components) {
     const auto normalModel = glm::transpose(components->transform->inverse);
     const auto cameraPos = camera->transform->getPosition();
     const auto view = camera->camera->getView(*camera->transform);
-    const auto proj = camera->camera->getProjection(VulkanSwapchain::aspectRatio);
+    const auto proj = camera->camera->getProjection(Doughnut::GFX::Vk::Swapchain::aspectRatio);
     const auto viewProj = proj * view;
 
     auto &to = *components->renderMeshSimplifiable;
@@ -161,8 +161,8 @@ void simplify(const Components *camera, const Components *components) {
     to.vertices.clear();
     to.indices.clear();
 
-    const uint32_t rasterWidth = VulkanSwapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
-    const uint32_t rasterHeight = VulkanSwapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterWidth = Doughnut::GFX::Vk::Swapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterHeight = Doughnut::GFX::Vk::Swapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
 
     std::vector<SVO> svos{};
     svos.resize(from.vertices.size());

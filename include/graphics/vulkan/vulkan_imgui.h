@@ -9,7 +9,7 @@
 #include "graphics/ui_state.h"
 #include "graphics/render_state.h"
 
-namespace VulkanImgui {
+namespace Doughnut::GFX::Vk::Imgui {
     void create(RenderState &state);
 
     void draw(RenderState &state);

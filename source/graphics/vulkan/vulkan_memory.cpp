@@ -6,10 +6,11 @@
 #include "io/printer.h"
 #include "graphics/vulkan/vulkan_devices.h"
 
-uint32_t
-VulkanMemory::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+using namespace Doughnut::GFX::Vk;
+
+uint32_t Memory::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
     VkPhysicalDeviceMemoryProperties memoryProperties;
-    vkGetPhysicalDeviceMemoryProperties(VulkanDevices::physical, &memoryProperties);
+    vkGetPhysicalDeviceMemoryProperties(Devices::physical, &memoryProperties);
 
     for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++) {
         // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkPhysicalDeviceMemoryProperties.html
