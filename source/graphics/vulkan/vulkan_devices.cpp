@@ -124,7 +124,7 @@ bool Devices::checkExtensionSupport(VkPhysicalDevice device) {
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
     std::set<std::string> requiredExtensions(Devices::REQUIRED_DEVICE_EXTENSIONS.begin(),
-                                             Devices::REQUIRED_DEVICE_EXTENSIONS.end());
+            Devices::REQUIRED_DEVICE_EXTENSIONS.end());
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -247,7 +247,6 @@ void Devices::createLogical() {
     vkGetDeviceQueue(Devices::logical, indices.presentFamily.value(), 0, &Devices::presentQueue);
 }
 
-
 bool Devices::QueueFamilyIndices::isComplete() const {
     return this->graphicsFamily.has_value() &&
            this->presentFamily.has_value() &&
@@ -265,7 +264,7 @@ bool Devices::QueueFamilyIndices::hasUniqueTransferQueue() const {
     if (!this->graphicsFamily.has_value() ||
         !this->presentFamily.has_value())
         return false;
-    return !(this->graphicsFamily.value() == this->transferFamily.value());
+    return this->graphicsFamily.value() != this->transferFamily.value();
 }
 
 void Devices::QueueFamilyIndices::print() {
