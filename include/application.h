@@ -16,30 +16,32 @@
 #include <memory>
 #include <string>
 
-class Application {
-public:
-    void run();
+namespace Doughnut {
+    class Application {
+    public:
+        void run();
 
-    std::string title;
-private:
-    void init();
+        std::string title;
+    private:
+        void init();
 
-    void mainLoop();
+        void mainLoop();
 
-    void destroy();
+        void destroy();
 
-    ECS ecs{};
-    Renderer renderer{};
-    WindowManager windowManager{};
-    InputController inputManager{};
+        ECS ecs{};
+        GFX::Renderer renderer{};
+        WindowManager windowManager{};
+        InputController inputManager{};
 
-    chrono_sec_point lastTimestamp = Timer::now();
-    sec currentCpuWaitTime;
-    uint32_t currentFPS = 0;
-    sec deltaTime = 0;
+        chrono_sec_point lastTimestamp = Timer::now();
+        sec currentCpuWaitTime;
+        uint32_t currentFPS = 0;
+        sec deltaTime = 0;
 
-    bool monkeyMode = true;
-    bool exitAfterMainLoop = true;
+        bool monkeyMode = true;
+        bool exitAfterMainLoop = true;
+    };
 };
 
 #endif //REALTIME_CELL_COLLAPSE_APPLICATION_H

@@ -14,13 +14,15 @@
 
 #include <iomanip>
 
+using namespace Doughnut;
+
 void Application::run() {
     do {
         this->exitAfterMainLoop = true;
         init();
         mainLoop();
         destroy();
-    } while (this->exitAfterMainLoop == false);
+    } while (!this->exitAfterMainLoop);
 }
 
 void Application::init() {
