@@ -11,7 +11,7 @@
 #include "io/input_manager.h"
 
 namespace CameraController{
-    void update(const sec &delta, ECS &ecs);
+    void update(const double &delta, ECS &ecs);
 
     void destroy();
 

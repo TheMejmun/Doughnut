@@ -9,7 +9,7 @@
 #include <stdexcept>
 
 void ECS::create() {
-    INF "Creating ECS" ENDL;
+    info( "Creating ECS" );
 }
 
 uint32_t ECS::insert(Components &entityComponents) {
@@ -31,7 +31,7 @@ uint32_t ECS::insert(Components &entityComponents) {
 }
 
 void ECS::destroy() {
-    INF "Destroying ECS" ENDL;
+    info( "Destroying ECS" );
 
     for (uint32_t i = 0; i < this->entities.size(); ++i) {
         destroyReferences(i);

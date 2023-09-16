@@ -43,7 +43,7 @@ namespace Doughnut::GFX {
     public:
         void create(const std::string &title, GLFWwindow *window);
 
-        sec draw(const sec &delta, ECS &ecs);
+        double draw(const double &delta, ECS &ecs);
 
         void destroy();
 
@@ -58,7 +58,7 @@ namespace Doughnut::GFX {
         void createDescriptorSetLayout();
 
         // TODO Take out delta time
-        void updateUniformBuffer(const sec &delta, ECS &ecs);
+        void updateUniformBuffer(const double &delta, ECS &ecs);
 
         void createDescriptorPool();
 
@@ -112,7 +112,7 @@ namespace Doughnut::GFX {
 
         RenderState state{};
 
-        chrono_sec_point lastTimestamp = Timer::now();
+        Doughnut::Timer::Point lastTimestamp = Timer::now();
         std::thread simplifiedMeshAllocationThread{};
 
         VkDescriptorSetLayout descriptorSetLayout = nullptr;

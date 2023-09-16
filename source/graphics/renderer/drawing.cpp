@@ -15,9 +15,9 @@ using namespace Doughnut::GFX;
 void Renderer::createGraphicsPipeline() {
     // TODO pull these out of here
     auto vertShaderCode = Importinator::readFile("resources/shaders/sphere.vert.spv");
-    VRB "Loaded vertex shader with byte size: " << vertShaderCode.size() ENDL;
+    verbose( "Loaded vertex shader with byte size: " << vertShaderCode.size() );
     auto fragShaderCode = Importinator::readFile("resources/shaders/sphere.frag.spv");
-    VRB "Loaded fragment shader with byte size: " << fragShaderCode.size() ENDL;
+    verbose( "Loaded fragment shader with byte size: " << fragShaderCode.size());
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -137,7 +137,7 @@ void Renderer::createGraphicsPipeline() {
 
     if (vkCreatePipelineLayout(Vk::Devices::logical, &pipelineLayoutInfo, nullptr, &this->pipelineLayout) !=
         VK_SUCCESS) {
-        THROW("Failed to create pipeline layout!");
+        throw std::runtime_error("Failed to create pipeline layout!");
     }
 
     VkPipelineDepthStencilStateCreateInfo depthStencil{};
@@ -175,7 +175,7 @@ void Renderer::createGraphicsPipeline() {
 
     if (vkCreateGraphicsPipelines(Vk::Devices::logical, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
                                   &this->graphicsPipeline) != VK_SUCCESS) {
-        THROW("Failed to create graphics pipeline!");
+        throw std::runtime_error("Failed to create graphics pipeline!");
     }
 
     // Once the pipeline is created, we don't need this anymore
@@ -268,7 +268,7 @@ void Renderer::createCommandPool() {
     poolInfo.queueFamilyIndex = Vk::Devices::queueFamilyIndices.graphicsFamily.value();
 
     if (vkCreateCommandPool(Vk::Devices::logical, &poolInfo, nullptr, &this->commandPool) != VK_SUCCESS) {
-        THROW("Failed to create command pool!");
+        throw std::runtime_error("Failed to create command pool!");
     }
 
     this->state.vulkanState.commandPool = this->commandPool;
@@ -289,7 +289,7 @@ void Renderer::createSyncObjects() {
         vkCreateSemaphore(Vk::Devices::logical, &semaphoreInfo, nullptr, &this->renderFinishedSemaphore) !=
         VK_SUCCESS ||
         vkCreateFence(Vk::Devices::logical, &fenceInfo, nullptr, &this->inFlightFence) != VK_SUCCESS) {
-        THROW("Failed to create semaphores and/or fences!");
+        throw std::runtime_error("Failed to create semaphores and/or fences!");
     }
 }
 
@@ -300,7 +300,7 @@ void Renderer::recordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex) 
     beginInfo.pInheritanceInfo = nullptr; // Optional
 
     if (vkBeginCommandBuffer(buffer, &beginInfo) != VK_SUCCESS) {
-        THROW("Failed to begin recording command buffer!");
+        throw std::runtime_error("Failed to begin recording command buffer!");
     }
 
     VkRenderPassBeginInfo renderPassInfo{};
@@ -358,19 +358,19 @@ void Renderer::recordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex) 
     vkCmdEndRenderPass(buffer);
 
     if (vkEndCommandBuffer(buffer) != VK_SUCCESS) {
-        THROW("Failed to record command buffer!");
+        throw std::runtime_error("Failed to record command buffer!");
     }
 }
 
-sec Renderer::draw(const sec &delta, ECS &ecs) {
+double Renderer::draw(const double &delta, ECS &ecs) {
     if (Vk::Swapchain::shouldRecreateSwapchain()) {
         bool success = Vk::Swapchain::recreateSwapchain(this->state);
         if (success) {
-            DBG "Created new swapchain" ENDL;
+            debug( "Created new swapchain" );
             Vk::Swapchain::needsNewSwapchain = false;
 
         } else {
-            DBG "Failed to create new swapchain" ENDL;
+            debug( "Failed to create new swapchain" );
             return -1;
         }
     }
@@ -390,15 +390,15 @@ sec Renderer::draw(const sec &delta, ECS &ecs) {
                                                     this->imageAvailableSemaphore, nullptr, &imageIndex);
 
     if (acquireImageResult == VK_ERROR_OUT_OF_DATE_KHR) {
-        DBG "Swapchain is out of date" ENDL;
+        debug( "Swapchain is out of date" );
         Vk::Swapchain::recreateSwapchain(this->state);
         return Timer::duration(beforeFence, afterFence); // Why not
     } else if (acquireImageResult == VK_SUBOPTIMAL_KHR) {
-        DBG "Swapchain is suboptimal" ENDL;
+        debug( "Swapchain is suboptimal" );
         Vk::Swapchain::needsNewSwapchain = true;
 
     } else if (acquireImageResult != VK_SUCCESS) {
-        THROW("Failed to acquire swapchain image!");
+        throw std::runtime_error("Failed to acquire swapchain image!");
     }
 
     // Avoid deadlock if recreating -> move to after success check
@@ -430,7 +430,7 @@ sec Renderer::draw(const sec &delta, ECS &ecs) {
 
 //    START_TRACE
     if (vkQueueSubmit(Vk::Devices::graphicsQueue, 1, &submitInfo, this->inFlightFence) != VK_SUCCESS) {
-        THROW("Failed to submit draw command buffer!");
+        throw std::runtime_error("Failed to submit draw command buffer!");
     }
 //    END_TRACE("QUEUE SUBMIT")
 

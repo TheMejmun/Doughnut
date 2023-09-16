@@ -23,5 +23,5 @@ uint32_t Memory::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
         }
     }
 
-    THROW("Failed to find suitable memory type!");
+    throw std::runtime_error("Failed to find suitable memory type!");
 }

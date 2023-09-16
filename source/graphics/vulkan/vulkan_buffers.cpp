@@ -45,13 +45,13 @@ uint32_t indexCountToSet, vertexCountToSet;
 uint32_t meshBufferIndexToSet;
 
 void Buffers::create() {
-    INF "Creating Buffers" ENDL;
+    info( "Creating Buffers" );
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
 
     Buffers::maxAllocations = deviceProperties.limits.maxMemoryAllocationCount;
-    VRB "Maximum memory allocation count: " << Buffers::maxAllocations ENDL;
+    verbose( "Maximum memory allocation count: " << Buffers::maxAllocations );
 
     vkGetPhysicalDeviceMemoryProperties(Devices::physical, &Buffers::memProperties);
 
@@ -78,7 +78,7 @@ void destroyStagingBuffers() {
 }
 
 void Buffers::destroy() {
-    INF "Destroying Buffers" ENDL;
+    info( "Destroying Buffers" );
 
     vkQueueWaitIdle(Buffers::transferQueue); // In case we are still uploading
     destroyStagingBuffers();
@@ -217,9 +217,7 @@ void Buffers::uploadMesh(const std::vector<Vertex> &vertices, const std::vector<
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &Buffers::transferCommandBuffer;
 
-    START_TRACE
     vkQueueSubmit(Buffers::transferQueue, 1, &submitInfo, uploadFence);
-    END_TRACE("Queue submit")
 
     // End
     stagingBuffersToDestroy.push_back(stagingBuffer);
@@ -259,10 +257,8 @@ void Buffers::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize si
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &Buffers::transferCommandBuffer;
 
-    START_TRACE
     vkQueueSubmit(Buffers::transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(Buffers::transferQueue);
-    END_TRACE("Queue submit & wait idle")
 
 //    vkFreeCommandBuffers(logical, Buffers::transferCommandPool, 1, &Buffers::transferCommandBuffer);
 }
@@ -271,7 +267,7 @@ void Buffers::waitForTransfer() {
     VkResult result = vkWaitForFences(Devices::logical, 1, &Buffers::uploadFence, true,
                                       30'000'000'000); // Wait for 30s max
     if (result != VK_SUCCESS) {
-        THROW("Waiting for the upload fence was unsuccessful");
+        throw std::runtime_error("Waiting for the upload fence was unsuccessful");
     }
     finishTransfer();
 }
@@ -292,7 +288,7 @@ bool Buffers::isTransferQueueReady() {
     if (result == VK_SUCCESS) {
         return true;
     } else if (result == VK_ERROR_DEVICE_LOST) {
-        THROW("Device lost when checking fence");
+        throw std::runtime_error("Device lost when checking fence");
     } else {
         return false;
     }
@@ -304,7 +300,7 @@ void Buffers::createUploadFence() {
             .flags=0
     };
     if (vkCreateFence(Devices::logical, &createInfo, nullptr, &Buffers::uploadFence) != VK_SUCCESS) {
-        THROW("Failed to create upload fence");
+        throw std::runtime_error("Failed to create upload fence");
     }
 }
 
@@ -376,7 +372,7 @@ void Buffers::createCommandBuffer(VkCommandPool commandPool, VkCommandBuffer *pB
     allocInfo.commandBufferCount = 1;
 
     if (vkAllocateCommandBuffers(Devices::logical, &allocInfo, pBuffer) != VK_SUCCESS) {
-        THROW("Failed to allocate command buffers!");
+        throw std::runtime_error("Failed to allocate command buffers!");
     }
 }
 
@@ -389,7 +385,7 @@ void Buffers::createTransferCommandPool() {
 
     if (vkCreateCommandPool(Devices::logical, &poolInfo, nullptr, &Buffers::transferCommandPool) !=
         VK_SUCCESS) {
-        THROW("Failed to create command pool!");
+        throw std::runtime_error("Failed to create command pool!");
     }
 
     createCommandBuffer(Buffers::transferCommandPool, &Buffers::transferCommandBuffer);
@@ -412,7 +408,7 @@ void Buffers::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemory
     }
 
     if (vkCreateBuffer(Devices::logical, &bufferInfo, nullptr, pBuffer) != VK_SUCCESS) {
-        THROW("Failed to create vertex buffer!");
+        throw std::runtime_error("Failed to create vertex buffer!");
     }
 
     VkMemoryRequirements memRequirements;
@@ -426,7 +422,7 @@ void Buffers::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemory
     allocInfo.memoryTypeIndex = Memory::findMemoryType(memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(Devices::logical, &allocInfo, nullptr, pBufferMemory) != VK_SUCCESS) {
-        THROW("Failed to allocate vertex buffer memory!");
+        throw std::runtime_error("Failed to allocate vertex buffer memory!");
     }
 
     // offset % memRequirements.alignment == 0

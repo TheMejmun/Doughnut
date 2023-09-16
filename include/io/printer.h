@@ -13,45 +13,31 @@
 #define INFO_PRINTING
 #define DEBUG_PRINTING
 //#define VERBOSE_PRINTING
-//#define FPS_PRINTING
-
-#define COUT std::cout <<
-#define ENDL << "\n"
-#define THROW(message) throw std::runtime_error(message)
 
 #if(defined(NDEBUG) || !defined(INFO_PRINTING))
-#define INF if(false) COUT
+#define info(stream)
 #else
-#define INF COUT
+#define info(stream) if(false) std::cout << stream << "\n"
 #endif
 
 #if(defined(NDEBUG) || !defined(DEBUG_PRINTING))
-#define DBG if(false) COUT
+#define debug(stream)
 #else
-#define DBG COUT
+#define debug(stream) if(false) std::cout << stream << "\n"
 #endif
 
 #if(defined(NDEBUG) || !defined(VERBOSE_PRINTING))
-#define VRB if(false) COUT
+#define verbose(stream)
 #else
-#define VRB COUT
+#define verbose(stream) if(false) std::cout << stream << "\n"
 #endif
 
-#if(defined(NDEBUG) || !defined(FPS_PRINTING))
-#define FPS if(false) COUT
-#else
-#define FPS COUT
-#endif
-
-#define START_TRACE auto _trace_before = Timer::now();
-#define END_TRACE(name) { \
+#define trace(name, block) { \
+    auto _trace_before = Timer::now(); \
+    block; \
     auto _trace_after = Timer::now(); \
     auto _duration = std::to_string(Timer::duration(_trace_before, _trace_after)); \
-    INF name << ": " << _duration ENDL; \
-}
-
-namespace Printer {
-    void printThreadStarted();
+    info(name << ": " << _duration ENDL; \
 }
 
 #endif //REALTIME_CELL_COLLAPSE_PRINTER_H

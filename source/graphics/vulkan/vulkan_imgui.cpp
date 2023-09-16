@@ -28,12 +28,12 @@ static void checkVkResult(VkResult err) {
     if (err < 0) {
         std::stringstream sstream;
         sstream << "Failed to create  GUI. VkResult: " << err;
-        THROW(sstream.str());
+        throw std::runtime_error(sstream.str());
     }
 }
 
 void Imgui::create(RenderState &state) {
-    INF "Creating Imgui" ENDL;
+    info( "Creating Imgui" )    ;
 
     // https://github.com/ocornut/imgui/blob/master/examples/example_glfw_vulkan/main.cpp
 
@@ -138,7 +138,7 @@ void Imgui::draw(RenderState &state) {
 }
 
 void Imgui::destroy() {
-    INF "Destroying Imgui" ENDL;
+    info( "Destroying Imgui" );
 
     vkDeviceWaitIdle(Devices::logical);
 

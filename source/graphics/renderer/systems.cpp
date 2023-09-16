@@ -23,12 +23,12 @@ void Renderer::uploadRenderables(ECS &ecs) {
 
 void Renderer::uploadSimplifiedMeshes(ECS &ecs) {
     if (Vk::Buffers::waitingForFence) {
-        DBG "Waiting for fence" ENDL;
+        debug( "Waiting for fence" );
         if (Vk::Buffers::isTransferQueueReady()) {
-            DBG "Ready" ENDL;
+            debug( "Ready" );
             Vk::Buffers::finishTransfer();
         } else {
-            DBG "Not ready" ENDL;
+            debug( "Not ready" );
             return;
         }
     }
@@ -66,11 +66,11 @@ void Renderer::destroyRenderables(ECS &ecs) {
     auto entities = ecs.requestEntities(Renderer::EvaluatorToDeallocate);
     for (auto components: entities) {
         auto &mesh = *components->renderMesh;
-        THROW("TODO");
+        throw std::runtime_error("TODO");
     }
 }
 
-void Renderer::updateUniformBuffer(const sec &delta, ECS &ecs) {
+void Renderer::updateUniformBuffer(const double &delta, ECS &ecs) {
     auto entities = ecs.requestEntities(Renderer::EvaluatorToDraw);
 
     auto &sphere = *entities[0];

@@ -20,21 +20,21 @@ void UI::update(UiState &state) {
 
     ImGui::Text("CPU wait time: %1.4f seconds", state.cpuWaitTime);
     if (!state.fps.frametimesLastSecond.empty()) {
-        sec lastFrametime = state.fps.frametimesLastSecond.back();
+        double lastFrametime = state.fps.frametimesLastSecond.back();
         ImGui::Text("Total frame time: %1.4f seconds", lastFrametime);
     } else {
-        ImGui::Text("Total frame time: >1 second");
+        ImGui::Text("Total frame time: >1 Second");
     }
-    ImGui::Text("Frames per second: %d", state.fps.currentFPS());
+    ImGui::Text("Frames per Second: %d", state.fps.currentFPS());
 
     if (!state.loggingStarted) {
         if (ImGui::Button("Start performance log")) {
             state.loggingStarted = true;
-            state.loggingStartTime = Timer::now();
+            state.loggingStartTime = Doughnut::Timer::now();
         }
     } else {
         ImGui::Text("Performance log running: %3.2f",
-                    PerformanceLogging::LOG_DURATION - Timer::duration(state.loggingStartTime, Timer::now()));
+                    PerformanceLogging::LOG_DURATION - Doughnut::Timer::duration(state.loggingStartTime, Doughnut::Timer::now()));
     }
 
     ImGui::SeparatorText("Mesh Info");

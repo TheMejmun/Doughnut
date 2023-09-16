@@ -8,7 +8,7 @@
 #include <iostream>
 
 void WindowManager::create(const std::string &t) {
-    INF "Creating WindowManager" ENDL;
+    info("Creating WindowManager");
 
     this->title = t;
 
@@ -60,13 +60,13 @@ void WindowManager::pollMonitorResolution() {
     auto params = glfwGetVideoModes(this->monitor, &count);
 
     for (int i = 0; i < count; ++i) {
-        DBG "Got monitor info:" <<
-                                "\n\tWidth:\t" << params[i].width <<
-                                "\n\tHeight:\t" << params[i].height <<
-                                "\n\tRed Bits:\t" << params[i].redBits <<
-                                "\n\tGreen Bits:\t" << params[i].greenBits <<
-                                "\n\tBlue Bits:\t" << params[i].blueBits <<
-                                "\n\tHz:\t" << params[i].refreshRate ENDL;
+        debug("Got monitor info:" <<
+                                  "\n\tWidth:\t" << params[i].width <<
+                                  "\n\tHeight:\t" << params[i].height <<
+                                  "\n\tRed Bits:\t" << params[i].redBits <<
+                                  "\n\tGreen Bits:\t" << params[i].greenBits <<
+                                  "\n\tBlue Bits:\t" << params[i].blueBits <<
+                                  "\n\tHz:\t" << params[i].refreshRate);
         this->monitorParams = &params[i];
     }
 }
@@ -76,7 +76,7 @@ void WindowManager::pollWindowPosition() {
 }
 
 void WindowManager::destroy() const {
-    INF "Destroying WindowManager" ENDL;
+    info("Destroying WindowManager");
 
     glfwDestroyWindow(this->window);
 

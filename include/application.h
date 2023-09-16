@@ -34,10 +34,10 @@ namespace Doughnut {
         WindowManager windowManager{};
         InputController inputManager{};
 
-        chrono_sec_point lastTimestamp = Timer::now();
-        sec currentCpuWaitTime;
+        Timer::Point lastTimestamp = Timer::now();
+        double currentCpuWaitTime;
         uint32_t currentFPS = 0;
-        sec deltaTime = 0;
+        double deltaTime = 0;
 
         bool monkeyMode = true;
         bool exitAfterMainLoop = true;

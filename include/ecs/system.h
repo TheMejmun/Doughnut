@@ -12,7 +12,7 @@ class System {
 public:
     virtual void destroy() = 0;
 
-    virtual void update(sec delta, ECS &ecs) = 0;
+    virtual void update(double delta, ECS &ecs) = 0;
 };
 
 #endif //REALTIME_CELL_COLLAPSE_SYSTEM_H

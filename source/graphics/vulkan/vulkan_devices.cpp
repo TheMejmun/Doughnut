@@ -28,7 +28,7 @@ Devices::QueueFamilyIndices Devices::queueFamilyIndices{};
 Devices::OptionalFeatures  Devices::optionalFeatures{};
 
 void Devices::create() {
-    INF "Creating Devices" ENDL;
+    info("Creating Devices");
 
     Devices::pickPhysical();
     Devices::createLogical();
@@ -40,12 +40,12 @@ void Devices::printAvailablePhysicalDevices() {
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(Instance::instance, &deviceCount, devices.data());
 
-    VRB "Available physical devices:" ENDL;
+    verbose("Available physical devices:");
 
     for (const auto &device: devices) {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        VRB "\t" << deviceProperties.deviceName ENDL;
+        verbose("\t" << deviceProperties.deviceName);
     }
 }
 
@@ -56,7 +56,7 @@ void Devices::pickPhysical() {
     vkEnumeratePhysicalDevices(Instance::instance, &deviceCount, nullptr);
 
     if (deviceCount == 0) {
-        THROW("Failed to find GPUs with  support!");
+        throw std::runtime_error("Failed to find GPUs with  support!");
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -74,10 +74,10 @@ void Devices::pickPhysical() {
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
-    INF "Picked physical device: " << deviceProperties.deviceName ENDL;
+    info("Picked physical device: " << deviceProperties.deviceName);
 
     if (Devices::physical == VK_NULL_HANDLE) {
-        THROW("Failed to find a suitable GPU!");
+        throw std::runtime_error("Failed to find a suitable GPU!");
     }
 
     Devices::queueFamilyIndices = Devices::findQueueFamilies(Devices::physical);
@@ -129,10 +129,10 @@ bool Devices::checkExtensionSupport(VkPhysicalDevice device) {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
-    VRB "Available device extensions for " << deviceProperties.deviceName << ":" ENDL;
+    verbose("Available device extensions for " << deviceProperties.deviceName << ":");
 
     for (const auto &extension: availableExtensions) {
-        VRB '\t' << extension.extensionName ENDL;
+        verbose('\t' << extension.extensionName);
         requiredExtensions.erase(extension.extensionName);
     }
 
@@ -239,7 +239,7 @@ void Devices::createLogical() {
 
     if (vkCreateDevice(Devices::physical, &createInfo, nullptr, &Devices::logical) !=
         VK_SUCCESS) {
-        THROW("Failed to create logical device!");
+        throw std::runtime_error("Failed to create logical device!");
     }
 
     // Get each queue
@@ -268,16 +268,16 @@ bool Devices::QueueFamilyIndices::hasUniqueTransferQueue() const {
 }
 
 void Devices::QueueFamilyIndices::print() {
-    VRB
-        "QueueFamilyIndices:"
-                << " Graphics: " << this->graphicsFamily.value()
-                << " Present: " << this->presentFamily.value()
-                << " Transfer: " << this->transferFamily.value()
-                ENDL;
+    verbose(
+            "QueueFamilyIndices:"
+                    << " Graphics: " << this->graphicsFamily.value()
+                    << " Present: " << this->presentFamily.value()
+                    << " Transfer: " << this->transferFamily.value()
+    );
 }
 
 void Devices::destroy() {
-    INF "Destroying Devices" ENDL;
+    info("Destroying Devices");
 
     vkDestroyDevice(Devices::logical, nullptr);
 }

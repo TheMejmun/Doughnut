@@ -21,7 +21,7 @@ void Images::createTextureImage() {
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels) {
-        THROW("Failed to load texture image!");
+        throw std::runtime_error("Failed to load texture image!");
     }
 
     VkBuffer stagingBuffer;
@@ -33,8 +33,8 @@ void Images::createTextureImage() {
 }
 
 void Images::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-                               VkImageUsageFlags usage,
-                               VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) {
+                         VkImageUsageFlags usage,
+                         VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -51,7 +51,7 @@ void Images::createImage(uint32_t width, uint32_t height, VkFormat format, VkIma
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     if (vkCreateImage(Devices::logical, &imageInfo, nullptr, &image) != VK_SUCCESS) {
-        THROW("Failed to create image!");
+        throw std::runtime_error("Failed to create image!");
     }
 
     VkMemoryRequirements memRequirements;
@@ -63,7 +63,7 @@ void Images::createImage(uint32_t width, uint32_t height, VkFormat format, VkIma
     allocInfo.memoryTypeIndex = Memory::findMemoryType(memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(Devices::logical, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
-        THROW("Failed to allocate image memory!");
+        throw std::runtime_error("Failed to allocate image memory!");
     }
 
     vkBindImageMemory(Devices::logical, image, imageMemory, 0);
@@ -90,7 +90,7 @@ VkImageView Images::createImageView(VkImage image, VkFormat format, VkImageAspec
 
     VkImageView imageView;
     if (vkCreateImageView(Devices::logical, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
-        THROW("Failed to create texture image view!");
+        throw std::runtime_error("Failed to create texture image view!");
     }
 
     return imageView;

@@ -11,7 +11,7 @@
 using namespace Doughnut::GFX;
 
 void Renderer::create(const std::string &title, GLFWwindow *window) {
-    INF "Creating Renderer" ENDL;
+    info( "Creating Renderer" );
 
     // Reset
     this->state = {};
@@ -63,7 +63,7 @@ void Renderer::destroyVulkan() {
 }
 
 void Renderer::destroy() {
-    INF "Destroying Renderer" ENDL;
+    info( "Destroying Renderer" );
 
     if (this->simplifiedMeshAllocationThread.joinable())
         this->simplifiedMeshAllocationThread.join();

@@ -16,7 +16,7 @@ using namespace Doughnut::GFX::Vk;
 VkInstance Instance::instance = nullptr;
 
 void Instance::create(const std::string &title) {
-    INF "Creating Instance" ENDL;
+    info("Creating Instance");
 
     // App Info
     VkApplicationInfo appInfo{};
@@ -53,7 +53,7 @@ void Instance::create(const std::string &title) {
     // Validation layers
     if (Validation::ENABLE_VALIDATION_LAYERS) {
         if (!Validation::checkValidationLayerSupport()) {
-            THROW("Validation layers not available!");
+            throw ("Validation layers not available!");
         }
         createInfo.enabledLayerCount = static_cast<uint32_t>(Validation::VALIDATION_LAYERS.size());
         createInfo.ppEnabledLayerNames = Validation::VALIDATION_LAYERS.data();
@@ -64,7 +64,7 @@ void Instance::create(const std::string &title) {
     // Done
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
     if (result != VK_SUCCESS) {
-        THROW("Failed to create instance!");
+        throw ("Failed to create instance!");
     }
 }
 
@@ -75,14 +75,14 @@ void Instance::printAvailableExtensions() {
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-    VRB "Available instance extensions:" ENDL;
+    verbose("Available instance extensions:");
     for (const auto &extension: extensions) {
-        VRB '\t' << extension.extensionName ENDL;
+        verbose('\t' << extension.extensionName);
     }
 }
 
 void Instance::destroy() {
-    INF "Destroying Instance" ENDL;
+    info("Destroying Instance");
 
     vkDestroyInstance(instance, nullptr);
 }

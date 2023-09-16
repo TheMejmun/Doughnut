@@ -105,7 +105,6 @@ set(SOURCE_FILES
 
         ${SOURCE_FOLDER}/io/input_manager.cpp
         ${SOURCE_FOLDER}/io/window_manager.cpp
-        ${SOURCE_FOLDER}/io/printer.cpp
 
         ${SOURCE_FOLDER}/ecs/ecs.cpp
         ${SOURCE_FOLDER}/ecs/entity.cpp

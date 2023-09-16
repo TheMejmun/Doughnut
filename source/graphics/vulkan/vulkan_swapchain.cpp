@@ -66,7 +66,7 @@ void Swapchain::createSurface(GLFWwindow *w) {
     window = w;
 
     if (glfwCreateWindowSurface(Instance::instance, window, nullptr, &Swapchain::surface) != VK_SUCCESS) {
-        THROW("Failed to create window surface!");
+        throw std::runtime_error("Failed to create window surface!");
     }
 }
 
@@ -80,9 +80,9 @@ VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
         }
     }
 
-    VRB "Picked Swapchain Surface Format: " ENDL;
-    VRB "\tFormat: " << out.format ENDL;
-    VRB "\tColor Space: " << out.colorSpace ENDL;
+    verbose( "Picked Swapchain Surface Format: " );
+    verbose( "\tFormat: " << out.format );
+    verbose( "\tColor Space: " << out.colorSpace );
 
     return out;
 }
@@ -108,7 +108,7 @@ VkPresentModeKHR Swapchain::chooseSwapPresentMode(const std::vector<VkPresentMod
         }
     }
 
-    INF "Picked Swapchain Present Mode: " << presentModeNames[currentIndex] ENDL;
+    info( "Picked Swapchain Present Mode: " << presentModeNames[currentIndex] );
     return presentModePreferences[currentIndex];
 }
 
@@ -140,12 +140,12 @@ VkExtent2D Swapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilit
     Swapchain::framebufferHeight = out.height;
     Swapchain::aspectRatio = static_cast<float>(out.width) / static_cast<float>(out.height);
 
-    INF "Swapchain extents set to: " << out.width << " * " << out.height ENDL;
+    info( "Swapchain extents set to: " << out.width << " * " << out.height );
     return out;
 }
 
 bool Swapchain::recreateSwapchain(RenderState &state) {
-    VRB "Recreating Swapchain" ENDL;
+    verbose( "Recreating Swapchain" );
 
     // May need to recreate render pass here if e.g. window moves to HDR monitor
 
@@ -163,7 +163,7 @@ bool Swapchain::recreateSwapchain(RenderState &state) {
 }
 
 bool Swapchain::createSwapchain() {
-    INF "Creating Swapchain" ENDL;
+    info( "Creating Swapchain" );
 
     Swapchain::SwapchainSupportDetails swapchainSupport = Swapchain::querySwapchainSupport(
             Devices::physical);
@@ -173,7 +173,7 @@ bool Swapchain::createSwapchain() {
     VkExtent2D extentTemp = chooseSwapExtent(swapchainSupport.capabilities);
 
     if (extentTemp.width < 1 || extentTemp.height < 1) {
-        VRB "Invalid swapchain extents. Retry later!" ENDL;
+        verbose( "Invalid swapchain extents. Retry later!" );
         Swapchain::needsNewSwapchain = true;
         return false;
     }
@@ -184,7 +184,7 @@ bool Swapchain::createSwapchain() {
         Swapchain::minImageCount > swapchainSupport.capabilities.maxImageCount) {
         Swapchain::minImageCount = swapchainSupport.capabilities.maxImageCount;
     }
-    VRB "Creating the swapchain with at least " << Swapchain::minImageCount << " images!" ENDL;
+    verbose( "Creating the swapchain with at least " << Swapchain::minImageCount << " images!" );
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -224,7 +224,7 @@ bool Swapchain::createSwapchain() {
     createInfo.oldSwapchain = nullptr; // Put previous swapchain here if overridden, e.g. if window size changed
 
     if (vkCreateSwapchainKHR(Devices::logical, &createInfo, nullptr, &Swapchain::swapchain) != VK_SUCCESS) {
-        THROW("Failed to create swapchain!");
+        throw std::runtime_error("Failed to create swapchain!");
     }
 
     // imageCount only specified a minimum!
@@ -245,7 +245,7 @@ bool Swapchain::createSwapchain() {
 }
 
 void Swapchain::destroySwapchain() {
-    INF "Destroying Swapchain" ENDL;
+    info( "Destroying Swapchain" );
 
     for (auto &swapchainFramebuffer: Swapchain::framebuffers) {
         vkDestroyFramebuffer(Devices::logical, swapchainFramebuffer, nullptr);
@@ -299,7 +299,7 @@ VkFormat Swapchain::findSupportedFormat(const std::vector<VkFormat> &candidates,
         }
     }
 
-    THROW("Failed to find supported format!");
+    throw std::runtime_error("Failed to find supported format!");
 }
 
 VkFormat Swapchain::findDepthFormat() {
@@ -333,7 +333,7 @@ void Swapchain::createFramebuffers() {
 
         if (vkCreateFramebuffer(Devices::logical, &framebufferInfo, nullptr,
                                 &Swapchain::framebuffers[i]) != VK_SUCCESS) {
-            THROW("Failed to create framebuffer!");
+            throw std::runtime_error("Failed to create framebuffer!");
         }
     }
 }

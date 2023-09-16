@@ -14,7 +14,7 @@ using namespace Doughnut::GFX::Vk;
 VkRenderPass RenderPasses::renderPass = nullptr;
 
 void RenderPasses::create() {
-    INF "Creating RenderPasses" ENDL;
+    info( "Creating RenderPasses" );
 
     // Color attachment
     VkAttachmentDescription colorAttachment{};
@@ -82,12 +82,12 @@ void RenderPasses::create() {
 
     if (vkCreateRenderPass(Devices::logical, &renderPassInfo, nullptr, &RenderPasses::renderPass) !=
         VK_SUCCESS) {
-        THROW("Failed to create render pass!");
+        throw std::runtime_error("Failed to create render pass!");
     }
 }
 
 void RenderPasses::destroy() {
-    INF "Destroying RenderPasses" ENDL;
+    info( "Destroying RenderPasses" );
 
     vkDestroyRenderPass(Devices::logical, RenderPasses::renderPass, nullptr);
 }

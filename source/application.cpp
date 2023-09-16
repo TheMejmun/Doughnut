@@ -26,7 +26,7 @@ void Application::run() {
 }
 
 void Application::init() {
-    INF "Creating Application" ENDL;
+    info("Creating Application");
 
     this->ecs.create();
     this->windowManager.create(this->title);
@@ -102,7 +102,7 @@ void Application::mainLoop() {
 }
 
 void Application::destroy() {
-    INF "Destroying Application" ENDL;
+    info("Destroying Application");
 
     CameraController::destroy();
     SphereController::destroy();

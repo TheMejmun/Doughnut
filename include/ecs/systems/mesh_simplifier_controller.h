@@ -10,7 +10,7 @@
 #include "ecs/ecs.h"
 
 namespace MeshSimplifierController {
-    void update(ECS &ecs, sec *timeTaken, uint32_t *framesTaken);
+    void update(ECS &ecs, double *timeTaken, uint32_t *framesTaken);
 
     void destroy();
 
