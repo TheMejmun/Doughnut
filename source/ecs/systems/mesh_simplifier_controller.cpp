@@ -91,7 +91,7 @@ Triangle makeOrientedTriangle(const uint32_t id1, const uint32_t id2, const uint
     if (id1 < id2 && id1 < id3) {
         // id1 is smallest
         return {id1, id2, id3};
-    } else if (id2 < id1 && id2 < id1) {
+    } else if (id2 < id1 && id2 < id3) {
         // id2 is smallest
         return {id2, id3, id1};
     } else {
