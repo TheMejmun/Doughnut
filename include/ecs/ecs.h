@@ -21,10 +21,6 @@ public:
 
     ~ECS();
 
-    void create();
-
-    void destroy();
-
     uint32_t insert(Components &entityComponents);
 
     // In every frame, always do inserts first, and deletions after. So that the renderer has time to handle allocation

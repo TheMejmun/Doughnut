@@ -36,8 +36,7 @@ void Application::init() {
 
     mEcs = std::make_unique<ECS>();
     mWindowManager = std::make_unique<WindowManager>(this->title);
-    mInputManager = std::make_unique<InputController>();
-    mInputManager->create(mWindowManager->window, *mEcs);
+    mInputManager = std::make_unique<InputController>(mWindowManager->window, *mEcs);
     mRenderer = std::make_unique<GFX::Renderer>(this->title, mWindowManager->window);
 
     mRenderer->getUiState()->isMonkeyMesh = mMonkeyMode;

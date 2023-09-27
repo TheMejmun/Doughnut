@@ -9,7 +9,7 @@
 
 static InputController *instance;
 
-void InputController::create(GLFWwindow *w, ECS &ecs) {
+InputController::InputController(GLFWwindow *w, ECS &ecs) {
     info( "Creating InputManager" );
 
     this->window = w;
@@ -122,5 +122,3 @@ void InputController::handleKey(KeyState *key, const int &actionCode) {
             break;
     }
 }
-
-void InputController::destroy() {}

@@ -10,8 +10,6 @@
 
 class System {
 public:
-    virtual void destroy() = 0;
-
     virtual void update(double delta, ECS &ecs) = 0;
 };
 
