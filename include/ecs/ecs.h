@@ -17,6 +17,10 @@
 
 class ECS {
 public:
+    ECS();
+
+    ~ECS();
+
     void create();
 
     void destroy();

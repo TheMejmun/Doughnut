@@ -29,19 +29,17 @@ namespace Doughnut {
 
         void destroy();
 
-        ECS ecs{};
+        std::unique_ptr<ECS> mEcs;
+        std::unique_ptr<GFX::Renderer> mRenderer;
+        std::unique_ptr<WindowManager> mWindowManager;
+        std::unique_ptr<InputController> mInputManager;
 
-        std::unique_ptr<GFX::Renderer> renderer;
-        WindowManager windowManager{};
-        InputController inputManager{};
+        Timer::Point mLastTimestamp = Timer::now();
+        double mCurrentCpuWaitTime;
+        double mDeltaTime = 0;
 
-        Timer::Point lastTimestamp = Timer::now();
-        double currentCpuWaitTime;
-        uint32_t currentFPS = 0;
-        double deltaTime = 0;
-
-        bool monkeyMode = true;
-        bool exitAfterMainLoop = true;
+        bool mMonkeyMode = true;
+        bool mExitAfterMainLoop = true;
     };
 };
 

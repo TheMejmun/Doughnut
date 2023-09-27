@@ -18,92 +18,93 @@ using namespace Doughnut;
 
 void Application::run() {
     do {
-        this->exitAfterMainLoop = true;
+        mExitAfterMainLoop = true;
         init();
         mainLoop();
         destroy();
-    } while (!this->exitAfterMainLoop);
+    } while (!mExitAfterMainLoop);
 }
 
 void Application::init() {
+    info("Creating Application");
+
 #ifdef NDEBUG
     std::cout << this->title << " is running in release mode." << std::endl;
 #else
     std::cout << this->title << " is running in debug mode." << std::endl;
 #endif
 
+    mEcs = std::make_unique<ECS>();
+    mWindowManager = std::make_unique<WindowManager>();
+    mWindowManager->create(this->title);
+    mInputManager = std::make_unique<InputController>();
+    mInputManager->create(mWindowManager->window, *mEcs);
+    mRenderer = std::make_unique<GFX::Renderer>(this->title, mWindowManager->window);
 
-    info("Creating Application");
-
-    this->ecs.create();
-    this->windowManager.create(this->title);
-    this->inputManager.create(this->windowManager.window, this->ecs);
-    renderer = std::make_unique<GFX::Renderer>(this->title, this->windowManager.window);
-
-    renderer->getUiState()->isMonkeyMesh = this->monkeyMode;
+    mRenderer->getUiState()->isMonkeyMesh = mMonkeyMode;
 
     // Entities
     Camera camera{};
     camera.components.isMainCamera = true;
-    camera.upload(this->ecs);
+    camera.upload(*mEcs);
 
-    if (this->monkeyMode) {
+    if (mMonkeyMode) {
         Monkey monkey{};
-        monkey.upload(this->ecs);
+        monkey.upload(*mEcs);
     } else {
         DenseSphere sphere{};
-        sphere.upload(this->ecs);
+        sphere.upload(*mEcs);
     }
 }
 
 void Application::mainLoop() {
-    while (!this->windowManager.shouldClose()) {
+    while (!mWindowManager->shouldClose()) {
 
         // Input
-        this->inputManager.update(this->deltaTime, this->ecs);
-        auto &inputState = *ecs.requestEntities(InputController::EvaluatorInputManagerEntity)[0]->inputState;
+        mInputManager->update(mDeltaTime, *mEcs);
+        auto &inputState = *mEcs->requestEntities(InputController::EvaluatorInputManagerEntity)[0]->inputState;
         if (inputState.closeWindow == IM_DOWN_EVENT)
-            this->windowManager.close();
+            mWindowManager->close();
         if (inputState.toggleFullscreen == IM_DOWN_EVENT)
-            this->windowManager.toggleFullscreen();
+            mWindowManager->toggleFullscreen();
 
         // UI
-        auto uiState = this->renderer->getUiState();
-        uiState->fps.update(this->deltaTime);
-        uiState->cpuWaitTime = this->currentCpuWaitTime;
+        auto uiState = mRenderer->getUiState();
+        uiState->fps.update(mDeltaTime);
+        uiState->cpuWaitTime = mCurrentCpuWaitTime;
 
         if (uiState->switchMesh) {
-            this->exitAfterMainLoop = false;
-            this->monkeyMode = !this->monkeyMode;
-            this->windowManager.close();
+            mExitAfterMainLoop = false;
+            mMonkeyMode = !mMonkeyMode;
+            mWindowManager->close();
         }
 
-        auto cameraPos = this->ecs.requestEntities(CameraController::EvaluatorActiveCamera)[0]
+        auto cameraPos = mEcs->requestEntities(CameraController::EvaluatorActiveCamera)[0]
                 ->transform->getPosition();
         uiState->cameraZ = cameraPos.z;
 
         // Systems
-        CameraController::update(this->deltaTime, this->ecs);
-        SphereController::update(this->deltaTime, this->ecs);
+        CameraController::update(mDeltaTime, *mEcs);
+        SphereController::update(mDeltaTime, *mEcs);
         if (uiState->runMeshSimplifier)
-            MeshSimplifierController::update(this->ecs, &uiState->meshSimplifierTimeTaken,
+            MeshSimplifierController::update(*mEcs, &uiState->meshSimplifierTimeTaken,
                                              &uiState->meshSimplifierFramesTaken);
 
         // Render
         if (uiState->returnToOriginalMeshBuffer)
-            this->renderer->resetMesh();
-        this->currentCpuWaitTime = this->renderer->draw(this->deltaTime, this->ecs);
+            mRenderer->resetMesh();
+        mCurrentCpuWaitTime = mRenderer->draw(mDeltaTime, *mEcs);
 
         // Benchmark
         auto time = Timer::now();
-        this->deltaTime = Timer::duration(this->lastTimestamp, time);
-        this->lastTimestamp = time;
+        mDeltaTime = Timer::duration(mLastTimestamp, time);
+        mLastTimestamp = time;
 
         // Performance logging
         PerformanceLogging::update(*uiState);
         PerformanceLogging::newFrame({
-                                             .cpuWaitTime = this->currentCpuWaitTime,
-                                             .totalFrameTime= this->deltaTime
+                                             .cpuWaitTime = mCurrentCpuWaitTime,
+                                             .totalFrameTime = mDeltaTime
                                      });
     }
 }
@@ -115,8 +116,9 @@ void Application::destroy() {
     SphereController::destroy();
     MeshSimplifierController::destroy();
 
-    this->renderer.reset();
-    this->inputManager.destroy();
-    this->windowManager.destroy();
-    this->ecs.destroy();
+    // Reset in order
+    mRenderer.reset();
+    mInputManager.reset();
+    mWindowManager.reset();
+    mEcs.reset();
 }
