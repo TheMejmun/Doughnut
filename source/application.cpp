@@ -26,14 +26,21 @@ void Application::run() {
 }
 
 void Application::init() {
+#ifdef NDEBUG
+    std::cout << this->title << " is running in release mode." << std::endl;
+#else
+    std::cout << this->title << " is running in debug mode." << std::endl;
+#endif
+
+
     info("Creating Application");
 
     this->ecs.create();
     this->windowManager.create(this->title);
     this->inputManager.create(this->windowManager.window, this->ecs);
-    this->renderer.create(this->title, this->windowManager.window);
+    renderer = std::make_unique<GFX::Renderer>(this->title, this->windowManager.window);
 
-    renderer.getUiState()->isMonkeyMesh = this->monkeyMode;
+    renderer->getUiState()->isMonkeyMesh = this->monkeyMode;
 
     // Entities
     Camera camera{};
@@ -61,7 +68,7 @@ void Application::mainLoop() {
             this->windowManager.toggleFullscreen();
 
         // UI
-        auto uiState = this->renderer.getUiState();
+        auto uiState = this->renderer->getUiState();
         uiState->fps.update(this->deltaTime);
         uiState->cpuWaitTime = this->currentCpuWaitTime;
 
@@ -84,8 +91,8 @@ void Application::mainLoop() {
 
         // Render
         if (uiState->returnToOriginalMeshBuffer)
-            this->renderer.resetMesh();
-        this->currentCpuWaitTime = this->renderer.draw(this->deltaTime, this->ecs);
+            this->renderer->resetMesh();
+        this->currentCpuWaitTime = this->renderer->draw(this->deltaTime, this->ecs);
 
         // Benchmark
         auto time = Timer::now();
@@ -108,7 +115,7 @@ void Application::destroy() {
     SphereController::destroy();
     MeshSimplifierController::destroy();
 
-    this->renderer.destroy();
+    this->renderer.reset();
     this->inputManager.destroy();
     this->windowManager.destroy();
     this->ecs.destroy();

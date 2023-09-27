@@ -41,11 +41,11 @@
 namespace Doughnut::GFX {
     class Renderer {
     public:
-        void create(const std::string &title, GLFWwindow *window);
+        Renderer(const std::string &title, GLFWwindow *window);
+
+        ~Renderer();
 
         double draw(const double &delta, ECS &ecs);
-
-        void destroy();
 
         UiState *getUiState();
 

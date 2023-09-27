@@ -30,7 +30,8 @@ namespace Doughnut {
         void destroy();
 
         ECS ecs{};
-        GFX::Renderer renderer{};
+
+        std::unique_ptr<GFX::Renderer> renderer;
         WindowManager windowManager{};
         InputController inputManager{};
 
