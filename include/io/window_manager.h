@@ -16,11 +16,11 @@ const int32_t DEFAULT_HEIGHT = 1080;
 
 class WindowManager {
 public:
-    void create(const std::string &title);
+    WindowManager(const std::string &title);
+
+    ~WindowManager();
 
     void updateTitle(const std::string &title);
-
-    void destroy() const;
 
     [[nodiscard]] bool shouldClose() const;
 

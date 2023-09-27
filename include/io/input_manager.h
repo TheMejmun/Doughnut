@@ -15,9 +15,9 @@
 
 class InputController : public System {
 public:
-    void create(GLFWwindow *window, ECS &ecs);
+    InputController(GLFWwindow *window, ECS &ecs);
 
-    virtual void destroy() override;
+    ~InputController();
 
     virtual void update(double delta, ECS &ecs) override;
 

@@ -17,9 +17,9 @@
 
 class ECS {
 public:
-    void create();
+    ECS();
 
-    void destroy();
+    ~ECS();
 
     uint32_t insert(Components &entityComponents);
 

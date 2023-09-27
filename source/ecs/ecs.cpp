@@ -8,8 +8,8 @@
 
 #include <stdexcept>
 
-void ECS::create() {
-    info( "Creating ECS" );
+ECS::ECS() {
+    info("Creating ECS");
 }
 
 uint32_t ECS::insert(Components &entityComponents) {
@@ -28,14 +28,6 @@ uint32_t ECS::insert(Components &entityComponents) {
     entityComponents.index = index;
     this->entities.push_back(std::move(entityComponents));
     return index;
-}
-
-void ECS::destroy() {
-    info( "Destroying ECS" );
-
-    for (uint32_t i = 0; i < this->entities.size(); ++i) {
-        destroyReferences(i);
-    }
 }
 
 void ECS::remove(const uint32_t &index) {
@@ -57,4 +49,12 @@ ECS::requestEntities(const std::function<bool(const Components &)> &evaluator) {
     }
 
     return out;
+}
+
+ECS::~ECS() {
+    info("Destroying ECS");
+
+    for (uint32_t i = 0; i < this->entities.size(); ++i) {
+        destroyReferences(i);
+    }
 }

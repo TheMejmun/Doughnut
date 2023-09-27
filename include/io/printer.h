@@ -17,19 +17,19 @@
 #if(defined(NDEBUG) || !defined(INFO_PRINTING))
 #define info(stream)
 #else
-#define info(stream) if(false) std::cout << stream << "\n"
+#define info(stream) std::cout << stream << "\n"
 #endif
 
 #if(defined(NDEBUG) || !defined(DEBUG_PRINTING))
 #define debug(stream)
 #else
-#define debug(stream) if(false) std::cout << stream << "\n"
+#define debug(stream) std::cout << stream << "\n"
 #endif
 
 #if(defined(NDEBUG) || !defined(VERBOSE_PRINTING))
 #define verbose(stream)
 #else
-#define verbose(stream) if(false) std::cout << stream << "\n"
+#define verbose(stream) std::cout << stream << "\n"
 #endif
 
 #define trace(name, block) { \
