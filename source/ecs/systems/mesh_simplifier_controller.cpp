@@ -27,7 +27,7 @@ constexpr uint32_t MAX_INDEX = std::numeric_limits<uint32_t>::max();
 
 std::thread thread;
 uint32_t simplifiedMeshCalculationThreadFrameCounter = 0;
-chrono_sec_point simplifiedMeshCalculationThreadStartedTime{};
+Doughnut::Timer::Point simplifiedMeshCalculationThreadStartedTime{};
 bool meshCalculationDone = false;
 
 struct SVO { // Simplification Vertex Object
@@ -91,7 +91,7 @@ Triangle makeOrientedTriangle(const uint32_t id1, const uint32_t id2, const uint
     if (id1 < id2 && id1 < id3) {
         // id1 is smallest
         return {id1, id2, id3};
-    } else if (id2 < id1 && id2 < id1) {
+    } else if (id2 < id1 && id2 < id3) {
         // id2 is smallest
         return {id2, id3, id1};
     } else {
@@ -153,7 +153,7 @@ void simplify(const Components *camera, const Components *components) {
     const auto normalModel = glm::transpose(components->transform->inverse);
     const auto cameraPos = camera->transform->getPosition();
     const auto view = camera->camera->getView(*camera->transform);
-    const auto proj = camera->camera->getProjection(VulkanSwapchain::aspectRatio);
+    const auto proj = camera->camera->getProjection(Doughnut::GFX::Vk::Swapchain::aspectRatio);
     const auto viewProj = proj * view;
 
     auto &to = *components->renderMeshSimplifiable;
@@ -161,8 +161,8 @@ void simplify(const Components *camera, const Components *components) {
     to.vertices.clear();
     to.indices.clear();
 
-    const uint32_t rasterWidth = VulkanSwapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
-    const uint32_t rasterHeight = VulkanSwapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterWidth = Doughnut::GFX::Vk::Swapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterHeight = Doughnut::GFX::Vk::Swapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
 
     std::vector<SVO> svos{};
     svos.resize(from.vertices.size());
@@ -207,7 +207,7 @@ void simplify(const Components *camera, const Components *components) {
 
     std::vector<SVO> indicesRaster{};
     indicesRaster.resize(rasterWidth * rasterHeight);
-    DBG "Using raster " << rasterWidth << " * " << rasterHeight << " for mesh simplification" ENDL;
+    debug( "Using raster " << rasterWidth << " * " << rasterHeight << " for mesh simplification" );
     IndexLut lut{};
     lut.resize(from.vertices.size());
     uint32_t newVertexCount = 0;
@@ -276,13 +276,13 @@ void simplify(const Components *camera, const Components *components) {
 #endif
 }
 
-void MeshSimplifierController::update(ECS &ecs, sec *timeTaken, uint32_t *framesTaken) {
+void MeshSimplifierController::update(ECS &ecs, double *timeTaken, uint32_t *framesTaken) {
     if (thread.joinable()) {
         simplifiedMeshCalculationThreadFrameCounter++;
         if (meshCalculationDone) {
-            DBG "Mesh calculation thread took " << simplifiedMeshCalculationThreadFrameCounter << " frames" ENDL;
+            debug( "Mesh calculation thread took " << simplifiedMeshCalculationThreadFrameCounter << " frames" );
             thread.join();
-            *timeTaken = Timer::duration(simplifiedMeshCalculationThreadStartedTime, Timer::now());
+            *timeTaken = Doughnut::Timer::duration(simplifiedMeshCalculationThreadStartedTime, Doughnut::Timer::now());
             *framesTaken = simplifiedMeshCalculationThreadFrameCounter;
         }
     } else {
@@ -292,7 +292,7 @@ void MeshSimplifierController::update(ECS &ecs, sec *timeTaken, uint32_t *frames
         if (!entities.empty()) {
             meshCalculationDone = false;
             simplifiedMeshCalculationThreadFrameCounter = 0;
-            simplifiedMeshCalculationThreadStartedTime = Timer::now();
+            simplifiedMeshCalculationThreadStartedTime = Doughnut::Timer::now();
 
             auto function = [=](bool &done) {
                 for (auto components: entities) {

@@ -9,7 +9,8 @@
 
 #include <vector>
 
-namespace VulkanValidation {
+
+namespace Doughnut::GFX::Vk::Validation {
     extern const bool ENABLE_VALIDATION_LAYERS;
     extern const std::vector<const char *> VALIDATION_LAYERS;
 

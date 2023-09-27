@@ -10,7 +10,7 @@
 static InputController *instance;
 
 void InputController::create(GLFWwindow *w, ECS &ecs) {
-    INF "Creating InputManager" ENDL;
+    info( "Creating InputManager" );
 
     this->window = w;
     instance = this;
@@ -21,7 +21,7 @@ void InputController::create(GLFWwindow *w, ECS &ecs) {
     glfwSetKeyCallback(window, _callback);
 }
 
-void InputController::update(sec delta, ECS &ecs) {
+void InputController::update(double delta, ECS &ecs) {
     InputController::handleKey(keySwitch(IM_CLOSE_WINDOW), -1);
     InputController::handleKey(keySwitch(IM_FULLSCREEN), -1);
     InputController::handleKey(keySwitch(IM_MOVE_FORWARD), -1);

@@ -6,7 +6,7 @@
 #include <sstream>
 
 int main() {
-    Application app{};
+    Doughnut::Application app{};
     app.title = "Hello World!";
 
     try {

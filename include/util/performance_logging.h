@@ -9,8 +9,8 @@
 #include "graphics/ui_state.h"
 
 struct FrameTimes {
-    sec cpuWaitTime;
-    sec totalFrameTime;
+    double cpuWaitTime;
+    double totalFrameTime;
 };
 
 struct MeshStatistics {
@@ -19,7 +19,7 @@ struct MeshStatistics {
 };
 
 namespace PerformanceLogging {
-    extern const sec LOG_DURATION;
+    extern const double LOG_DURATION;
 
     void newFrame(const FrameTimes &frameTimes);
 

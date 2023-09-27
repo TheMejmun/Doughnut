@@ -5,7 +5,7 @@
 #include "ecs/systems/camera_controller.h"
 #include "io/printer.h"
 
-void CameraController::update(const sec &delta, ECS &ecs) {
+void CameraController::update(const double &delta, ECS &ecs) {
     auto &camera = *ecs.requestEntities(CameraController::EvaluatorActiveCamera)[0];
     auto &inputState = *ecs.requestEntities(InputController::EvaluatorInputManagerEntity)[0]->inputState;
 

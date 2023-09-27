@@ -9,8 +9,10 @@
 
 #include <vulkan/vulkan.h>
 
-struct VulkanState {
-    VkCommandPool commandPool = nullptr;
-};
+namespace Doughnut::GFX::Vk {
+    struct State {
+        VkCommandPool commandPool = nullptr;
+    };
+}
 
 #endif //REALTIME_CELL_COLLAPSE_VULKAN_STATE_H

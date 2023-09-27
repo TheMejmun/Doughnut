@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 
-namespace VulkanDevices {
+namespace Doughnut::GFX::Vk::Devices {
     struct OptionalFeatures {
         bool supportsWireframeMode = false;
         bool physicalDeviceFeatures2 = false;

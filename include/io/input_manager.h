@@ -19,7 +19,7 @@ public:
 
     virtual void destroy() override;
 
-    virtual void update(sec delta, ECS &ecs) override;
+    virtual void update(double delta, ECS &ecs) override;
 
     static inline bool EvaluatorInputManagerEntity(const Components &components) {
         return components.isAlive() && components.inputState != nullptr;

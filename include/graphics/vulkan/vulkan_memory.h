@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <vulkan/vulkan.h>
 
-namespace VulkanMemory {
+namespace Doughnut::GFX::Vk::Memory {
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 }
 #endif //REALTIME_CELL_COLLAPSE_VULKAN_MEMORY_H

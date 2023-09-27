@@ -4,6 +4,8 @@
 
 #include "graphics/renderer.h"
 
+using namespace Doughnut::GFX;
+
 VkShaderModule Renderer::createShaderModule(const std::vector<char> &code) {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -12,8 +14,8 @@ VkShaderModule Renderer::createShaderModule(const std::vector<char> &code) {
     createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
     VkShaderModule shaderModule;
-    if (vkCreateShaderModule(VulkanDevices::logical, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-        THROW("Failed to create shader module!");
+    if (vkCreateShaderModule(Vk::Devices::logical, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create shader module!");
     }
 
     return shaderModule;

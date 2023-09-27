@@ -14,7 +14,7 @@ std::vector<char> Importinator::readFile(const std::string &filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
-        THROW("Failed to open file " + filename);
+        throw std::runtime_error("Failed to open file " + filename);
     }
 
     auto fileSize = file.tellg();
@@ -43,9 +43,9 @@ Importinator::Mesh Importinator::importMesh(const std::string &filename) {
                                              aiProcess_FlipUVs);
 
     if (scene == nullptr) {
-        THROW(importer.GetErrorString());
+        throw std::runtime_error(importer.GetErrorString());
     } else {
-        DBG "Read mesh " << filename ENDL;
+        debug( "Read mesh " << filename );
     }
 
     for (uint32_t meshIndex = 0; meshIndex < (scene->mNumMeshes); ++meshIndex) {
@@ -88,8 +88,8 @@ Importinator::Mesh Importinator::importMesh(const std::string &filename) {
             out.indices[i * 3 + 2] = (*(face.mIndices + 2));
         }
     }
-    DBG "\tIndices: " << out.indices.size() ENDL;
-    DBG "\tVertices: " << out.vertices.size() ENDL;
+    debug( "\tIndices: " << out.indices.size() );
+    debug( "\tVertices: " << out.vertices.size() );
 
     return out;
 }
