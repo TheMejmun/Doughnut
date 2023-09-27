@@ -17,6 +17,8 @@ class InputController : public System {
 public:
     InputController(GLFWwindow *window, ECS &ecs);
 
+    ~InputController();
+
     virtual void update(double delta, ECS &ecs) override;
 
     static inline bool EvaluatorInputManagerEntity(const Components &components) {
