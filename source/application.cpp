@@ -35,8 +35,7 @@ void Application::init() {
 #endif
 
     mEcs = std::make_unique<ECS>();
-    mWindowManager = std::make_unique<WindowManager>();
-    mWindowManager->create(this->title);
+    mWindowManager = std::make_unique<WindowManager>(this->title);
     mInputManager = std::make_unique<InputController>();
     mInputManager->create(mWindowManager->window, *mEcs);
     mRenderer = std::make_unique<GFX::Renderer>(this->title, mWindowManager->window);

@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-void WindowManager::create(const std::string &t) {
+WindowManager::WindowManager(const std::string &t) {
     info("Creating WindowManager");
 
     this->title = t;
@@ -75,7 +75,7 @@ void WindowManager::pollWindowPosition() {
     glfwGetWindowPos(this->window, &this->windowPosX, &this->windowPosY);
 }
 
-void WindowManager::destroy() const {
+WindowManager::~WindowManager() {
     info("Destroying WindowManager");
 
     glfwDestroyWindow(this->window);
