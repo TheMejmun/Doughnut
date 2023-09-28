@@ -50,10 +50,15 @@ int main() {
 
     std::cout << "Entities: " << em.entityCount() << ", Components: " << em.componentCount<int>() << std::endl;
 
+    std::cout << em.getComponent<int>(id) << std::endl;
+    std::cout << em.getComponent<int>(id2) << std::endl;
+
     em.removeEntity(id);
     std::cout << "Removed Entity" << std::endl;
 
     std::cout << "Entities: " << em.entityCount() << ", Components: " << em.componentCount<int>() << std::endl;
+
+    std::cout << em.getComponent<int>(id2) << std::endl;
 
     return 0;
 //

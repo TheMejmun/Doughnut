@@ -58,6 +58,10 @@ namespace ECS {
         }
 
         void removeEntity(size_t entity) {
+            assert(entity < mSparseEntities.size()
+                   && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
+                   && "Accessing non-existent entity.");
+
             for (auto &v: mIndexVectors)
                 assert(mDenseEntities.size() == v.size());
             assert(entity < mSparseEntities.size());
@@ -75,10 +79,16 @@ namespace ECS {
                 v[denseIndex] = v.back();
                 v.pop_back();
             }
+
+            mSparseEntities[entity] = std::numeric_limits<size_t>::max();
         }
 
         template<typename COMPONENT>
         void insertComponent(COMPONENT component, size_t entity) {
+            assert(entity < mSparseEntities.size()
+                   && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
+                   && "Accessing non-existent entity.");
+
             size_t denseId = mSparseEntities[entity];
             size_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
 
@@ -94,16 +104,20 @@ namespace ECS {
         }
 
         template<typename COMPONENT>
-        void removeComponent(size_t id) {
+        void removeComponent(size_t entity) {
+            assert(entity < mSparseEntities.size()
+                   && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
+                   && "Accessing non-existent entity.");
+
             for (auto &v: mIndexVectors)
                 assert(mDenseEntities.size() == v.size());
-            assert(id < mSparseEntities.size());
+            assert(entity < mSparseEntities.size());
 
-            const size_t denseIndex = mSparseEntities[id];
+            const size_t denseIndex = mSparseEntities[entity];
             assert(denseIndex < mDenseEntities.size());
 
             const auto typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
-            auto &componentIndex = mIndexVectors[typeIndex][denseIndex];
+            std::optional<size_t> &componentIndex = mIndexVectors[typeIndex][denseIndex];
             if (componentIndex.has_value()) {
                 auto currentLastIndex = componentVector<COMPONENT>().size() - 1;
 
@@ -119,6 +133,21 @@ namespace ECS {
                 componentVector<COMPONENT>().pop_back();
                 componentIndex.reset();
             }
+        }
+
+        template<typename COMPONENT>
+        COMPONENT getComponent(size_t entity) {
+            assert(entity < mSparseEntities.size()
+                   && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
+                   && "Accessing non-existent entity.");
+
+            const size_t denseIndex = mSparseEntities[entity];
+            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            const std::optional<size_t> &componentIndex = mIndexVectors[typeIndex][denseIndex];
+
+            assert(componentIndex.has_value());
+
+            return componentVector<COMPONENT>()[componentIndex.value()];
         }
 
         template<typename COMPONENT>
