@@ -12,7 +12,7 @@
 
 #define INFO_PRINTING
 #define DEBUG_PRINTING
-//#define VERBOSE_PRINTING
+#define VERBOSE_PRINTING
 
 #if(defined(NDEBUG) || !defined(INFO_PRINTING))
 #define info(stream)

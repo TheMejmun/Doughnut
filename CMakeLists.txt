@@ -79,6 +79,8 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/util/performance_logging.h
 
         ${HEADER_FOLDER}/io/input_state.h
+        include/ecs/entity_manager.h
+        include/ecs/system_manager.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
@@ -121,6 +123,7 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/util/importer.cpp
         ${SOURCE_FOLDER}/util/timer.cpp
         ${SOURCE_FOLDER}/util/performance_logging.cpp
+        source/ecs/system_manager.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

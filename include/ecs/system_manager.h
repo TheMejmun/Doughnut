@@ -1,0 +1,8 @@
+//
+// Created by Sam on 2023-09-27.
+//
+
+#ifndef DOUGHNUT_SYSTEM_MANAGER_H
+#define DOUGHNUT_SYSTEM_MANAGER_H
+
+#endif //DOUGHNUT_SYSTEM_MANAGER_H
