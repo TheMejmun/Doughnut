@@ -123,7 +123,6 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/util/importer.cpp
         ${SOURCE_FOLDER}/util/timer.cpp
         ${SOURCE_FOLDER}/util/performance_logging.cpp
-        source/ecs/system_manager.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

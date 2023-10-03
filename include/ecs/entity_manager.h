@@ -83,7 +83,7 @@ namespace ECS {
             mSparseEntities[entity] = std::numeric_limits<size_t>::max();
         }
 
-        template<typename COMPONENT>
+        template<class COMPONENT>
         void insertComponent(COMPONENT component, size_t entity) {
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
@@ -103,7 +103,7 @@ namespace ECS {
             }
         }
 
-        template<typename COMPONENT>
+        template<class COMPONENT>
         void removeComponent(size_t entity) {
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
@@ -135,7 +135,7 @@ namespace ECS {
             }
         }
 
-        template<typename COMPONENT>
+        template<class COMPONENT>
         COMPONENT getComponent(size_t entity) {
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
@@ -150,7 +150,33 @@ namespace ECS {
             return componentVector<COMPONENT>()[componentIndex.value()];
         }
 
-        template<typename COMPONENT>
+
+        template<class T, class... OTHER>
+        std::tuple<std::vector<T *>, std::vector<OTHER *>...> requestAll() {
+            std::tuple<std::vector<T *>, std::vector<OTHER *>...> out{};
+
+            std::vector<bool> matchesArchetype{};
+            matchesArchetype.resize(mDenseEntities.size(), true);
+
+            collectArchetypeMatches<T, OTHER...>(matchesArchetype);
+
+            size_t totalMatches = 0;
+            for (auto b: matchesArchetype) {
+                if (b) ++totalMatches;
+            }
+
+            resizeTuple<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T*, OTHER*...>(out, totalMatches);
+
+            for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
+                if (matchesArchetype[denseIndex]) {
+                    collectArchetypeComponents<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T, OTHER...>(out, matchesArchetype);
+                }
+            }
+
+            return out;
+        }
+
+        template<class COMPONENT>
         size_t componentCount() {
             return componentVector<COMPONENT>().size();
         }
@@ -185,6 +211,78 @@ namespace ECS {
         }
 
         template<class T, class T2, class... OTHER>
+        void collectArchetypeMatches(std::vector<bool> &valid) {
+            for (size_t i = 0; i < valid.size(); ++i) {
+                if (!matchesArchetype<T>(i)) {
+                    valid[i] = false;
+                }
+            }
+
+            collectArchetypeMatches<T2, OTHER...>(valid);
+        }
+
+        template<class T>
+        void collectArchetypeMatches(std::vector<bool> &valid) {
+            for (size_t i = 0; i < valid.size(); ++i) {
+                if (!matchesArchetype<T>(i)) {
+                    valid[i] = false;
+                }
+            }
+        }
+
+        template<class T>
+        inline bool matchesArchetype(size_t denseIndex) {
+            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
+            const std::optional<size_t> &componentIndex = mIndexVectors[typeIndex][denseIndex];
+
+            return componentIndex.has_value();
+        }
+
+        template<class TUPLE, class T, class T2, class... OTHER>
+        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches) {
+            auto &cRefs = std::get<std::vector<T *>>(output);
+
+            for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
+                if (matches[denseIndex]) {
+                    insertArchetypeComponents(cRefs, denseIndex);
+                }
+            }
+
+            collectArchetypeComponents<TUPLE, T2, OTHER...>(output, matches);
+        }
+
+        template<class TUPLE, class T>
+        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches) {
+            auto &cRefs = std::get<std::vector<T *>>(output);
+
+            for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
+                if (matches[denseIndex]) {
+                    insertArchetypeComponents(cRefs, denseIndex);
+                }
+            }
+        }
+
+        template<class T>
+        inline void insertArchetypeComponents(std::vector<T *> &cRefs, size_t index) {
+            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
+            const size_t componentIndex = mIndexVectors[typeIndex][index].value();
+
+            cRefs[index] = &componentVector<T>()[componentIndex];
+        }
+
+        template<class TUPLE, class T, class T2, class... OTHER>
+        void resizeTuple(TUPLE &output, size_t size) {
+            std::get<std::vector<T>>(output).resize(size);
+
+            resizeTuple<TUPLE, T2, OTHER...>(output, size);
+        }
+
+        template<class TUPLE, class T>
+        void resizeTuple(TUPLE &output, size_t size) {
+            std::get<std::vector<T>>(output).resize(size);
+        }
+
+        template<class T, class T2, class... OTHER>
         void init() {
             initType<T>();
 
@@ -205,6 +303,74 @@ namespace ECS {
             mTypeIndexMap[typeIndex] = mTypeIndexMap.size();
         }
     };
-};
+
+    void testEntityManager() {
+        struct test {
+        };
+
+        ECS::EntityManager<test, int, double, uint32_t> em;
+
+        assert(em.entityCount() == 0);
+        assert(em.componentCount<int>() == 0);
+
+        auto id = em.makeEntity();
+
+        assert(em.entityCount() == 1);
+        assert(em.componentCount<int>() == 0);
+
+        em.insertComponent(0, id);
+
+        assert(em.entityCount() == 1);
+        assert(em.componentCount<int>() == 1);
+        assert(em.getComponent<int>(id) == 0);
+
+        em.insertComponent(1, id);
+
+        assert(em.entityCount() == 1);
+        assert(em.componentCount<int>() == 1);
+        assert(em.getComponent<int>(id) == 1);
+
+        em.removeComponent<int>(id);
+
+        assert(em.entityCount() == 1);
+        assert(em.componentCount<int>() == 0);
+
+        em.insertComponent(2, id);
+
+        assert(em.entityCount() == 1);
+        assert(em.componentCount<int>() == 1);
+        assert(em.getComponent<int>(id) == 2);
+
+        auto id2 = em.makeEntity();
+
+        assert(em.entityCount() == 2);
+        assert(em.componentCount<int>() == 1);
+
+        em.insertComponent(3, id2);
+
+        assert(em.entityCount() == 2);
+        assert(em.componentCount<int>() == 2);
+        assert(em.getComponent<int>(id2) == 3);
+        assert(em.getComponent<int>(id) == 2);
+
+        auto allInts = em.requestAll<int>();
+        assert(std::get<0>(allInts).size() == 2);
+        // Test values
+        assert((*std::get<0>(allInts)[0] == 2 && *std::get<0>(allInts)[1] == 3) || (*std::get<0>(allInts)[0] == 3 && *std::get<0>(allInts)[1] == 2));
+        auto allDoubles = em.requestAll<double>();
+        assert(std::get<0>(allDoubles).empty());
+        auto allIntsAndDoubles = em.requestAll<int, double>();
+        assert(std::get<0>(allIntsAndDoubles).empty());
+        assert(std::get<1>(allIntsAndDoubles).empty());
+
+        em.removeEntity(id);
+
+        assert(em.entityCount() == 1);
+        assert(em.componentCount<int>() == 1);
+        assert(em.getComponent<int>(id2) == 3);
+
+        std::cout << "EntityManager test successful." << std::endl;
+    }
+}
 
 #endif //DOUGHNUT_ENTITY_MANAGER_H
