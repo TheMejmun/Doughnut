@@ -1,29 +1,17 @@
 
-//#include "application.h"
-//#include "io/printer.h"
-#include "ecs/entity_manager.h"
-
+#include "application.h"
 #include <iostream>
-#include <sstream>
-
-struct test {
-};
-
 
 int main() {
-    ECS::testEntityManager();
+    Doughnut::Application app{};
+    app.title = "Hello World!";
 
-    return 0;
-//
-//    Doughnut::Application app{};
-//    app.title = "Hello World!";
-//
-//    try {
-//        app.run();
-//    } catch (const std::exception &e) {
-//        std::cerr << e.what() << std::endl;
-//        return EXIT_FAILURE;
-//    }
-//
-//    return EXIT_SUCCESS;
+    try {
+        app.run();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
