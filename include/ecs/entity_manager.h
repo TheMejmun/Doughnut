@@ -36,19 +36,18 @@ namespace ECS {
             for (auto &v: mIndexVectors)
                 assert(mDenseEntities.size() == v.size());
 
-            uint32_t maxIndex = std::numeric_limits<uint32_t>::max();
-            uint32_t newIndex = maxIndex;
+            uint32_t newIndex = std::numeric_limits<uint32_t>::max();
 
             for (uint32_t i = 0; i < mSparseEntities.size(); ++i) {
-                if (mSparseEntities[i] == maxIndex) {
+                if (mSparseEntities[i] == std::numeric_limits<uint32_t>::max()) {
                     newIndex = i;
                     break;
                 }
             }
 
-            if (newIndex == maxIndex) {
+            if (newIndex == std::numeric_limits<uint32_t>::max()) {
                 newIndex = mSparseEntities.size();
-                mSparseEntities.emplace_back(0);
+                mSparseEntities.emplace_back();
             }
 
             mSparseEntities[newIndex] = mDenseEntities.size();
