@@ -165,7 +165,7 @@ namespace ECS {
                 if (b) ++totalMatches;
             }
 
-            resizeTuple<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T*, OTHER*...>(out, totalMatches);
+            resizeTuple<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T *, OTHER *...>(out, totalMatches);
 
             for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
                 if (matchesArchetype[denseIndex]) {
@@ -306,48 +306,41 @@ namespace ECS {
 
     void testEntityManager() {
         struct test {
+            uint32_t someValue = 0;
         };
 
         ECS::EntityManager<test, int, double, uint32_t> em;
-
         assert(em.entityCount() == 0);
         assert(em.componentCount<int>() == 0);
 
         auto id = em.makeEntity();
-
         assert(em.entityCount() == 1);
         assert(em.componentCount<int>() == 0);
 
         em.insertComponent(0, id);
-
         assert(em.entityCount() == 1);
         assert(em.componentCount<int>() == 1);
         assert(em.getComponent<int>(id) == 0);
 
         em.insertComponent(1, id);
-
         assert(em.entityCount() == 1);
         assert(em.componentCount<int>() == 1);
         assert(em.getComponent<int>(id) == 1);
 
         em.removeComponent<int>(id);
-
         assert(em.entityCount() == 1);
         assert(em.componentCount<int>() == 0);
 
         em.insertComponent(2, id);
-
         assert(em.entityCount() == 1);
         assert(em.componentCount<int>() == 1);
         assert(em.getComponent<int>(id) == 2);
 
         auto id2 = em.makeEntity();
-
         assert(em.entityCount() == 2);
         assert(em.componentCount<int>() == 1);
 
         em.insertComponent(3, id2);
-
         assert(em.entityCount() == 2);
         assert(em.componentCount<int>() == 2);
         assert(em.getComponent<int>(id2) == 3);
@@ -357,14 +350,15 @@ namespace ECS {
         assert(std::get<0>(allInts).size() == 2);
         // Test values
         assert((*std::get<0>(allInts)[0] == 2 && *std::get<0>(allInts)[1] == 3) || (*std::get<0>(allInts)[0] == 3 && *std::get<0>(allInts)[1] == 2));
+
         auto allDoubles = em.requestAll<double>();
         assert(std::get<0>(allDoubles).empty());
+
         auto allIntsAndDoubles = em.requestAll<int, double>();
         assert(std::get<0>(allIntsAndDoubles).empty());
         assert(std::get<1>(allIntsAndDoubles).empty());
 
         em.removeEntity(id);
-
         assert(em.entityCount() == 1);
         assert(em.componentCount<int>() == 1);
         assert(em.getComponent<int>(id2) == 3);
