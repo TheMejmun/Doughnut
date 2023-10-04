@@ -6,6 +6,7 @@
 #define DOUGHNUT_ENTITY_MANAGER_H
 
 #include "io/printer.h"
+#include "util/timer.h"
 
 #include <cstdint>
 #include <vector>
@@ -165,13 +166,7 @@ namespace ECS {
                 if (b) ++totalMatches;
             }
 
-            resizeTuple<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T *, OTHER *...>(out, totalMatches);
-
-            for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
-                if (matchesArchetype[denseIndex]) {
-                    collectArchetypeComponents<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T, OTHER...>(out, matchesArchetype);
-                }
-            }
+            collectArchetypeComponents<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T, OTHER...>(out, matchesArchetype, totalMatches);
 
             return out;
         }
@@ -239,47 +234,41 @@ namespace ECS {
         }
 
         template<class TUPLE, class T, class T2, class... OTHER>
-        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches) {
+        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches, size_t totalMatches) {
             auto &cRefs = std::get<std::vector<T *>>(output);
+            cRefs.resize(totalMatches);
 
+            size_t archetypeIndex = 0;
             for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
                 if (matches[denseIndex]) {
-                    insertArchetypeComponents(cRefs, denseIndex);
+                    insertArchetypeComponents(cRefs, denseIndex, archetypeIndex);
+                    ++archetypeIndex;
                 }
             }
 
-            collectArchetypeComponents<TUPLE, T2, OTHER...>(output, matches);
+            collectArchetypeComponents<TUPLE, T2, OTHER...>(output, matches, totalMatches);
         }
 
         template<class TUPLE, class T>
-        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches) {
+        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches, size_t totalMatches) {
             auto &cRefs = std::get<std::vector<T *>>(output);
+            cRefs.resize(totalMatches);
 
+            size_t archetypeIndex = 0;
             for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
                 if (matches[denseIndex]) {
-                    insertArchetypeComponents(cRefs, denseIndex);
+                    insertArchetypeComponents(cRefs, denseIndex, archetypeIndex);
+                    ++archetypeIndex;
                 }
             }
         }
 
         template<class T>
-        inline void insertArchetypeComponents(std::vector<T *> &cRefs, size_t index) {
+        inline void insertArchetypeComponents(std::vector<T *> &cRefs, size_t denseIndex, size_t archetypeIndex) {
             const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
-            const size_t componentIndex = mIndexVectors[typeIndex][index].value();
+            const size_t componentIndex = mIndexVectors[typeIndex][denseIndex].value();
 
-            cRefs[index] = &componentVector<T>()[componentIndex];
-        }
-
-        template<class TUPLE, class T, class T2, class... OTHER>
-        void resizeTuple(TUPLE &output, size_t size) {
-            std::get<std::vector<T>>(output).resize(size);
-
-            resizeTuple<TUPLE, T2, OTHER...>(output, size);
-        }
-
-        template<class TUPLE, class T>
-        void resizeTuple(TUPLE &output, size_t size) {
-            std::get<std::vector<T>>(output).resize(size);
+            cRefs[archetypeIndex] = &componentVector<T>()[componentIndex];
         }
 
         template<class T, class T2, class... OTHER>
@@ -364,6 +353,97 @@ namespace ECS {
         assert(em.getComponent<int>(id2) == 3);
 
         std::cout << "EntityManager test successful." << std::endl;
+    }
+
+    void benchmark(uint32_t count = 1'000'000) {
+        struct Component1 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component2 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component3 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+
+        EntityManager<Component1, Component2, Component3> em{};
+
+        {
+            auto _trace_before = Doughnut::Timer::now();
+            for (size_t i = 0; i < count; ++i) {
+                em.makeEntity();
+            }
+            auto _trace_after = Doughnut::Timer::now();
+            auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
+            std::cout << "MAKE ENTITIES" << ": " << _duration << std::endl;
+        }
+
+        {
+            auto _trace_before = Doughnut::Timer::now();
+            for (size_t i = 0; i < count; ++i) {
+                em.insertComponent(Component1{}, i);
+            }
+            auto _trace_after = Doughnut::Timer::now();
+            auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
+            std::cout << "INSERT C1" << ": " << _duration << std::endl;
+        }
+
+        {
+            auto _trace_before = Doughnut::Timer::now();
+            for (size_t i = 0; i < count; ++i) {
+                if (i % 2 == 0) {
+                    em.insertComponent(Component2{}, i);
+                }
+            }
+            auto _trace_after = Doughnut::Timer::now();
+            auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
+            std::cout << "INSERT C2" << ": " << _duration << std::endl;
+        }
+
+        {
+            auto _trace_before = Doughnut::Timer::now();
+            for (size_t i = 0; i < count; ++i) {
+                if (i % 3 == 0) {
+                    em.insertComponent(Component3{}, i);
+                }
+            }
+            auto _trace_after = Doughnut::Timer::now();
+            auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
+            std::cout << "INSERT C3" << ": " << _duration << std::endl;
+        }
+
+        {
+            auto _trace_before = Doughnut::Timer::now();
+            auto requested = em.requestAll<Component1>();
+            auto _trace_after = Doughnut::Timer::now();
+            auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
+            std::cout << "GET ARCHETYPE 0" << ": " << _duration << std::endl;
+        }
+
+        {
+            auto _trace_before = Doughnut::Timer::now();
+            auto requested = em.requestAll<Component1, Component2>();
+            auto _trace_after = Doughnut::Timer::now();
+            auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
+            std::cout << "GET ARCHETYPE 1" << ": " << _duration << std::endl;
+        }
+
+        {
+            auto _trace_before = Doughnut::Timer::now();
+            auto requested = em.requestAll<Component1, Component2, Component3>();
+            auto _trace_after = Doughnut::Timer::now();
+            auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
+            std::cout << "GET ARCHETYPE 2" << ": " << _duration << std::endl;
+        }
     }
 }
 
