@@ -209,7 +209,7 @@ namespace ECS {
         template<class T, class T2, class... OTHER>
         void collectArchetypeMatches(std::vector<bool> &valid) {
             for (uint32_t i = 0; i < valid.size(); ++i) {
-                if (!matchesArchetype<T>(i)) {
+                if (valid[i] && !matchesArchetype<T>(i)) {
                     valid[i] = false;
                 }
             }
@@ -220,7 +220,7 @@ namespace ECS {
         template<class T>
         void collectArchetypeMatches(std::vector<bool> &valid) {
             for (uint32_t i = 0; i < valid.size(); ++i) {
-                if (!matchesArchetype<T>(i)) {
+                if (valid[i] && !matchesArchetype<T>(i)) {
                     valid[i] = false;
                 }
             }
@@ -330,8 +330,12 @@ namespace ECS {
         assert(em.entityCount() == 2);
         assert(em.componentCount<int>() == 1);
 
+        auto id3 = em.makeEntity();
+        assert(em.entityCount() == 3);
+        assert(em.componentCount<int>() == 1);
+
         em.insertComponent(3, id2);
-        assert(em.entityCount() == 2);
+        assert(em.entityCount() == 3);
         assert(em.componentCount<int>() == 2);
         assert(em.getComponent<int>(id2) == 3);
         assert(em.getComponent<int>(id) == 2);
@@ -349,7 +353,7 @@ namespace ECS {
         assert(std::get<1>(allIntsAndDoubles).empty());
 
         em.removeEntity(id);
-        assert(em.entityCount() == 1);
+        assert(em.entityCount() == 2);
         assert(em.componentCount<int>() == 1);
         assert(em.getComponent<int>(id2) == 3);
 
