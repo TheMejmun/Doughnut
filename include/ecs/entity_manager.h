@@ -48,11 +48,11 @@ namespace ECS {
 
             if (newIndex == maxIndex) {
                 newIndex = mSparseEntities.size();
-                mSparseEntities.push_back(0);
+                mSparseEntities.emplace_back(0);
             }
 
             mSparseEntities[newIndex] = mDenseEntities.size();
-            mDenseEntities.push_back(newIndex);
+            mDenseEntities.emplace_back(newIndex);
             for (auto &v: mIndexVectors)
                 v.emplace_back();
 
@@ -356,7 +356,7 @@ namespace ECS {
         std::cout << "EntityManager test successful." << std::endl;
     }
 
-    void benchmark(uint32_t count = 1'000'000) {
+    void benchmark(uint32_t count = 100'000) {
         struct Component1 {
             double one;
             double two;
