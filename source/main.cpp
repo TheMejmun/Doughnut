@@ -1,5 +1,6 @@
 
 #include "application.h"
+#include "ecs/entity_system_manager.h"
 #include "ecs/entity_manager.h"
 #include "ecs/system_manager.h"
 
@@ -7,6 +8,7 @@
 
 int main() {
 #ifndef NDEBUG
+    ECS2::EntitySystemManager<1, int> test{};
     ECS2::testEntityManager();
     ECS2::testSystemManager();
 #endif

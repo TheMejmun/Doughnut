@@ -6,6 +6,7 @@
 #define DOUGHNUT_SYSTEM_MANAGER_H
 
 #include "io/printer.h"
+#include "entity_manager.h"
 
 #include <array>
 #include <memory>
@@ -16,13 +17,15 @@ namespace ECS2 {
     template<class ENTITY_MANAGER>
     class System {
     public:
+        virtual ~System() = default;
+
         virtual void update(double delta, ENTITY_MANAGER &entityManager) = 0;
     };
 
     template<class ENTITY_MANAGER, uint32_t LAYERS>
     class SystemManager {
     public:
-        SystemManager(ENTITY_MANAGER *entityManager) : mEntityManager(entityManager) {
+        explicit SystemManager(ENTITY_MANAGER *entityManager) : mEntityManager(entityManager) {
             static_assert(0 < LAYERS, "There must be at least one layer.");
             info("Creating SystemManager");
         }
@@ -59,38 +62,38 @@ namespace ECS2 {
         std::array<std::vector<std::unique_ptr<System<ENTITY_MANAGER>>>, LAYERS> mSystemVectorLayers{};
     };
 
+    // TODO could fail due to race conditions in 'TestSystem::update'
     void testSystemManager() {
-        struct TestComponent {
-            volatile int constructed = 0;
-            volatile int executions = 0;
-        };
-        EntityManager<TestComponent> em{};
+        EntityManager<int, long> em{};
 
         em.makeEntity();
-        em.insertComponent(TestComponent{}, 0);
-        auto &testEntity = *std::get<0>(em.requestAll<TestComponent>())[0];
+        em.insertComponent<int>(0, 0);
+        em.insertComponent<long>(0, 0);
+        auto &executions = *std::get<0>(em.requestAll<int>())[0];
+        auto &constructed = *std::get<0>(em.requestAll<long>())[0];
 
         SystemManager<decltype(em), 3> sm{&em};
 
-        volatile uint32_t instanceCount = 0;
-
         class TestSystem : public System<decltype(em)> {
         public:
-            void update(double delta, ECS2::EntityManager<TestComponent> &entityManager) override {
-                auto &testEntity = *std::get<0>(entityManager.requestAll<TestComponent>())[0];
+            ~TestSystem() override = default;
+
+            void update(double delta, decltype(em) &entityManager) override {
+                auto &executions = *std::get<0>(entityManager.requestAll<int>())[0];
+                auto &constructed = *std::get<0>(entityManager.requestAll<long>())[0];
                 if (firstUpdate) {
-                    testEntity.constructed += 1;
+                    constructed += 1;
                     firstUpdate = false;
                 }
-                testEntity.executions += 1;
+                executions += 1;
             }
 
         private:
             bool firstUpdate = true;
         };
 
-        assert(testEntity.constructed == 0);
-        assert(testEntity.executions == 0);
+        assert(constructed == 0);
+        assert(executions == 0);
 
         sm.insertSystem<TestSystem, 0>();
         sm.insertSystem<TestSystem, 0>();
@@ -101,13 +104,13 @@ namespace ECS2 {
 
         sm.update(0);
 
-        assert(testEntity.constructed == 6);
-        assert(testEntity.executions == 6);
+        assert(constructed == 6);
+        assert(executions == 6);
 
         sm.update(0);
 
-        assert(testEntity.constructed == 6);
-        assert(testEntity.executions == 12);
+        assert(constructed == 6);
+        assert(executions == 12);
 
         std::cout << "SystemManager test successful." << std::endl;
     }

@@ -81,6 +81,7 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/io/input_state.h
         include/ecs/entity_manager.h
         include/ecs/system_manager.h
+        include/ecs/entity_system_manager.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
