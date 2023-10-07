@@ -35,18 +35,18 @@ namespace ECS2 {
         uint32_t makeEntity() {
             assert(mDenseEntities.size() == mIndexArrays.size());
 
-            uint32_t newIndex = std::numeric_limits<uint32_t>::max();
+            uint32_t newIndex;
 
-            for (uint32_t i = 0; i < mSparseEntities.size(); ++i) {
-                if (mSparseEntities[i] == std::numeric_limits<uint32_t>::max()) {
-                    newIndex = i;
-                    break;
-                }
-            }
-
-            if (newIndex == std::numeric_limits<uint32_t>::max()) {
+            if(mSparseEntities.size() == mDenseEntities.size()){
                 newIndex = mSparseEntities.size();
                 mSparseEntities.emplace_back();
+            }else {
+                for (uint32_t i = 0; i < mSparseEntities.size(); ++i) {
+                    if (mSparseEntities[i] == std::numeric_limits<uint32_t>::max()) {
+                        newIndex = i;
+                        break;
+                    }
+                }
             }
 
             mSparseEntities[newIndex] = mDenseEntities.size();

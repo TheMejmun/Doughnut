@@ -5,7 +5,7 @@
 
 int main() {
     ECS2::testEntityManager();
-    ECS2::benchmark(100'000);
+    ECS2::benchmark(1'000'000);
     return 0;
 
     Doughnut::Application app{};
