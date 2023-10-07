@@ -19,7 +19,7 @@
 #include <optional>
 #include <cassert>
 
-namespace ECS {
+namespace ECS2 {
     template<class... COMPONENTS>
     class EntityManager {
     public:
@@ -298,7 +298,7 @@ namespace ECS {
             uint32_t someValue = 0;
         };
 
-        ECS::EntityManager<test, int, double, uint32_t> em;
+        ECS2::EntityManager<test, int, double, uint32_t> em;
         assert(em.entityCount() == 0);
         assert(em.componentCount<int>() == 0);
 
