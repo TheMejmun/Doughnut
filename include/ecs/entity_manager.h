@@ -19,7 +19,7 @@
 #include <optional>
 #include <cassert>
 
-namespace ECS {
+namespace ECS2 {
     template<class... COMPONENTS>
     class EntityManager {
     public:
@@ -99,7 +99,7 @@ namespace ECS {
                 componentVector<COMPONENT>().emplace_back(component);
             } else {
                 verbose("Overriding component " << typeid(COMPONENT).name());
-                uint32_t componentId = mIndexVectors[componentVectorId][denseId].value();
+                uint32_t componentId = *mIndexVectors[componentVectorId][denseId];
                 componentVector<COMPONENT>()[componentId] = std::move(component);
             }
         }
@@ -123,10 +123,10 @@ namespace ECS {
                 auto currentLastIndex = componentVector<COMPONENT>().size() - 1;
 
                 // Move current rear to deleted position and updated other entity with new component position
-                componentVector<COMPONENT>()[componentIndex.value()] = componentVector<COMPONENT>().back();
+                componentVector<COMPONENT>()[*componentIndex] = componentVector<COMPONENT>().back();
                 for (std::optional<uint32_t> &otherIndex: mIndexVectors[typeIndex]) {
-                    if (otherIndex.has_value() && otherIndex.value() == currentLastIndex) {
-                        otherIndex = componentIndex.value();
+                    if (otherIndex.has_value() && *otherIndex == currentLastIndex) {
+                        otherIndex = *componentIndex;
                         break;
                     }
                 }
@@ -148,7 +148,7 @@ namespace ECS {
 
             assert(componentIndex.has_value());
 
-            return componentVector<COMPONENT>()[componentIndex.value()];
+            return componentVector<COMPONENT>()[*componentIndex];
         }
 
 
@@ -266,7 +266,7 @@ namespace ECS {
         template<class T>
         inline void insertArchetypeComponents(std::vector<T *> &cRefs, uint32_t denseIndex, uint32_t archetypeIndex) {
             const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
-            const uint32_t componentIndex = mIndexVectors[typeIndex][denseIndex].value();
+            const uint32_t componentIndex = *mIndexVectors[typeIndex][denseIndex];
 
             cRefs[archetypeIndex] = &componentVector<T>()[componentIndex];
         }
@@ -298,7 +298,7 @@ namespace ECS {
             uint32_t someValue = 0;
         };
 
-        ECS::EntityManager<test, int, double, uint32_t> em;
+        ECS2::EntityManager<test, int, double, uint32_t> em;
         assert(em.entityCount() == 0);
         assert(em.componentCount<int>() == 0);
 
