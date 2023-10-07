@@ -359,7 +359,7 @@ namespace ECS2 {
         std::cout << "EntityManager test successful." << std::endl;
     }
 
-    void benchmark(uint32_t count = 100'000) {
+    void benchmark(uint32_t count) {
         struct Component1 {
             double one;
             double two;
@@ -378,8 +378,38 @@ namespace ECS2 {
             double three;
             double four;
         };
+        struct Component4 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component5 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component6 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component7 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component8 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
 
-        EntityManager<Component1, Component2, Component3> em{};
+        EntityManager<Component1, Component2, Component3, Component4, Component5, Component6, Component7, Component8> em{};
 
         {
             auto _trace_before = Doughnut::Timer::now();
