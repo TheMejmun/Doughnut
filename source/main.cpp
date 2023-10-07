@@ -1,8 +1,17 @@
 
 #include "application.h"
+#include "ecs/entity_manager.h"
+#include "ecs/system_manager.h"
+
 #include <iostream>
 
 int main() {
+#ifndef NDEBUG
+    ECS2::testEntityManager();
+    ECS2::testSystemManager();
+#endif
+    return 0;
+
     Doughnut::Application app{};
     app.title = "Hello World!";
 
