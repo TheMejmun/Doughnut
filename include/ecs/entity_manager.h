@@ -51,7 +51,7 @@ namespace ECS2 {
 
             mSparseEntities[newIndex] = mDenseEntities.size();
             mDenseEntities.emplace_back(newIndex);
-                mIndexArrays.emplace_back();
+            mIndexArrays.emplace_back();
 
             return newIndex;
         }
@@ -61,7 +61,7 @@ namespace ECS2 {
                    && mSparseEntities[entity] != std::numeric_limits<uint32_t>::max()
                    && "Accessing non-existent entity.");
 
-                assert(mDenseEntities.size() == mIndexArrays.size());
+            assert(mDenseEntities.size() == mIndexArrays.size());
             assert(entity < mSparseEntities.size());
 
             uint32_t denseIndex = mSparseEntities[entity];
@@ -105,7 +105,7 @@ namespace ECS2 {
                    && mSparseEntities[entity] != std::numeric_limits<uint32_t>::max()
                    && "Accessing non-existent entity.");
 
-                assert(mDenseEntities.size() == mIndexArrays.size());
+            assert(mDenseEntities.size() == mIndexArrays.size());
             assert(entity < mSparseEntities.size());
 
             const uint32_t denseIndex = mSparseEntities[entity];
@@ -160,7 +160,15 @@ namespace ECS2 {
                 if (b) ++totalMatches;
             }
 
-            collectArchetypeComponents<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T, OTHER...>(out, matchesArchetype, totalMatches);
+            resizeArchetypes<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T, OTHER...>(out, totalMatches);
+
+            uint32_t archetypeIndex = 0;
+            for (uint32_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
+                if (matchesArchetype[denseIndex]) {
+                    insertArchetypeComponents<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T, OTHER...>(out, mIndexArrays[denseIndex], archetypeIndex);
+                    ++archetypeIndex;
+                }
+            }
 
             return out;
         }
@@ -228,41 +236,33 @@ namespace ECS2 {
         }
 
         template<class TUPLE, class T, class T2, class... OTHER>
-        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches, uint32_t totalMatches) {
-            auto &cRefs = std::get<std::vector<T *>>(output);
-            cRefs.resize(totalMatches);
+        void resizeArchetypes(TUPLE &output, uint32_t totalMatches) {
+            std::get<std::vector<T *>>(output).resize(totalMatches);
 
-            uint32_t archetypeIndex = 0;
-            for (uint32_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
-                if (matches[denseIndex]) {
-                    insertArchetypeComponents(cRefs, denseIndex, archetypeIndex);
-                    ++archetypeIndex;
-                }
-            }
-
-            collectArchetypeComponents<TUPLE, T2, OTHER...>(output, matches, totalMatches);
+            resizeArchetypes<TUPLE, T2, OTHER...>(output, totalMatches);
         }
 
         template<class TUPLE, class T>
-        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches, uint32_t totalMatches) {
-            auto &cRefs = std::get<std::vector<T *>>(output);
-            cRefs.resize(totalMatches);
-
-            uint32_t archetypeIndex = 0;
-            for (uint32_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
-                if (matches[denseIndex]) {
-                    insertArchetypeComponents(cRefs, denseIndex, archetypeIndex);
-                    ++archetypeIndex;
-                }
-            }
+        void resizeArchetypes(TUPLE &output, uint32_t totalMatches) {
+            std::get<std::vector<T *>>(output).resize(totalMatches);
         }
 
-        template<class T>
-        inline void insertArchetypeComponents(std::vector<T *> &cRefs, uint32_t denseIndex, uint32_t archetypeIndex) {
+        template<class TUPLE, class T, class T2, class... OTHER>
+        inline void insertArchetypeComponents(TUPLE &output, const std::array<std::optional<uint32_t>, sizeof...(COMPONENTS)> &indexArray, uint32_t archetypeIndex) {
             const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
-            const uint32_t componentIndex = *mIndexArrays[denseIndex][typeIndex];
+            const uint32_t componentIndex = *indexArray[typeIndex];
 
-            cRefs[archetypeIndex] = &componentVector<T>()[componentIndex];
+            std::get<std::vector<T *>>(output)[archetypeIndex] = &componentVector<T>()[componentIndex];
+
+            insertArchetypeComponents<TUPLE, T2, OTHER...>(output, indexArray, archetypeIndex);
+        }
+
+        template<class TUPLE, class T>
+        inline void insertArchetypeComponents(TUPLE &output, const std::array<std::optional<uint32_t>, sizeof...(COMPONENTS)> &indexArray, uint32_t archetypeIndex) {
+            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
+            const uint32_t componentIndex = *indexArray[typeIndex];
+
+            std::get<std::vector<T *>>(output)[archetypeIndex] = &componentVector<T>()[componentIndex];
         }
 
         template<class T, class T2, class... OTHER>
@@ -353,7 +353,7 @@ namespace ECS2 {
         std::cout << "EntityManager test successful." << std::endl;
     }
 
-    void benchmark(uint32_t count = 1'000'000) {
+    void benchmark(uint32_t count) {
         struct Component1 {
             double one;
             double two;
@@ -372,8 +372,38 @@ namespace ECS2 {
             double three;
             double four;
         };
+        struct Component4 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component5 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component6 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component7 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
+        struct Component8 {
+            double one;
+            double two;
+            double three;
+            double four;
+        };
 
-        EntityManager<Component1, Component2, Component3> em{};
+        EntityManager<Component1, Component2, Component3, Component4, Component5, Component6, Component7, Component8> em{};
 
         {
             auto _trace_before = Doughnut::Timer::now();
