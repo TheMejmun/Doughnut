@@ -8,11 +8,9 @@
 
 int main() {
 #ifndef NDEBUG
-    ECS2::EntitySystemManager<1, int> test{};
     ECS2::testEntityManager();
     ECS2::testSystemManager();
 #endif
-    return 0;
 
     Doughnut::Application app{};
     app.title = "Hello World!";
