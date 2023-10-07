@@ -33,27 +33,25 @@ namespace ECS2 {
         }
 
         uint32_t makeEntity() {
-            for (auto &v: mIndexVectors)
-                assert(mDenseEntities.size() == v.size());
+            assert(mDenseEntities.size() == mIndexArrays.size());
 
-            uint32_t newIndex = std::numeric_limits<uint32_t>::max();
+            uint32_t newIndex;
 
-            for (uint32_t i = 0; i < mSparseEntities.size(); ++i) {
-                if (mSparseEntities[i] == std::numeric_limits<uint32_t>::max()) {
-                    newIndex = i;
-                    break;
-                }
-            }
-
-            if (newIndex == std::numeric_limits<uint32_t>::max()) {
+            if(mSparseEntities.size() == mDenseEntities.size()){
                 newIndex = mSparseEntities.size();
                 mSparseEntities.emplace_back();
+            }else {
+                for (uint32_t i = 0; i < mSparseEntities.size(); ++i) {
+                    if (mSparseEntities[i] == std::numeric_limits<uint32_t>::max()) {
+                        newIndex = i;
+                        break;
+                    }
+                }
             }
 
             mSparseEntities[newIndex] = mDenseEntities.size();
             mDenseEntities.emplace_back(newIndex);
-            for (auto &v: mIndexVectors)
-                v.emplace_back();
+            mIndexArrays.emplace_back();
 
             return newIndex;
         }
@@ -63,8 +61,7 @@ namespace ECS2 {
                    && mSparseEntities[entity] != std::numeric_limits<uint32_t>::max()
                    && "Accessing non-existent entity.");
 
-            for (auto &v: mIndexVectors)
-                assert(mDenseEntities.size() == v.size());
+            assert(mDenseEntities.size() == mIndexArrays.size());
             assert(entity < mSparseEntities.size());
 
             uint32_t denseIndex = mSparseEntities[entity];
@@ -76,10 +73,8 @@ namespace ECS2 {
             mSparseEntities[otherSparseIndex] = denseIndex;
             mDenseEntities[denseIndex] = otherSparseIndex;
             mDenseEntities.pop_back();
-            for (auto &v: mIndexVectors) {
-                v[denseIndex] = v.back();
-                v.pop_back();
-            }
+            mIndexArrays[denseIndex] = mIndexArrays.back();
+            mIndexArrays.pop_back();
 
             mSparseEntities[entity] = std::numeric_limits<uint32_t>::max();
         }
@@ -93,13 +88,13 @@ namespace ECS2 {
             uint32_t denseId = mSparseEntities[entity];
             uint32_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
 
-            if (!mIndexVectors[componentVectorId][denseId].has_value()) {
+            if (!mIndexArrays[denseId][componentVectorId].has_value()) {
                 verbose("Inserting component " << typeid(COMPONENT).name());
-                mIndexVectors[componentVectorId][denseId] = componentVector<COMPONENT>().size();
+                mIndexArrays[denseId][componentVectorId] = componentVector<COMPONENT>().size();
                 componentVector<COMPONENT>().emplace_back(component);
             } else {
                 verbose("Overriding component " << typeid(COMPONENT).name());
-                uint32_t componentId = *mIndexVectors[componentVectorId][denseId];
+                uint32_t componentId = *mIndexArrays[denseId][componentVectorId];
                 componentVector<COMPONENT>()[componentId] = std::move(component);
             }
         }
@@ -110,23 +105,22 @@ namespace ECS2 {
                    && mSparseEntities[entity] != std::numeric_limits<uint32_t>::max()
                    && "Accessing non-existent entity.");
 
-            for (auto &v: mIndexVectors)
-                assert(mDenseEntities.size() == v.size());
+            assert(mDenseEntities.size() == mIndexArrays.size());
             assert(entity < mSparseEntities.size());
 
             const uint32_t denseIndex = mSparseEntities[entity];
             assert(denseIndex < mDenseEntities.size());
 
             const auto typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
-            std::optional<uint32_t> &componentIndex = mIndexVectors[typeIndex][denseIndex];
+            std::optional<uint32_t> &componentIndex = mIndexArrays[denseIndex][typeIndex];
             if (componentIndex.has_value()) {
                 auto currentLastIndex = componentVector<COMPONENT>().size() - 1;
 
-                // Move current rear to deleted position and updated other entity with new component position
+                // Move current rear to deleted position and update other entity with new component position
                 componentVector<COMPONENT>()[*componentIndex] = componentVector<COMPONENT>().back();
-                for (std::optional<uint32_t> &otherIndex: mIndexVectors[typeIndex]) {
-                    if (otherIndex.has_value() && *otherIndex == currentLastIndex) {
-                        otherIndex = *componentIndex;
+                for (auto &otherIndexArray: mIndexArrays) {
+                    if (otherIndexArray[typeIndex].has_value() && *otherIndexArray[typeIndex] == currentLastIndex) {
+                        otherIndexArray[typeIndex] = *componentIndex;
                         break;
                     }
                 }
@@ -144,7 +138,7 @@ namespace ECS2 {
 
             const uint32_t denseIndex = mSparseEntities[entity];
             const auto typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
-            const std::optional<uint32_t> &componentIndex = mIndexVectors[typeIndex][denseIndex];
+            const std::optional<uint32_t> &componentIndex = mIndexArrays[denseIndex][typeIndex];
 
             assert(componentIndex.has_value());
 
@@ -166,7 +160,15 @@ namespace ECS2 {
                 if (b) ++totalMatches;
             }
 
-            collectArchetypeComponents<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T, OTHER...>(out, matchesArchetype, totalMatches);
+            resizeArchetypes<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T, OTHER...>(out, totalMatches);
+
+            uint32_t archetypeIndex = 0;
+            for (uint32_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
+                if (matchesArchetype[denseIndex]) {
+                    insertArchetypeComponents<std::tuple<std::vector<T *>, std::vector<OTHER *>...>, T, OTHER...>(out, mIndexArrays[denseIndex], archetypeIndex);
+                    ++archetypeIndex;
+                }
+            }
 
             return out;
         }
@@ -183,7 +185,7 @@ namespace ECS2 {
     private:
         std::vector<uint32_t> mSparseEntities{};
         std::vector<uint32_t> mDenseEntities{};
-        std::array<std::vector<std::optional<uint32_t>>, sizeof...(COMPONENTS)> mIndexVectors{};
+        std::vector<std::array<std::optional<uint32_t>, sizeof...(COMPONENTS)>> mIndexArrays{};
 
         std::map<std::type_index, uint32_t> mTypeIndexMap{};
         std::tuple<std::vector<COMPONENTS>...> mComponentVectors{};
@@ -228,47 +230,39 @@ namespace ECS2 {
         template<class T>
         inline bool matchesArchetype(uint32_t denseIndex) {
             const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
-            const std::optional<uint32_t> &componentIndex = mIndexVectors[typeIndex][denseIndex];
+            const std::optional<uint32_t> &componentIndex = mIndexArrays[denseIndex][typeIndex];
 
             return componentIndex.has_value();
         }
 
         template<class TUPLE, class T, class T2, class... OTHER>
-        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches, uint32_t totalMatches) {
-            auto &cRefs = std::get<std::vector<T *>>(output);
-            cRefs.resize(totalMatches);
+        void resizeArchetypes(TUPLE &output, uint32_t totalMatches) {
+            std::get<std::vector<T *>>(output).resize(totalMatches);
 
-            uint32_t archetypeIndex = 0;
-            for (uint32_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
-                if (matches[denseIndex]) {
-                    insertArchetypeComponents(cRefs, denseIndex, archetypeIndex);
-                    ++archetypeIndex;
-                }
-            }
-
-            collectArchetypeComponents<TUPLE, T2, OTHER...>(output, matches, totalMatches);
+            resizeArchetypes<TUPLE, T2, OTHER...>(output, totalMatches);
         }
 
         template<class TUPLE, class T>
-        void collectArchetypeComponents(TUPLE &output, const std::vector<bool> &matches, uint32_t totalMatches) {
-            auto &cRefs = std::get<std::vector<T *>>(output);
-            cRefs.resize(totalMatches);
-
-            uint32_t archetypeIndex = 0;
-            for (uint32_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
-                if (matches[denseIndex]) {
-                    insertArchetypeComponents(cRefs, denseIndex, archetypeIndex);
-                    ++archetypeIndex;
-                }
-            }
+        void resizeArchetypes(TUPLE &output, uint32_t totalMatches) {
+            std::get<std::vector<T *>>(output).resize(totalMatches);
         }
 
-        template<class T>
-        inline void insertArchetypeComponents(std::vector<T *> &cRefs, uint32_t denseIndex, uint32_t archetypeIndex) {
+        template<class TUPLE, class T, class T2, class... OTHER>
+        inline void insertArchetypeComponents(TUPLE &output, const std::array<std::optional<uint32_t>, sizeof...(COMPONENTS)> &indexArray, uint32_t archetypeIndex) {
             const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
-            const uint32_t componentIndex = *mIndexVectors[typeIndex][denseIndex];
+            const uint32_t componentIndex = *indexArray[typeIndex];
 
-            cRefs[archetypeIndex] = &componentVector<T>()[componentIndex];
+            std::get<std::vector<T *>>(output)[archetypeIndex] = &componentVector<T>()[componentIndex];
+
+            insertArchetypeComponents<TUPLE, T2, OTHER...>(output, indexArray, archetypeIndex);
+        }
+
+        template<class TUPLE, class T>
+        inline void insertArchetypeComponents(TUPLE &output, const std::array<std::optional<uint32_t>, sizeof...(COMPONENTS)> &indexArray, uint32_t archetypeIndex) {
+            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
+            const uint32_t componentIndex = *indexArray[typeIndex];
+
+            std::get<std::vector<T *>>(output)[archetypeIndex] = &componentVector<T>()[componentIndex];
         }
 
         template<class T, class T2, class... OTHER>
