@@ -63,6 +63,9 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/ecs/system.h
         ${HEADER_FOLDER}/ecs/entity.h
         ${HEADER_FOLDER}/ecs/components.h
+        ${HEADER_FOLDER}/ecs/entity_manager.h
+        ${HEADER_FOLDER}/ecs/system_manager.h
+        ${HEADER_FOLDER}/ecs/entity_system_manager.h
         ${HEADER_FOLDER}/ecs/entities/dense_sphere.h
         ${HEADER_FOLDER}/ecs/entities/camera.h
         ${HEADER_FOLDER}/ecs/entities/input_state_entity.h
@@ -79,9 +82,6 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/util/performance_logging.h
 
         ${HEADER_FOLDER}/io/input_state.h
-        include/ecs/entity_manager.h
-        include/ecs/system_manager.h
-        include/ecs/entity_system_manager.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
