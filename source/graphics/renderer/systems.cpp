@@ -58,7 +58,8 @@ void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
 
     if (uploadedAny) {
         // Treat this like a return
-        this->state.uiState.meshUploadTimeTaken = Timer::duration(startTime, Timer::now());
+        auto &uiState = *ecs.requestAll<UiState>()[0];
+        uiState.meshUploadTimeTaken = Timer::duration(startTime, Timer::now());
     }
 }
 
@@ -76,8 +77,8 @@ void Renderer::updateUniformBuffer(const double &delta, EntityManagerSpec &ecs) 
     auto cameras = ecs.requestAll<Projector, Transformer4>();
     Transformer4 *cameraTransform;
     Projector *cameraProjector;
-    for(int i = 0; i < std::get<0>(cameras).size(); ++i){
-        if (std::get<0>(cameras)[i]->isMainCamera){
+    for (int i = 0; i < std::get<0>(cameras).size(); ++i) {
+        if (std::get<0>(cameras)[i]->isMainCamera) {
             cameraTransform = std::get<1>(cameras)[i];
             cameraProjector = std::get<0>(cameras)[i];
             break;

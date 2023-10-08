@@ -12,9 +12,11 @@
 #include "ecs/components/projector.h"
 #include "ecs/components/rotating_sphere.h"
 #include "physics/transformer.h"
+#include "ecs/components/ui_state.h"
 
 typedef ECS2::EntityManager<
         InputState,
+        UiState,
         RenderMesh,
         RenderMeshSimplifiable,
         Transformer4,

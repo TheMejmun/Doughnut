@@ -21,9 +21,6 @@ Renderer::Renderer(const std::string &title, GLFWwindow *window) {
     this->state.title = title;
     this->state.window = window;
 
-    this->state.uiState.title = title;
-    this->state.uiState.window = window;
-
     this->initVulkan();
     Vk::Imgui::create(this->state);
 }

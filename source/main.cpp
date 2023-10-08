@@ -9,8 +9,7 @@ int main() {
     ECS2::testSystemManager();
 #endif
 
-    Doughnut::Application app{};
-    app.title = "Hello World!";
+    Doughnut::Application app{"Hello World!"};
 
     try {
         app.run();

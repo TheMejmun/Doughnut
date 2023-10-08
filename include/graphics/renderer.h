@@ -7,7 +7,7 @@
 
 #include "preprocessor.h"
 #include "typedefs.h"
-#include "ui_state.h"
+#include "ecs/components/ui_state.h"
 #include "render_state.h"
 
 //#define WIREFRAME_MODE
@@ -23,8 +23,6 @@ namespace Doughnut::GFX {
         ~Renderer();
 
         double draw(const double &delta, EntityManagerSpec &ecs);
-
-        UiState *getUiState();
 
         void resetMesh();
 
@@ -53,7 +51,7 @@ namespace Doughnut::GFX {
 
         void createSyncObjects();
 
-        void recordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex);
+        void recordCommandBuffer(EntityManagerSpec &ecs, VkCommandBuffer buffer, uint32_t imageIndex);
 
         void uploadRenderables(EntityManagerSpec &ecs);
 
@@ -62,7 +60,7 @@ namespace Doughnut::GFX {
 
         void destroyRenderables(EntityManagerSpec &ecs);
 
-        void drawUi();
+        void drawUi(EntityManagerSpec &ecs);
 
         RenderState state{};
 

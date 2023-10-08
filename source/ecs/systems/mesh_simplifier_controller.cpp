@@ -277,16 +277,17 @@ void simplify(const Projector &cameraProjector,
 }
 
 void MeshSimplifierController::update(double delta, EntityManagerSpec &entityManager) {
+    auto &uiState = *entityManager.template requestAll<UiState>()[0];
+
     if (thread.joinable()) {
         simplifiedMeshCalculationThreadFrameCounter++;
         if (meshCalculationDone) {
             debug("Mesh calculation thread took " << simplifiedMeshCalculationThreadFrameCounter << " frames");
             thread.join();
-            // TODO Restore timers
-//            *timeTaken = Doughnut::Timer::duration(simplifiedMeshCalculationThreadStartedTime, Doughnut::Timer::now());
-//            *framesTaken = simplifiedMeshCalculationThreadFrameCounter;
+            uiState.meshSimplifierTimeTaken = Doughnut::Timer::duration(simplifiedMeshCalculationThreadStartedTime, Doughnut::Timer::now());
+            uiState.meshSimplifierFramesTaken = simplifiedMeshCalculationThreadFrameCounter;
         }
-    } else {
+    } else if (uiState.runMeshSimplifier) {
         auto entities = entityManager.requestAll<RenderMesh, RenderMeshSimplifiable, Transformer4>();
         auto cameras = entityManager.requestAll<Projector, Transformer4>();
         uint32_t mainCameraIndex;

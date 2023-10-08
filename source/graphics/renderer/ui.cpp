@@ -9,16 +9,13 @@
 
 using namespace Doughnut::GFX;
 
-UiState *Renderer::getUiState() {
-    return &this->state.uiState;
-}
-
 void Renderer::resetMesh() {
     Vk::Buffers::resetMeshBufferToUse();
 }
 
-void Renderer::drawUi(){
-    this->state.uiState.currentMeshVertices = Vk::Buffers::vertexCount[Vk::Buffers::meshBufferToUse];
-    this->state.uiState.currentMeshTriangles = Vk::Buffers::indexCount[Vk::Buffers::meshBufferToUse] / 3;
-    Vk::Imgui::draw(this->state);
+void Renderer::drawUi(EntityManagerSpec &ecs) {
+    auto &uiState = *ecs.template requestAll<UiState>()[0];
+    uiState.currentMeshVertices = Vk::Buffers::vertexCount[Vk::Buffers::meshBufferToUse];
+    uiState.currentMeshTriangles = Vk::Buffers::indexCount[Vk::Buffers::meshBufferToUse] / 3;
+    Vk::Imgui::draw(this->state, uiState);
 }

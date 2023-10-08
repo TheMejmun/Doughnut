@@ -13,13 +13,16 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace Doughnut {
     class Application {
     public:
+        explicit Application(std::string title) : mTitle(std::move(title)) {}
+
         void run();
 
-        std::string title;
+        const std::string mTitle;
     private:
         void init();
 
@@ -33,7 +36,7 @@ namespace Doughnut {
         std::unique_ptr<InputController> mInputManager;
 
         Timer::Point mLastTimestamp = Timer::now();
-        double mCurrentCpuWaitTime;
+        double mCurrentCpuWaitTime{};
         double mDeltaTime = 0;
 
         bool mMonkeyMode = true;

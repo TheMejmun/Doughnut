@@ -33,7 +33,7 @@ static void checkVkResult(VkResult err) {
 }
 
 void Imgui::create(RenderState &state) {
-    info( "Creating Imgui" )    ;
+    info("Creating Imgui");
 
     // https://github.com/ocornut/imgui/blob/master/examples/example_glfw_vulkan/main.cpp
 
@@ -116,9 +116,9 @@ void Imgui::recalculateScale(RenderState &state) {
     scaleVec2 = {scale, scale};
 }
 
-void Imgui::draw(RenderState &state) {
+void Imgui::draw(RenderState &renderState, UiState &uiState) {
     int width, height;
-    glfwGetFramebufferSize(state.window, &width, &height);
+    glfwGetFramebufferSize(renderState.window, &width, &height);
     ImGui::GetIO().DisplaySize = {static_cast<float>(Swapchain::framebufferWidth),
                                   static_cast<float>(Swapchain::framebufferHeight)};
     ImGui::GetIO().DisplaySize = {static_cast<float>(width),
@@ -129,7 +129,7 @@ void Imgui::draw(RenderState &state) {
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
 
-    UI::update(state.uiState);
+    UI::update(uiState);
 
     ImGui::Render();
     ImDrawData *draw_data = ImGui::GetDrawData();
@@ -138,7 +138,7 @@ void Imgui::draw(RenderState &state) {
 }
 
 void Imgui::destroy() {
-    info( "Destroying Imgui" );
+    info("Destroying Imgui");
 
     vkDeviceWaitIdle(Devices::logical);
 

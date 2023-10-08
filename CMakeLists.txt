@@ -40,7 +40,6 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/graphics/pnext_chain_reader.h
         ${HEADER_FOLDER}/graphics/triangle.h
         ${HEADER_FOLDER}/graphics/render_state.h
-        ${HEADER_FOLDER}/graphics/ui_state.h
 
         ${HEADER_FOLDER}/graphics/vulkan/vulkan_images.h
         ${HEADER_FOLDER}/graphics/vulkan/vulkan_memory.h
@@ -69,6 +68,7 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/ecs/components/input_state.h
         ${HEADER_FOLDER}/ecs/components/rotating_sphere.h
         ${HEADER_FOLDER}/ecs/components/projector.h
+        ${HEADER_FOLDER}/ecs/components/ui_state.h
         ${HEADER_FOLDER}/ecs/systems/camera_controller.h
         ${HEADER_FOLDER}/ecs/systems/sphere_controller.h
         ${HEADER_FOLDER}/ecs/systems/mesh_simplifier_controller.h
@@ -79,6 +79,7 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/util/importer.h
         ${HEADER_FOLDER}/util/byte_size.h
         ${HEADER_FOLDER}/util/performance_logging.h
+        include/ecs/entities/ui_state_entity.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
@@ -121,6 +122,7 @@ set(SOURCE_FILES
         source/ecs/entities/dense_sphere.cpp
         source/ecs/entities/input_state_entity.cpp
         source/ecs/entities/monkey.cpp
+        source/ecs/entities/ui_state_entity.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

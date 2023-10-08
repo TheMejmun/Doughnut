@@ -6,7 +6,7 @@
 #define REALTIME_CELL_COLLAPSE_PERFORMANCE_LOGGING_H
 
 #include "util/timer.h"
-#include "graphics/ui_state.h"
+#include "ecs/components/ui_state.h"
 
 struct FrameTimes {
     double cpuWaitTime;
