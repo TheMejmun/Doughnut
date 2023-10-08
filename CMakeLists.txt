@@ -117,6 +117,10 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/util/performance_logging.cpp
         source/ecs/entity_manager.cpp
         source/ecs/system_manager.cpp
+        source/ecs/entities/camera.cpp
+        source/ecs/entities/dense_sphere.cpp
+        source/ecs/entities/input_state_entity.cpp
+        source/ecs/entities/monkey.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

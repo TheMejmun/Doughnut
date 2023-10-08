@@ -6,16 +6,10 @@
 #define REALTIME_CELL_COLLAPSE_INPUT_STATE_ENTITY_H
 
 #include "preprocessor.h"
-#include "ecs/components/input_state.h"
+#include "typedefs.h"
 
 namespace InputStateEntity {
-    template<class ENTITY_MANAGER>
-    void upload(ENTITY_MANAGER &em) {
-        auto id = em.makeEntity();
-
-        InputState inputState{};
-        em.insertComponent(inputState, id);
-    }
+    void upload(EntityManagerSpec &em);
 }
 
 #endif //REALTIME_CELL_COLLAPSE_INPUT_STATE_ENTITY_H
