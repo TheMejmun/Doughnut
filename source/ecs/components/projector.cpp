@@ -2,7 +2,7 @@
 // Created by Sam on 2023-04-15.
 //
 
-#include "graphics/projector.h"
+#include "ecs/components/projector.h"
 
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_clip_space.hpp>

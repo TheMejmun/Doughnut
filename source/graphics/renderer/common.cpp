@@ -7,6 +7,7 @@
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "graphics/vulkan/vulkan_images.h"
 #include "graphics/vulkan/vulkan_imgui.h"
+#include "graphics/vulkan/vulkan_buffers.h"
 
 using namespace Doughnut::GFX;
 

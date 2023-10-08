@@ -6,51 +6,51 @@
 #include "graphics/uniform_buffer_object.h"
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "util/performance_logging.h"
+#include "graphics/vulkan/vulkan_buffers.h"
 
 // SYSTEMS THAT PLUG INTO THE ECS
 
 using namespace Doughnut::GFX;
 
-void Renderer::uploadRenderables(ECS &ecs) {
-    auto entities = ecs.requestEntities(Renderer::EvaluatorToAllocate);
-    for (auto components: entities) {
-        auto &mesh = *components->renderMesh;
-        Vk::Buffers::uploadVertices(mesh.vertices);
-        Vk::Buffers::uploadIndices(mesh.indices);
-        mesh.isAllocated = true;
+void Renderer::uploadRenderables(EntityManagerSpec &ecs) {
+    auto entities = ecs.requestAll<RenderMesh>();
+    for (auto renderMesh: entities) {
+        if (renderMesh->isAllocated) continue;
+        Vk::Buffers::uploadVertices(renderMesh->vertices);
+        Vk::Buffers::uploadIndices(renderMesh->indices);
+        renderMesh->isAllocated = true;
     }
 }
 
-void Renderer::uploadSimplifiedMeshes(ECS &ecs) {
+void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
     if (Vk::Buffers::waitingForFence) {
-        debug( "Waiting for fence" );
+        debug("Waiting for fence");
         if (Vk::Buffers::isTransferQueueReady()) {
-            debug( "Ready" );
+            debug("Ready");
             Vk::Buffers::finishTransfer();
         } else {
-            debug( "Not ready" );
+            debug("Not ready");
             return;
         }
     }
     const auto startTime = Timer::now();
-    auto entities = ecs.requestEntities(Renderer::EvaluatorToAllocateSimplifiedMesh);
+    auto entities = ecs.requestAll<RenderMeshSimplifiable>();
 
     uint32_t bufferToUse = 1;
     if (Vk::Buffers::meshBufferToUse == 1) bufferToUse = 2;
 
     bool uploadedAny = false;
 
-    for (auto components: entities) {
-        if (components->renderMeshSimplifiable->simplifiedMeshMutex.try_lock()) {
+    for (auto renderMeshSimplifiable: entities) {
+        if (renderMeshSimplifiable->updateSimplifiedMesh && renderMeshSimplifiable->simplifiedMeshMutex->try_lock()) {
             PerformanceLogging::meshUploadStarted();
-            auto &mesh = *components->renderMeshSimplifiable;
             // TODO this upload produced a bad access error
-            Vk::Buffers::uploadMesh(mesh.vertices, mesh.indices, true, bufferToUse);
-            mesh.isAllocated = true;
-            mesh.bufferIndex = bufferToUse;
-            mesh.updateSimplifiedMesh = false;
-            PerformanceLogging::meshUploadFinished({mesh.vertices.size(), mesh.indices.size() / 3});
-            mesh.simplifiedMeshMutex.unlock();
+            Vk::Buffers::uploadMesh(renderMeshSimplifiable->vertices, renderMeshSimplifiable->indices, true, bufferToUse);
+            renderMeshSimplifiable->isAllocated = true;
+            renderMeshSimplifiable->bufferIndex = bufferToUse;
+            renderMeshSimplifiable->updateSimplifiedMesh = false;
+            PerformanceLogging::meshUploadFinished({renderMeshSimplifiable->vertices.size(), renderMeshSimplifiable->indices.size() / 3});
+            renderMeshSimplifiable->simplifiedMeshMutex->unlock();
 
             uploadedAny = true;
         }
@@ -62,27 +62,31 @@ void Renderer::uploadSimplifiedMeshes(ECS &ecs) {
     }
 }
 
-void Renderer::destroyRenderables(ECS &ecs) {
-    auto entities = ecs.requestEntities(Renderer::EvaluatorToDeallocate);
-    for (auto components: entities) {
-        auto &mesh = *components->renderMesh;
-        throw std::runtime_error("TODO");
-    }
+void Renderer::destroyRenderables(EntityManagerSpec &ecs) {
+    // TODO
 }
 
-void Renderer::updateUniformBuffer(const double &delta, ECS &ecs) {
-    auto entities = ecs.requestEntities(Renderer::EvaluatorToDraw);
+void Renderer::updateUniformBuffer(const double &delta, EntityManagerSpec &ecs) {
+    auto entities = ecs.requestAll<RenderMesh, Transformer4>();
 
-    auto &sphere = *entities[0];
     // TODO not just for one object
     UniformBufferObject ubo{};
-    ubo.model = sphere.transform->forward;
+    ubo.model = std::get<1>(entities)[0]->forward;
 
-    auto &camera = *ecs.requestEntities(Renderer::EvaluatorActiveCamera)[0];
+    auto cameras = ecs.requestAll<Projector, Transformer4>();
+    Transformer4 *cameraTransform;
+    Projector *cameraProjector;
+    for(int i = 0; i < std::get<0>(cameras).size(); ++i){
+        if (std::get<0>(cameras)[i]->isMainCamera){
+            cameraTransform = std::get<1>(cameras)[i];
+            cameraProjector = std::get<0>(cameras)[i];
+            break;
+        }
+    }
 
-    ubo.view = camera.camera->getView(*camera.transform);
+    ubo.view = cameraProjector->getView(*cameraTransform);
 
-    ubo.proj = camera.camera->getProjection(Vk::Swapchain::aspectRatio);
+    ubo.proj = cameraProjector->getProjection(Vk::Swapchain::aspectRatio);
 
     // TODO replace with push constants for small objects:
     // https://registry.khronos.org/vulkan/site/guide/latest/push_constants.html

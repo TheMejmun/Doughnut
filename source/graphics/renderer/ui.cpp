@@ -5,6 +5,7 @@
 
 #include "graphics/renderer.h"
 #include "graphics/vulkan/vulkan_imgui.h"
+#include "graphics/vulkan/vulkan_buffers.h"
 
 using namespace Doughnut::GFX;
 

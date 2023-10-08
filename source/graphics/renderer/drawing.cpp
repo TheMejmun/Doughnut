@@ -7,8 +7,9 @@
 #include "graphics/vulkan/vulkan_renderpasses.h"
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "graphics/vulkan/vulkan_imgui.h"
-
-#include <thread>
+#include "graphics/vulkan/vulkan_devices.h"
+#include "graphics/vulkan/vulkan_buffers.h"
+#include "util/importer.h"
 
 using namespace Doughnut::GFX;
 
@@ -362,7 +363,7 @@ void Renderer::recordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex) 
     }
 }
 
-double Renderer::draw(const double &delta, ECS &ecs) {
+double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
     if (Vk::Swapchain::shouldRecreateSwapchain()) {
         bool success = Vk::Swapchain::recreateSwapchain(this->state);
         if (success) {

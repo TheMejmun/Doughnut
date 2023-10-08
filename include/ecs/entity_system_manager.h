@@ -9,14 +9,13 @@
 #include "system_manager.h"
 
 namespace ECS2 {
-    template<uint32_t SYSTEM_LAYERS, class... COMPONENTS>
+    template<uint32_t SYSTEM_LAYERS, class ENTITY_MANAGER>
     class EntitySystemManager {
     public:
         EntitySystemManager() : mSystems(&mEntities) {}
 
-    private:
-        EntityManager<COMPONENTS...> mEntities{};
-        SystemManager<EntityManager<COMPONENTS...>, SYSTEM_LAYERS> mSystems;
+        ENTITY_MANAGER mEntities{};
+        SystemManager<ENTITY_MANAGER, SYSTEM_LAYERS> mSystems;
     };
 }
 

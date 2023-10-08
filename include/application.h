@@ -6,12 +6,10 @@
 #define REALTIME_CELL_COLLAPSE_APPLICATION_H
 
 #include "preprocessor.h"
-#include "graphics/renderer.h"
-#include "util/timer.h"
+#include "typedefs.h"
 #include "io/window_manager.h"
 #include "io/input_manager.h"
-#include "ecs/ecs.h"
-#include "io/printer.h"
+#include "graphics/renderer.h"
 
 #include <memory>
 #include <string>
@@ -29,7 +27,7 @@ namespace Doughnut {
 
         void destroy();
 
-        std::unique_ptr<ECS> mEcs;
+        std::unique_ptr<EntitySystemManagerSpec> mESM;
         std::unique_ptr<GFX::Renderer> mRenderer;
         std::unique_ptr<WindowManager> mWindowManager;
         std::unique_ptr<InputController> mInputManager;

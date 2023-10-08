@@ -62,57 +62,6 @@ namespace ECS2 {
         std::array<std::vector<std::unique_ptr<System<ENTITY_MANAGER>>>, LAYERS> mSystemVectorLayers{};
     };
 
-    // TODO could fail due to race conditions in 'TestSystem::update'
-    void testSystemManager() {
-        EntityManager<int, long> em{};
-
-        em.makeEntity();
-        em.insertComponent<int>(0, 0);
-        em.insertComponent<long>(0, 0);
-        auto &executions = *std::get<0>(em.requestAll<int>())[0];
-        auto &constructed = *std::get<0>(em.requestAll<long>())[0];
-
-        SystemManager<decltype(em), 3> sm{&em};
-
-        class TestSystem : public System<decltype(em)> {
-        public:
-            ~TestSystem() override = default;
-
-            void update(double delta, decltype(em) &entityManager) override {
-                auto &executions = *std::get<0>(entityManager.requestAll<int>())[0];
-                auto &constructed = *std::get<0>(entityManager.requestAll<long>())[0];
-                if (firstUpdate) {
-                    constructed += 1;
-                    firstUpdate = false;
-                }
-                executions += 1;
-            }
-
-        private:
-            bool firstUpdate = true;
-        };
-
-        assert(constructed == 0);
-        assert(executions == 0);
-
-        sm.insertSystem<TestSystem, 0>();
-        sm.insertSystem<TestSystem, 0>();
-        sm.insertSystem<TestSystem, 1>();
-        sm.insertSystem<TestSystem, 1>();
-        sm.insertSystem<TestSystem, 2>();
-        sm.insertSystem<TestSystem, 2>();
-
-        sm.update(0);
-
-        assert(constructed == 6);
-        assert(executions == 6);
-
-        sm.update(0);
-
-        assert(constructed == 6);
-        assert(executions == 12);
-
-        std::cout << "SystemManager test successful." << std::endl;
-    }
+    void testSystemManager() ;
 }
 #endif //DOUGHNUT_SYSTEM_MANAGER_H

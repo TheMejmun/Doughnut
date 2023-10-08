@@ -17,7 +17,7 @@ struct RenderMeshSimplifiable {
     bool isAllocated = false;
     uint32_t bufferIndex = 0;
     bool updateSimplifiedMesh = false;
-    std::mutex simplifiedMeshMutex = std::mutex{};
+    std::unique_ptr<std::mutex> simplifiedMeshMutex;
 };
 
 #endif //REALTIME_CELL_COLLAPSE_RENDER_MESH_SIMPLIFIABLE_H

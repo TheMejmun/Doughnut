@@ -1,8 +1,5 @@
 
 #include "application.h"
-#include "ecs/entity_system_manager.h"
-#include "ecs/entity_manager.h"
-#include "ecs/system_manager.h"
 
 #include <iostream>
 

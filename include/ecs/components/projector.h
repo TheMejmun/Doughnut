@@ -17,6 +17,8 @@ struct Projector {
     glm::vec4 worldUp = {0, -1, 0, 0};
     glm::vec4 cameraFront = {0, 0, 1, 1};
 
+    bool isMainCamera = false;
+
     [[nodiscard]] glm::mat4 getProjection(float aspectRatio) const;
 
     [[nodiscard]] glm::mat4 getView(const Transformer4 &eye) const;
