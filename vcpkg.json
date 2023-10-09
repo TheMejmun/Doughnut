@@ -1,6 +1,6 @@
 {
   "$schema" : "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "name" : "realtime-cell-collapse",
+  "name" : "doughnut",
   "version-string" : "1.0.0",
   "builtin-baseline" : "501db0f17ef6df184fcdbfbe0f87cde2313b6ab1",
   "dependencies" : [ {
