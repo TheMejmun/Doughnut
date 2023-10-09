@@ -125,70 +125,49 @@ void ECS2::benchmark(uint32_t count) {
     EntityManager<Component1, Component2, Component3, Component4, Component5, Component6, Component7, Component8> em{};
 
     {
-        auto _trace_before = Doughnut::Timer::now();
+        trace_scope("MAKE ENTITIES");
         for (uint32_t i = 0; i < count; ++i) {
             em.makeEntity();
         }
-        auto _trace_after = Doughnut::Timer::now();
-        auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
-        std::cout << "MAKE ENTITIES" << ": " << _duration << std::endl;
     }
 
     {
-        auto _trace_before = Doughnut::Timer::now();
+        trace_scope("INSERT C1");
         for (uint32_t i = 0; i < count; ++i) {
             em.insertComponent(Component1{}, i);
         }
-        auto _trace_after = Doughnut::Timer::now();
-        auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
-        std::cout << "INSERT C1" << ": " << _duration << std::endl;
     }
 
     {
-        auto _trace_before = Doughnut::Timer::now();
+        trace_scope("INSERT C2");
         for (uint32_t i = 0; i < count; ++i) {
             if (i % 2 == 0) {
                 em.insertComponent(Component2{}, i);
             }
         }
-        auto _trace_after = Doughnut::Timer::now();
-        auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
-        std::cout << "INSERT C2" << ": " << _duration << std::endl;
     }
 
     {
-        auto _trace_before = Doughnut::Timer::now();
+        trace_scope("INSERT C3");
         for (uint32_t i = 0; i < count; ++i) {
             if (i % 3 == 0) {
                 em.insertComponent(Component3{}, i);
             }
         }
-        auto _trace_after = Doughnut::Timer::now();
-        auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
-        std::cout << "INSERT C3" << ": " << _duration << std::endl;
     }
 
     {
-        auto _trace_before = Doughnut::Timer::now();
+        trace_scope("GET ARCHETYPE 0");
         auto requested = em.requestAll<Component1>();
-        auto _trace_after = Doughnut::Timer::now();
-        auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
-        std::cout << "GET ARCHETYPE 0" << ": " << _duration << std::endl;
     }
 
     {
-        auto _trace_before = Doughnut::Timer::now();
+        trace_scope("GET ARCHETYPE 1");
         auto requested = em.requestAll<Component1, Component2>();
-        auto _trace_after = Doughnut::Timer::now();
-        auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
-        std::cout << "GET ARCHETYPE 1" << ": " << _duration << std::endl;
     }
 
     {
-        auto _trace_before = Doughnut::Timer::now();
+        trace_scope("GET ARCHETYPE 2");
         auto requested = em.requestAll<Component1, Component2, Component3>();
-        auto _trace_after = Doughnut::Timer::now();
-        auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after));
-        std::cout << "GET ARCHETYPE 2" << ": " << _duration << std::endl;
     }
 }

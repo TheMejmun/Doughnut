@@ -5,8 +5,11 @@
 
 int main() {
 #ifndef NDEBUG
-    ECS2::testEntityManager();
-    ECS2::testSystemManager();
+    {
+        trace_scope("Unit Tests");
+        ECS2::testEntityManager();
+        ECS2::testSystemManager();
+    }
 #endif
 
     Doughnut::Application app{"Hello World!"};
