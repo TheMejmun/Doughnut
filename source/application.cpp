@@ -8,9 +8,10 @@
 #include "ecs/entities/monkey.h"
 #include "ecs/entities/camera.h"
 #include "ecs/systems/camera_controller.h"
-#include "ecs/systems/sphere_controller.h"
-#include "ecs/systems/mesh_simplifier_controller.h"
 #include "util/performance_logging.h"
+#include "ecs/systems/mesh_simplifier_controller.h"
+#include "ecs/systems/sphere_controller.h"
+#include "ecs/entities/ui_state_entity.h"
 
 #include <iomanip>
 
@@ -29,69 +30,74 @@ void Application::init() {
     info("Creating Application");
 
 #ifdef NDEBUG
-    std::cout << this->title << " is running in release mode." << std::endl;
+    std::cout << this->mTitle << " is running in release mode." << std::endl;
 #else
-    std::cout << this->title << " is running in debug mode." << std::endl;
+    std::cout << this->mTitle << " is running in debug mode." << std::endl;
 #endif
 
-    mEcs = std::make_unique<ECS>();
-    mWindowManager = std::make_unique<WindowManager>(this->title);
-    mInputManager = std::make_unique<InputController>(mWindowManager->window, *mEcs);
-    mRenderer = std::make_unique<GFX::Renderer>(this->title, mWindowManager->window);
-
-    mRenderer->getUiState()->isMonkeyMesh = mMonkeyMode;
+    mESM = std::make_unique<EntitySystemManagerSpec>();
+    mWindowManager = std::make_unique<WindowManager>(this->mTitle);
+    mInputManager = std::make_unique<InputController>(mWindowManager->window);
+    mRenderer = std::make_unique<GFX::Renderer>(this->mTitle, mWindowManager->window);
 
     // Entities
-    Camera camera{};
-    camera.components.isMainCamera = true;
-    camera.upload(*mEcs);
+    Camera::upload(mESM->mEntities);
+    mESM->mEntities.requestAll<Projector>()[0]->isMainCamera = true;
+
+    InputStateEntity::upload(mESM->mEntities);
+    UiStateEntity::upload(mESM->mEntities);
+    auto &uiState = *mESM->mEntities.template requestAll<UiState>()[0];
+    uiState.isMonkeyMesh = mMonkeyMode;
+    uiState.title = mTitle;
 
     if (mMonkeyMode) {
-        Monkey monkey{};
-        monkey.upload(*mEcs);
+        Monkey::upload(mESM->mEntities);
     } else {
-        DenseSphere sphere{};
-        sphere.upload(*mEcs);
+        DenseSphere::upload(mESM->mEntities);
     }
+
+    // Systems
+    mESM->mSystems.insertSystem<CameraController, 0>();
+    mESM->mSystems.insertSystem<MeshSimplifierController, 0>();
+    mESM->mSystems.insertSystem<SphereController, 0>();
 }
 
 void Application::mainLoop() {
     while (!mWindowManager->shouldClose()) {
 
         // Input
-        mInputManager->update(mDeltaTime, *mEcs);
-        auto &inputState = *mEcs->requestEntities(InputController::EvaluatorInputManagerEntity)[0]->inputState;
+        mInputManager->update(mDeltaTime, mESM->mEntities);
+        auto &inputState = *mESM->mEntities.template requestAll<InputState>()[0];
         if (inputState.closeWindow == IM_DOWN_EVENT)
             mWindowManager->close();
         if (inputState.toggleFullscreen == IM_DOWN_EVENT)
             mWindowManager->toggleFullscreen();
 
         // UI
-        auto uiState = mRenderer->getUiState();
-        uiState->fps.update(mDeltaTime);
-        uiState->cpuWaitTime = mCurrentCpuWaitTime;
+        auto &uiState = *mESM->mEntities.template requestAll<UiState>()[0];
+        uiState.fps.update(mDeltaTime);
+        uiState.cpuWaitTime = mCurrentCpuWaitTime;
 
-        if (uiState->switchMesh) {
+        if (uiState.switchMesh) {
             mExitAfterMainLoop = false;
             mMonkeyMode = !mMonkeyMode;
             mWindowManager->close();
         }
 
-        auto cameraPos = mEcs->requestEntities(CameraController::EvaluatorActiveCamera)[0]
-                ->transform->getPosition();
-        uiState->cameraZ = cameraPos.z;
+        // Update camera Z for UI
+        auto cameras = mESM->mEntities.template requestAll<Projector, Transformer4>();
+        for (uint32_t i = 0; i < std::get<0>(cameras).size(); ++i) {
+            if (std::get<0>(cameras)[i]->isMainCamera) {
+                uiState.cameraZ = std::get<1>(cameras)[i]->getPosition().z;
+            }
+        }
 
-        // Systems
-        CameraController::update(mDeltaTime, *mEcs);
-        SphereController::update(mDeltaTime, *mEcs);
-        if (uiState->runMeshSimplifier)
-            MeshSimplifierController::update(*mEcs, &uiState->meshSimplifierTimeTaken,
-                                             &uiState->meshSimplifierFramesTaken);
+        mESM->mSystems.update(mDeltaTime);
 
         // Render
-        if (uiState->returnToOriginalMeshBuffer)
+        if (uiState.returnToOriginalMeshBuffer)
             mRenderer->resetMesh();
-        mCurrentCpuWaitTime = mRenderer->draw(mDeltaTime, *mEcs);
+        mCurrentCpuWaitTime = mRenderer->draw(mDeltaTime, mESM->mEntities);
 
         // Benchmark
         auto time = Timer::now();
@@ -99,7 +105,7 @@ void Application::mainLoop() {
         mLastTimestamp = time;
 
         // Performance logging
-        PerformanceLogging::update(*uiState);
+        PerformanceLogging::update(uiState);
         PerformanceLogging::newFrame({
                                              .cpuWaitTime = mCurrentCpuWaitTime,
                                              .totalFrameTime = mDeltaTime
@@ -110,13 +116,9 @@ void Application::mainLoop() {
 void Application::destroy() {
     info("Destroying Application");
 
-    CameraController::destroy();
-    SphereController::destroy();
-    MeshSimplifierController::destroy();
-
     // Reset in order
     mRenderer.reset();
     mInputManager.reset();
     mWindowManager.reset();
-    mEcs.reset();
+    mESM.reset();
 }

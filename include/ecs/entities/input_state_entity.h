@@ -5,11 +5,11 @@
 #ifndef REALTIME_CELL_COLLAPSE_INPUT_STATE_ENTITY_H
 #define REALTIME_CELL_COLLAPSE_INPUT_STATE_ENTITY_H
 
-#include "ecs/entity.h"
+#include "preprocessor.h"
+#include "typedefs.h"
 
-class InputStateEntity : public Entity {
-public:
-    InputStateEntity();
-};
+namespace InputStateEntity {
+    void upload(EntityManagerSpec &em);
+}
 
 #endif //REALTIME_CELL_COLLAPSE_INPUT_STATE_ENTITY_H

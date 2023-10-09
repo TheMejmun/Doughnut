@@ -6,32 +6,9 @@
 #define REALTIME_CELL_COLLAPSE_RENDERER_H
 
 #include "preprocessor.h"
-#include "renderer.h"
-#include "util/importer.h"
-#include "vertex.h"
-#include "triangle.h"
-#include "util/timer.h"
-#include "io/printer.h"
-#include "graphics/vulkan/vulkan_buffers.h"
-#include "projector.h"
-#include "ecs/ecs.h"
-#include "graphics/vulkan/vulkan_devices.h"
-#include "graphics/vulkan/vulkan_instance.h"
-#include "graphics/render_state.h"
-
-#include <glm/glm.hpp>
-#include <glfw/glfw3.h>
-#include <string>
-#include <utility>
-#include <vector>
-#include <optional>
-#include <stdexcept>
-#include <iostream>
-#include <cstring>
-#include <set>
-#include <limits> // Necessary for std::numeric_limits
-#include <algorithm> // Necessary for std::clamp
-#include <thread>
+#include "typedefs.h"
+#include "ecs/components/ui_state.h"
+#include "render_state.h"
 
 //#define WIREFRAME_MODE
 //#define INSTANCED_RENDERING
@@ -45,9 +22,7 @@ namespace Doughnut::GFX {
 
         ~Renderer();
 
-        double draw(const double &delta, ECS &ecs);
-
-        UiState *getUiState();
+        double draw(const double &delta, EntityManagerSpec &ecs);
 
         void resetMesh();
 
@@ -58,7 +33,7 @@ namespace Doughnut::GFX {
         void createDescriptorSetLayout();
 
         // TODO Take out delta time
-        void updateUniformBuffer(const double &delta, ECS &ecs);
+        void updateUniformBuffer(const double &delta, EntityManagerSpec &ecs);
 
         void createDescriptorPool();
 
@@ -76,39 +51,16 @@ namespace Doughnut::GFX {
 
         void createSyncObjects();
 
-        void recordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex);
+        void recordCommandBuffer(EntityManagerSpec &ecs, VkCommandBuffer buffer, uint32_t imageIndex);
 
-        static inline bool EvaluatorActiveCamera(const Components &components) {
-            return components.camera != nullptr && components.transform != nullptr && components.isAlive() &&
-                   components.isMainCamera;
-        };
-
-        static inline bool EvaluatorToAllocate(const Components &components) {
-            return components.renderMesh != nullptr && components.isAlive() && !components.renderMesh->isAllocated;
-        };
-
-        static inline bool EvaluatorToAllocateSimplifiedMesh(const Components &components) {
-            return components.renderMesh != nullptr && components.isAlive() &&
-                   components.renderMeshSimplifiable != nullptr && components.renderMeshSimplifiable->updateSimplifiedMesh;
-        };
-
-        static inline bool EvaluatorToDeallocate(const Components &components) {
-            return components.renderMesh != nullptr && components.willDestroy && components.renderMesh->isAllocated;
-        };
-
-        static inline bool EvaluatorToDraw(const Components &components) {
-            return components.renderMesh != nullptr && components.transform != nullptr && components.isAlive() &&
-                   components.renderMesh->isAllocated;
-        };
-
-        void uploadRenderables(ECS &ecs);
+        void uploadRenderables(EntityManagerSpec &ecs);
 
         // return buffer to use
-        void uploadSimplifiedMeshes(ECS &ecs);
+        void uploadSimplifiedMeshes(EntityManagerSpec &ecs);
 
-        void destroyRenderables(ECS &ecs);
+        void destroyRenderables(EntityManagerSpec &ecs);
 
-        void drawUi();
+        void drawUi(EntityManagerSpec &ecs);
 
         RenderState state{};
 

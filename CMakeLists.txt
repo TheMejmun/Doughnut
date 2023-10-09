@@ -30,19 +30,16 @@ set(LIB_FOLDER lib)
 set(HEADER_FILES
         ${HEADER_FOLDER}/application.h
         ${HEADER_FOLDER}/preprocessor.h
+        ${HEADER_FOLDER}/typedefs.h
 
         ${HEADER_FOLDER}/graphics/ui.h
         ${HEADER_FOLDER}/graphics/renderer.h
         ${HEADER_FOLDER}/graphics/colors.h
         ${HEADER_FOLDER}/graphics/vertex.h
         ${HEADER_FOLDER}/graphics/uniform_buffer_object.h
-        ${HEADER_FOLDER}/graphics/render_mesh.h
         ${HEADER_FOLDER}/graphics/pnext_chain_reader.h
-        ${HEADER_FOLDER}/graphics/projector.h
         ${HEADER_FOLDER}/graphics/triangle.h
         ${HEADER_FOLDER}/graphics/render_state.h
-        ${HEADER_FOLDER}/graphics/ui_state.h
-        ${HEADER_FOLDER}/graphics/render_mesh_simplifiable.h
 
         ${HEADER_FOLDER}/graphics/vulkan/vulkan_images.h
         ${HEADER_FOLDER}/graphics/vulkan/vulkan_memory.h
@@ -59,10 +56,6 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/io/window_manager.h
         ${HEADER_FOLDER}/io/printer.h
 
-        ${HEADER_FOLDER}/ecs/ecs.h
-        ${HEADER_FOLDER}/ecs/system.h
-        ${HEADER_FOLDER}/ecs/entity.h
-        ${HEADER_FOLDER}/ecs/components.h
         ${HEADER_FOLDER}/ecs/entity_manager.h
         ${HEADER_FOLDER}/ecs/system_manager.h
         ${HEADER_FOLDER}/ecs/entity_system_manager.h
@@ -70,6 +63,12 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/ecs/entities/camera.h
         ${HEADER_FOLDER}/ecs/entities/input_state_entity.h
         ${HEADER_FOLDER}/ecs/entities/monkey.h
+        ${HEADER_FOLDER}/ecs/components/render_mesh.h
+        ${HEADER_FOLDER}/ecs/components/render_mesh_simplifiable.h
+        ${HEADER_FOLDER}/ecs/components/input_state.h
+        ${HEADER_FOLDER}/ecs/components/rotating_sphere.h
+        ${HEADER_FOLDER}/ecs/components/projector.h
+        ${HEADER_FOLDER}/ecs/components/ui_state.h
         ${HEADER_FOLDER}/ecs/systems/camera_controller.h
         ${HEADER_FOLDER}/ecs/systems/sphere_controller.h
         ${HEADER_FOLDER}/ecs/systems/mesh_simplifier_controller.h
@@ -80,8 +79,7 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/util/importer.h
         ${HEADER_FOLDER}/util/byte_size.h
         ${HEADER_FOLDER}/util/performance_logging.h
-
-        ${HEADER_FOLDER}/io/input_state.h
+        include/ecs/entities/ui_state_entity.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
@@ -94,7 +92,6 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/graphics/renderer/systems.cpp
         ${SOURCE_FOLDER}/graphics/renderer/ui.cpp
         ${SOURCE_FOLDER}/graphics/colors.cpp
-        ${SOURCE_FOLDER}/graphics/projector.cpp
 
         ${SOURCE_FOLDER}/graphics/vulkan/vulkan_buffers.cpp
         ${SOURCE_FOLDER}/graphics/vulkan/vulkan_images.cpp
@@ -109,12 +106,7 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/io/input_manager.cpp
         ${SOURCE_FOLDER}/io/window_manager.cpp
 
-        ${SOURCE_FOLDER}/ecs/ecs.cpp
-        ${SOURCE_FOLDER}/ecs/entity.cpp
-        ${SOURCE_FOLDER}/ecs/entities/dense_sphere.cpp
-        ${SOURCE_FOLDER}/ecs/entities/camera.cpp
-        ${SOURCE_FOLDER}/ecs/entities/input_state_entity.cpp
-        ${SOURCE_FOLDER}/ecs/entities/monkey.cpp
+        ${SOURCE_FOLDER}/ecs/components/projector.cpp
         ${SOURCE_FOLDER}/ecs/systems/camera_controller.cpp
         ${SOURCE_FOLDER}/ecs/systems/sphere_controller.cpp
         ${SOURCE_FOLDER}/ecs/systems/mesh_simplifier_controller.cpp
@@ -124,6 +116,13 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/util/importer.cpp
         ${SOURCE_FOLDER}/util/timer.cpp
         ${SOURCE_FOLDER}/util/performance_logging.cpp
+        source/ecs/entity_manager.cpp
+        source/ecs/system_manager.cpp
+        source/ecs/entities/camera.cpp
+        source/ecs/entities/dense_sphere.cpp
+        source/ecs/entities/input_state_entity.cpp
+        source/ecs/entities/monkey.cpp
+        source/ecs/entities/ui_state_entity.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

@@ -7,8 +7,9 @@
 #include "graphics/vulkan/vulkan_renderpasses.h"
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "graphics/vulkan/vulkan_imgui.h"
-
-#include <thread>
+#include "graphics/vulkan/vulkan_devices.h"
+#include "graphics/vulkan/vulkan_buffers.h"
+#include "util/importer.h"
 
 using namespace Doughnut::GFX;
 
@@ -293,7 +294,7 @@ void Renderer::createSyncObjects() {
     }
 }
 
-void Renderer::recordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex) {
+void Renderer::recordCommandBuffer(EntityManagerSpec &ecs, VkCommandBuffer buffer, uint32_t imageIndex) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = 0; // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkCommandBufferUsageFlagBits.html
@@ -353,7 +354,7 @@ void Renderer::recordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex) 
     vkCmdDrawIndexed(buffer, Vk::Buffers::indexCount[Vk::Buffers::meshBufferToUse], 1, 0, 0, 0);
 #endif
 
-    this->drawUi();
+    this->drawUi(ecs);
 
     vkCmdEndRenderPass(buffer);
 
@@ -362,7 +363,7 @@ void Renderer::recordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex) 
     }
 }
 
-double Renderer::draw(const double &delta, ECS &ecs) {
+double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
     if (Vk::Swapchain::shouldRecreateSwapchain()) {
         bool success = Vk::Swapchain::recreateSwapchain(this->state);
         if (success) {
@@ -409,7 +410,7 @@ double Renderer::draw(const double &delta, ECS &ecs) {
     updateUniformBuffer(delta, ecs);
 
     vkResetCommandBuffer(commandBuffer, 0); // I am not convinced this is necessary
-    recordCommandBuffer(commandBuffer, imageIndex);
+    recordCommandBuffer(ecs, commandBuffer, imageIndex);
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

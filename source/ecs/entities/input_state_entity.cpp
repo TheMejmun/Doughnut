@@ -1,9 +1,12 @@
 //
-// Created by Saman on 31.08.23.
+// Created by Sam on 2023-10-08.
 //
 
 #include "ecs/entities/input_state_entity.h"
 
-InputStateEntity::InputStateEntity() {
-    this->components.inputState = std::make_unique<InputState>();
+void InputStateEntity::upload(EntityManagerSpec &em) {
+    auto id = em.makeEntity();
+
+    InputState inputState{};
+    em.insertComponent(inputState, id);
 }

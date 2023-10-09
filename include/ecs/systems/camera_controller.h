@@ -6,18 +6,11 @@
 #define REALTIME_CELL_COLLAPSE_CAMERA_CONTROLLER_H
 
 #include "preprocessor.h"
-#include "util/timer.h"
-#include "ecs/ecs.h"
-#include "io/input_manager.h"
+#include "typedefs.h"
 
-namespace CameraController{
-    void update(const double &delta, ECS &ecs);
-
-    void destroy();
-
-    static inline bool EvaluatorActiveCamera(const Components &components) {
-        return components.camera != nullptr && components.transform != nullptr && components.isAlive() && components.isMainCamera;
-    };
+class CameraController : public ECS2::System<EntityManagerSpec> {
+public:
+    void update(double delta, EntityManagerSpec &entityManager) override;
 };
 
 #endif //REALTIME_CELL_COLLAPSE_CAMERA_CONTROLLER_H

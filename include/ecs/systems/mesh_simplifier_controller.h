@@ -6,17 +6,13 @@
 #define REALTIME_CELL_COLLAPSE_MESH_SIMPLIFIER_CONTROLLER_H
 
 #include "preprocessor.h"
-#include "util/timer.h"
-#include "ecs/ecs.h"
+#include "typedefs.h"
 
-namespace MeshSimplifierController {
-    void update(ECS &ecs, double *timeTaken, uint32_t *framesTaken);
+class MeshSimplifierController : public ECS2::System<EntityManagerSpec> {
+public:
+    ~MeshSimplifierController() noexcept override;
 
-    void destroy();
-
-    static inline bool EvaluatorToSimplify(const Components &components) {
-        return components.renderMesh != nullptr && components.transform != nullptr && components.isAlive() &&
-               components.renderMeshSimplifiable != nullptr && !components.renderMeshSimplifiable->updateSimplifiedMesh;
-    };
+    void update(double delta, EntityManagerSpec &entityManager) override;
 };
+
 #endif //REALTIME_CELL_COLLAPSE_MESH_SIMPLIFIER_CONTROLLER_H

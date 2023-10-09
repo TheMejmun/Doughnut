@@ -6,12 +6,10 @@
 #define REALTIME_CELL_COLLAPSE_CAMERA_H
 
 #include "preprocessor.h"
-#include "graphics/render_mesh.h"
-#include "ecs/ecs.h"
-#include "ecs/entity.h"
+#include "typedefs.h"
 
-class Camera : public Entity {
-public:
-    Camera();
-};
+namespace Camera {
+    void upload(EntityManagerSpec &em);
+}
+
 #endif //REALTIME_CELL_COLLAPSE_CAMERA_H

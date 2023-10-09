@@ -6,7 +6,7 @@
 #define REALTIME_CELL_COLLAPSE_UI_H
 
 #include "preprocessor.h"
-#include "render_state.h"
+#include "ecs/components/ui_state.h"
 
 namespace UI {
     void update(UiState &state);

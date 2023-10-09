@@ -7,6 +7,7 @@
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "graphics/vulkan/vulkan_images.h"
 #include "graphics/vulkan/vulkan_imgui.h"
+#include "graphics/vulkan/vulkan_buffers.h"
 
 using namespace Doughnut::GFX;
 
@@ -19,9 +20,6 @@ Renderer::Renderer(const std::string &title, GLFWwindow *window) {
 
     this->state.title = title;
     this->state.window = window;
-
-    this->state.uiState.title = title;
-    this->state.uiState.window = window;
 
     this->initVulkan();
     Vk::Imgui::create(this->state);

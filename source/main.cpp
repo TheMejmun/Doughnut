@@ -1,8 +1,5 @@
 
 #include "application.h"
-#include "ecs/entity_system_manager.h"
-#include "ecs/entity_manager.h"
-#include "ecs/system_manager.h"
 
 #include <iostream>
 
@@ -12,8 +9,7 @@ int main() {
     ECS2::testSystemManager();
 #endif
 
-    Doughnut::Application app{};
-    app.title = "Hello World!";
+    Doughnut::Application app{"Hello World!"};
 
     try {
         app.run();

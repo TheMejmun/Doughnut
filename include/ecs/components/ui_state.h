@@ -8,12 +8,11 @@
 #include "preprocessor.h"
 #include "util/timer.h"
 
-#include <glfw/glfw3.h>
+#include "GLFW/glfw3.h"
 #include <string>
 
 struct UiState {
     std::string title{};
-    GLFWwindow *window = nullptr;
 
     float cameraZ = 0;
 

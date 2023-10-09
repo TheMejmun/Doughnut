@@ -6,11 +6,10 @@
 #define REALTIME_CELL_COLLAPSE_RENDER_STATE_H
 
 #include "preprocessor.h"
-#include "graphics/ui_state.h"
 #include "graphics/vulkan/vulkan_state.h"
 #include "util/timer.h"
 
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <string>
 
 namespace Doughnut::GFX {
@@ -18,8 +17,6 @@ namespace Doughnut::GFX {
         std::string title{};
 
         GLFWwindow *window = nullptr;
-
-        UiState uiState{};
 
         Vk::State vulkanState{};
     };

@@ -1,25 +1,31 @@
 //
-// Created by Saman on 31.08.23.
+// Created by Sam on 2023-10-08.
 //
 
 #include "ecs/entities/monkey.h"
 #include "util/importer.h"
-#include "graphics/colors.h"
 
-Monkey::Monkey() {
+void Monkey::upload(EntityManagerSpec &em) {
+    auto id = em.makeEntity();
+
     auto mesh = Importinator::importMesh("resources/models/monkey.glb");
 
-    this->components.renderMesh = std::make_unique<RenderMesh>();
-    this->components.renderMesh->indices = std::move(mesh.indices);
-    this->components.renderMesh->vertices = std::move(mesh.vertices);
-    for (auto &v: this->components.renderMesh->vertices) {
+    RenderMesh renderMesh{};
+    renderMesh.indices = std::move(mesh.indices);
+    renderMesh.vertices = std::move(mesh.vertices);
+    for (auto &v: renderMesh.vertices) {
         v.color = Color::random().getLAB();
     }
-    this->components.renderMeshSimplifiable = std::make_unique<RenderMeshSimplifiable>();
+    em.insertComponent(renderMesh, id);
 
-    this->components.transform = std::make_unique<Transformer4>();
-    this->components.transform->scale(1.0f);
-    this->components.transform->rotate(glm::radians(180.0), glm::vec3(0, 1, 0));
+    // Inplace creation, because mutexes can't be copied
+    auto renderMeshSimplifiable = em.template insertComponent<RenderMeshSimplifiable>(id);
+    renderMeshSimplifiable->simplifiedMeshMutex = std::make_unique<std::mutex>();
 
-    this->components.isRotatingSphere = true;
+    Transformer4 transform{};
+    transform.rotate(glm::radians(180.0), glm::vec3(0, 1, 0));
+    em.insertComponent(transform, id);
+
+    RotatingSphere rotatingSphereComponent{};
+    em.insertComponent(rotatingSphereComponent, id);
 }

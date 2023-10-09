@@ -3,6 +3,7 @@
 //
 
 #include "graphics/renderer.h"
+#include "graphics/vulkan/vulkan_devices.h"
 
 using namespace Doughnut::GFX;
 

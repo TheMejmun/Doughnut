@@ -6,11 +6,11 @@
 #define REALTIME_CELL_COLLAPSE_MONKEY_H
 
 #include "preprocessor.h"
-#include "ecs/entity.h"
+#include "typedefs.h"
 
-class Monkey: public Entity{
-public:
-    Monkey();
-};
+// TODO: Mesh as static resource, not hot-loading
+namespace Monkey {
+    void upload(EntityManagerSpec &em);
+}
 
 #endif //REALTIME_CELL_COLLAPSE_MONKEY_H
