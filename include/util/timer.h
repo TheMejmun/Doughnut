@@ -12,6 +12,8 @@
 #include <cmath>
 #include <deque>
 
+#define trace_scope(name) auto _tracer = Doughnut::Timer::ScopeTracer(name);
+
 namespace Doughnut::Timer {
     using Clock = std::chrono::steady_clock;
     using Second = std::chrono::duration<double>;
@@ -44,6 +46,19 @@ namespace Doughnut::Timer {
         std::deque<double> frametimesLastSecond{};
     private:
         double totalTime();
+    };
+
+    class ScopeTracer {
+    public:
+        explicit ScopeTracer(const char *name) : mName(name) {}
+
+        explicit ScopeTracer(const std::string &name) : mName(name.c_str()) {}
+
+        ~ScopeTracer();
+
+    private:
+        const char *mName;
+        const Point mTimeStarted = Doughnut::Timer::now();
     };
 };
 

@@ -6,7 +6,6 @@
 #define REALTIME_CELL_COLLAPSE_PRINTER_H
 
 #include "preprocessor.h"
-#include "util/timer.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -32,13 +31,5 @@
 #else
 #define verbose(stream) std::cout << stream << "\n"
 #endif
-
-#define trace(name, block) { \
-    auto _trace_before = Doughnut::Timer::now(); \
-    block; \
-    auto _trace_after =  Doughnut::Timer::now(); \
-    auto _duration = std::to_string(Doughnut::Timer::duration(_trace_before, _trace_after)); \
-    info(name << ": " << _duration); \
-}
 
 #endif //REALTIME_CELL_COLLAPSE_PRINTER_H
