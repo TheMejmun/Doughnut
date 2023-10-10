@@ -199,8 +199,10 @@ void simplify(const Projector &cameraProjector,
 
     // PARALLELLLLLL
     const auto indices = makeIndexRange(from.vertices.size() - 1);
+    // TODO restore parallelism
+    // std::execution::par not available on macOS
     std::for_each(
-            std::execution::par,
+//            std::execution::par,
             indices.begin(),
             indices.end(),
             positionCalcLambda);

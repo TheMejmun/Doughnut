@@ -45,8 +45,10 @@ namespace ECS2 {
 
         void update(double delta) {
             for (auto &layer: mSystemVectorLayers) {
+                // TODO restore parallelism
+                // std::execution::par not available on macOS
                 std::for_each(
-                        std::execution::par,
+//                        std::execution::par,
                         layer.begin(),
                         layer.end(),
                         [&](std::unique_ptr<System<ENTITY_MANAGER>> &system) {

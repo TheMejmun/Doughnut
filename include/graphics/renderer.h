@@ -10,6 +10,8 @@
 #include "ecs/components/ui_state.h"
 #include "render_state.h"
 
+#include <thread>
+
 //#define WIREFRAME_MODE
 //#define INSTANCED_RENDERING
 
