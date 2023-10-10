@@ -8,6 +8,7 @@
 #include "io/printer.h"
 #include "util/timer.h"
 #include "util/performance_logging.h"
+#include "util/os.h"
 
 #include <thread>
 #include <limits>
@@ -202,7 +203,7 @@ void simplify(const Projector &cameraProjector,
     // TODO restore parallelism
     // std::execution::par not available on macOS
     std::for_each(
-#ifdef _WIN32
+#ifndef OS_MAC
             std::execution::par,
 #endif
             indices.begin(),

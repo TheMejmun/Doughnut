@@ -7,6 +7,7 @@
 
 #include "io/printer.h"
 #include "entity_manager.h"
+#include "util/os.h"
 
 #include <array>
 #include <memory>
@@ -48,7 +49,7 @@ namespace ECS2 {
                 // TODO restore parallelism
                 // std::execution::par not available on macOS
                 std::for_each(
-#ifdef _WIN32
+#ifndef OS_MAC
                         std::execution::par,
 #endif
                         layer.begin(),

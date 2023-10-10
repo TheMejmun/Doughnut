@@ -82,6 +82,7 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/util/byte_size.h
         ${HEADER_FOLDER}/util/performance_logging.h
         include/ecs/entities/ui_state_entity.h
+        include/util/os.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
