@@ -202,7 +202,9 @@ void simplify(const Projector &cameraProjector,
     // TODO restore parallelism
     // std::execution::par not available on macOS
     std::for_each(
-//            std::execution::par,
+#ifdef _WIN32
+            std::execution::par,
+#endif
             indices.begin(),
             indices.end(),
             positionCalcLambda);

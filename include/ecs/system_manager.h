@@ -48,7 +48,9 @@ namespace ECS2 {
                 // TODO restore parallelism
                 // std::execution::par not available on macOS
                 std::for_each(
-//                        std::execution::par,
+#ifdef _WIN32
+                        std::execution::par,
+#endif
                         layer.begin(),
                         layer.end(),
                         [&](std::unique_ptr<System<ENTITY_MANAGER>> &system) {
