@@ -7,6 +7,7 @@
 
 #include "io/printer.h"
 #include "entity_manager.h"
+#include "util/os.h"
 
 #include <array>
 #include <memory>
@@ -45,8 +46,12 @@ namespace ECS2 {
 
         void update(double delta) {
             for (auto &layer: mSystemVectorLayers) {
+                // TODO restore parallelism
+                // std::execution::par not available on macOS
                 std::for_each(
+#ifndef OS_MAC
                         std::execution::par,
+#endif
                         layer.begin(),
                         layer.end(),
                         [&](std::unique_ptr<System<ENTITY_MANAGER>> &system) {

@@ -4,19 +4,24 @@
 
 #include "util/performance_logging.h"
 #include "util/timer.h"
+#include "util/os.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-#ifdef _WIN32
+#ifdef OS_WINDOWS
 // This is required for the windows mkdir function to work.
 #include <direct.h>
 
-#else
-// macos
-#include <sys/types.h>
+#elif defined(OS_MAC)
+// MacOS
 #include <sys/stat.h>
+
+#elif defined(OS_LINUX)
+// TODO Test. Currently just guessing that it's the same as MacOS.
+#include <sys/stat.h>
+
 #endif
 
 extern const double PerformanceLogging::LOG_DURATION = 60.0;
@@ -79,7 +84,7 @@ void PerformanceLogging::update(UiState &uiState) {
             // Done
 
             // mkdir varies between OSes
-#ifdef _WIN32
+#ifdef OS_WINDOWS
             _mkdir("output");
 #else
             mkdir("output", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);

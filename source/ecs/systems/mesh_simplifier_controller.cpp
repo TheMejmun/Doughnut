@@ -8,6 +8,7 @@
 #include "io/printer.h"
 #include "util/timer.h"
 #include "util/performance_logging.h"
+#include "util/os.h"
 
 #include <thread>
 #include <limits>
@@ -199,8 +200,12 @@ void simplify(const Projector &cameraProjector,
 
     // PARALLELLLLLL
     const auto indices = makeIndexRange(from.vertices.size() - 1);
+    // TODO restore parallelism
+    // std::execution::par not available on macOS
     std::for_each(
+#ifndef OS_MAC
             std::execution::par,
+#endif
             indices.begin(),
             indices.end(),
             positionCalcLambda);
