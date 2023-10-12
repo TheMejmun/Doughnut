@@ -87,6 +87,11 @@ void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
 //    mRunCondition.notify_all();
 }
 
+uint32_t Scheduler::activeWorkerCount() {
+    std::lock_guard<std::mutex> guard(mQueueMutex);
+    return mWaitingJobCount - mQueue.size();
+}
+
 Scheduler::~Scheduler() {
     await();
     mExitThreads = true;
@@ -103,21 +108,27 @@ void Doughnut::testScheduler() {
     bool task2Done = false;
     bool task3Done = false;
 
-    Doughnut::Scheduler scheduler{};
+    Doughnut::Scheduler scheduler{2};
 
     assert(scheduler.done());
 
     scheduler.queue({
                             [&]() {
-                                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                                std::this_thread::sleep_for(std::chrono::milliseconds(200));
                                 task1Done = true;
                             },
                             [&]() {
-                                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                                std::this_thread::sleep_for(std::chrono::milliseconds(200));
                                 task2Done = true;
+                            },
+                            [&]() {
+                                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                                // Do nothing
                             }
                     });
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    assert(scheduler.activeWorkerCount() == 2);
     assert(!scheduler.done());
 
     scheduler.await();
@@ -128,9 +139,13 @@ void Doughnut::testScheduler() {
 
     scheduler.queue({
                             [&]() {
+                                std::this_thread::sleep_for(std::chrono::milliseconds(200));
                                 task3Done = true;
                             }
                     });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    assert(scheduler.activeWorkerCount() == 1);
 
     scheduler.await();
 
