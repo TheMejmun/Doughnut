@@ -78,14 +78,12 @@ bool Scheduler::done() {
 }
 
 void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
-    {
-        std::lock_guard<std::mutex> guard(mQueueMutex);
-        for (auto &job: functions) {
-            ++mWaitingJobCount;
-            mQueue.emplace(job);
-        }
+    std::lock_guard<std::mutex> guard(mQueueMutex);
+    for (auto &job: functions) {
+        ++mWaitingJobCount;
+        mQueue.emplace(job);
+        mRunCondition.notify_one();
     }
-    mRunCondition.notify_all();
 }
 
 uint32_t Scheduler::activeWorkerCount() {
