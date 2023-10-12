@@ -45,6 +45,8 @@ namespace Doughnut {
 
         uint32_t activeWorkerCount();
 
+        uint32_t workerCount();
+
     private:
         std::queue<std::function<void()>> mQueue{};
         std::mutex mQueueMutex{};

@@ -92,6 +92,10 @@ uint32_t Scheduler::activeWorkerCount() {
     return mWaitingJobCount - mQueue.size();
 }
 
+uint32_t Scheduler::workerCount() {
+    return mThreads.size();
+}
+
 Scheduler::~Scheduler() {
     await();
     mExitThreads = true;
