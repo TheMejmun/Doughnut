@@ -83,6 +83,7 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/util/performance_logging.h
         include/ecs/entities/ui_state_entity.h
         include/util/os.h
+        include/core/scheduler.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
@@ -126,6 +127,7 @@ set(SOURCE_FILES
         source/ecs/entities/input_state_entity.cpp
         source/ecs/entities/monkey.cpp
         source/ecs/entities/ui_state_entity.cpp
+        source/core/scheduler.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

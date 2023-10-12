@@ -1,5 +1,6 @@
 
 #include "application.h"
+#include "core/scheduler.h"
 
 #include <iostream>
 
@@ -9,6 +10,7 @@ int main() {
         trace_scope("Unit Tests");
         ECS2::testEntityManager();
         ECS2::testSystemManager();
+        Doughnut::testScheduler();
     }
 #endif
 
