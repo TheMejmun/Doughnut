@@ -35,6 +35,8 @@ namespace Doughnut {
         std::mutex mRunMutex{};
         std::condition_variable mRunCondition{};
     };
+
+    void testScheduler();
 }
 
 #endif //DOUGHNUT_SCHEDULER_H

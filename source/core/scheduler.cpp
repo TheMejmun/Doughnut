@@ -74,8 +74,7 @@ void Scheduler::await() {
 }
 
 bool Scheduler::done() {
-    std::lock_guard<std::mutex> guard(mQueueMutex);
-    return mQueue.empty();
+    return mWaitingJobCount == 0;
 }
 
 void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
@@ -97,4 +96,46 @@ Scheduler::~Scheduler() {
         if (thread.joinable())
             thread.join();
     }
+}
+
+void Doughnut::testScheduler() {
+    bool task1Done = false;
+    bool task2Done = false;
+    bool task3Done = false;
+
+    Doughnut::Scheduler scheduler{};
+
+    assert(scheduler.done());
+
+    scheduler.queue({
+                            [&]() {
+                                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                                task1Done = true;
+                            },
+                            [&]() {
+                                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                                task2Done = true;
+                            }
+                    });
+
+    assert(!scheduler.done());
+
+    scheduler.await();
+
+    assert(scheduler.done());
+    assert(task1Done);
+    assert(task2Done);
+
+    scheduler.queue({
+                            [&]() {
+                                task3Done = true;
+                            }
+                    });
+
+    scheduler.await();
+
+    assert(scheduler.done());
+    assert(task3Done);
+
+    std::cout << "Scheduler test successful." << std::endl;
 }

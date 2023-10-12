@@ -5,29 +5,14 @@
 #include <iostream>
 
 int main() {
-//#ifndef NDEBUG
-//    {
-//        trace_scope("Unit Tests");
-//        ECS2::testEntityManager();
-//        ECS2::testSystemManager();
-//    }
-//#endif
-
-    Doughnut::Scheduler scheduler{};
+#ifndef NDEBUG
     {
-        trace_scope("Schedule 2 tasks");
-        scheduler.queue({
-                                []() {
-                                    std::this_thread::sleep_for(std::chrono::seconds(2));
-                                    std::cout << "Hi!\n";
-                                },
-                                []() {
-                                    std::this_thread::sleep_for(std::chrono::seconds(2));
-                                    std::cout << "Hello!\n";
-                                }
-        });
+        trace_scope("Unit Tests");
+        ECS2::testEntityManager();
+        ECS2::testSystemManager();
+        Doughnut::testScheduler();
     }
-    return 0;
+#endif
 
     Doughnut::Application app{"Hello World!"};
 
