@@ -22,12 +22,6 @@ static void threadBody(
         std::condition_variable *runCondition
 ) {
     while (!*exit) {
-        verbose(std::this_thread::get_id() << " Going to sleep.");
-        std::unique_lock<std::mutex> runLock(*runMutex);
-        runCondition->wait(runLock);
-//        runCondition->wait_for(runLock, std::chrono::milliseconds(250)); // Worst case exit wait after 1/4 second
-        runLock.unlock(); // TODO this unlock could theoretically throw an exception if not locked & the condition sporadically unlocks (I think)
-
         while (true) {
             std::function<void()> job;
 
@@ -45,6 +39,12 @@ static void threadBody(
             job();
             --(*waitingJobCount);
         }
+
+        // Moved condition block below first iteration of checking for jobs. Caused deadlocks otherwise.
+        verbose(std::this_thread::get_id() << " Going to sleep.");
+        std::unique_lock<std::mutex> runLock(*runMutex);
+        runCondition->wait(runLock);
+        runLock.unlock(); // TODO this unlock could theoretically throw an exception if not locked & the condition sporadically unlocks (I think)
     }
     verbose(std::this_thread::get_id() << " Exiting thread.");
 }
@@ -78,13 +78,14 @@ bool Scheduler::done() {
 }
 
 void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
-    std::lock_guard<std::mutex> guard(mQueueMutex);
-    for (auto &job: functions) {
-        ++mWaitingJobCount;
-        mQueue.emplace(job);
-        mRunCondition.notify_one();
+    {
+        std::lock_guard<std::mutex> guard(mQueueMutex);
+        for (auto &job: functions) {
+            ++mWaitingJobCount;
+            mQueue.emplace(job);
+        }
     }
-//    mRunCondition.notify_all();
+    mRunCondition.notify_all();
 }
 
 uint32_t Scheduler::activeWorkerCount() {
@@ -97,8 +98,8 @@ uint32_t Scheduler::workerCount() {
 }
 
 Scheduler::~Scheduler() {
+    mExitThreads = true; // Variable has to be updated first, otherwise deadlocks occur.
     await();
-    mExitThreads = true;
     // This may clear the scheduler before all jobs are completed.
     mRunCondition.notify_all();
     for (auto &thread: mThreads) {
@@ -111,50 +112,77 @@ void Doughnut::testScheduler() {
     bool task1Done = false;
     bool task2Done = false;
     bool task3Done = false;
+    bool task4Done = false;
 
     Doughnut::Scheduler scheduler{2};
 
     assert(scheduler.done());
 
+    std::atomic<uint32_t> runningThreads = 0;
+    std::mutex m1{}, m2{};
+    m1.lock();
+    m2.lock();
     scheduler.queue({
                             [&]() {
-                                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                                ++runningThreads;
+                                std::lock_guard<std::mutex> guard(m1);
                                 task1Done = true;
+                                --runningThreads;
                             },
                             [&]() {
-                                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                                ++runningThreads;
+                                std::lock_guard<std::mutex> guard(m2);
                                 task2Done = true;
+                                --runningThreads;
                             },
                             [&]() {
-                                std::this_thread::sleep_for(std::chrono::milliseconds(200));
-                                // Do nothing
+                                ++runningThreads;
+                                task3Done = true;
+                                --runningThreads;
                             }
                     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    assert(scheduler.activeWorkerCount() == 2);
     assert(!scheduler.done());
 
+    while (runningThreads < 2) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    assert(!scheduler.done());
+    assert(scheduler.activeWorkerCount() == 2);
+
+    m1.unlock();
+    m2.unlock();
     scheduler.await();
 
     assert(scheduler.done());
     assert(task1Done);
     assert(task2Done);
+    assert(task3Done);
 
+    m1.lock();
     scheduler.queue({
                             [&]() {
-                                std::this_thread::sleep_for(std::chrono::milliseconds(200));
-                                task3Done = true;
+                                ++runningThreads;
+                                std::lock_guard<std::mutex> guard(m1);
+                                task4Done = true;
+                                --runningThreads;
                             }
                     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    assert(!scheduler.done());
+
+    while (runningThreads < 1) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
     assert(scheduler.activeWorkerCount() == 1);
 
+    m1.unlock();
     scheduler.await();
 
     assert(scheduler.done());
-    assert(task3Done);
+    assert(task4Done);
 
     std::cout << "Scheduler test successful." << std::endl;
 }

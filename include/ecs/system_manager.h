@@ -5,13 +5,20 @@
 #ifndef DOUGHNUT_SYSTEM_MANAGER_H
 #define DOUGHNUT_SYSTEM_MANAGER_H
 
+#define NEW_SCHEDULER
+
 #include "io/printer.h"
 #include "entity_manager.h"
 #include "util/os.h"
 
+#ifdef NEW_SCHEDULER
+#include "core/scheduler.h"
+#else
+#include <algorithm>
+#endif
+
 #include <array>
 #include <memory>
-#include <algorithm>
 #include <execution>
 
 namespace ECS2 {
