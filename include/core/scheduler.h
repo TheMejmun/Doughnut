@@ -13,16 +13,34 @@
 namespace Doughnut {
     class Scheduler {
     public:
+        /**
+         * Init with one worker per available core
+         */
         Scheduler();
 
+        /**
+         * Init with specified number of workers
+         * @param workerCount Number of workers to create
+         */
         explicit Scheduler(uint32_t workerCount);
 
         ~Scheduler();
 
+        /**
+         * Check whether any jobs are currently waiting
+         * @return True, if all jobs are finished
+         */
         bool done();
 
+        /**
+         * Block thread until all jobs are finished
+         */
         void await();
 
+        /**
+         * Insert jobs into queue and execute
+         * @param functions List of jobs to perform
+         */
         void queue(std::initializer_list<std::function<void()>> functions);
 
     private:
