@@ -24,7 +24,8 @@ static void threadBody(
     while (!*exit) {
         verbose(std::this_thread::get_id() << " Going to sleep.");
         std::unique_lock<std::mutex> runLock(*runMutex);
-        runCondition->wait_for(runLock, std::chrono::milliseconds(250)); // Worst case exit wait after one second
+        runCondition->wait(runLock);
+//        runCondition->wait_for(runLock, std::chrono::milliseconds(250)); // Worst case exit wait after 1/4 second
         runLock.unlock(); // TODO this unlock could theoretically throw an exception if not locked & the condition sporadically unlocks (I think)
 
         while (true) {
@@ -88,6 +89,7 @@ void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
 }
 
 Scheduler::~Scheduler() {
+    await();
     mExitThreads = true;
     // This may clear the scheduler before all jobs are completed.
     mRunCondition.notify_all();
