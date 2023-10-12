@@ -12,9 +12,13 @@
 #include "util/os.h"
 
 #ifdef NEW_SCHEDULER
+
 #include "core/scheduler.h"
+
 #else
+
 #include <algorithm>
+
 #endif
 
 #include <array>
@@ -44,7 +48,8 @@ namespace ECS2 {
 
         template<class SYSTEM, uint32_t LAYER>
         void insertSystem() {
-            static_assert(std::is_base_of<System<ENTITY_MANAGER>, SYSTEM>::value, "System not derived from System<EntityManager>.");
+            static_assert(std::is_base_of<System<ENTITY_MANAGER>, SYSTEM>::value,
+                          "System not derived from System<EntityManager>.");
             static_assert(std::is_default_constructible<SYSTEM>::value, "System is not constructible.");
             static_assert(LAYER < LAYERS, "Requested layer does not exist.");
 
@@ -53,6 +58,17 @@ namespace ECS2 {
 
         void update(double delta) {
             for (auto &layer: mSystemVectorLayers) {
+#ifdef NEW_SCHEDULER
+                for (auto &system: layer) {
+                    // TODO find a way to insert all jobs at once.
+                    mScheduler.queue({
+                                             [&]() {
+                                                 system->update(delta, *mEntityManager);
+                                             }
+                                     });
+                }
+                mScheduler.await();
+#else
                 // TODO restore parallelism
                 // std::execution::par not available on macOS
                 std::for_each(
@@ -65,15 +81,18 @@ namespace ECS2 {
                             system->update(delta, *mEntityManager);
                         }
                 );
+#endif
             }
         };
 
     private:
         ENTITY_MANAGER *mEntityManager;
-
         std::array<std::vector<std::unique_ptr<System<ENTITY_MANAGER>>>, LAYERS> mSystemVectorLayers{};
+#ifdef NEW_SCHEDULER
+        Doughnut::Scheduler mScheduler{};
+#endif
     };
 
-    void testSystemManager() ;
+    void testSystemManager();
 }
 #endif //DOUGHNUT_SYSTEM_MANAGER_H
