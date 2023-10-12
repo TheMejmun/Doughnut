@@ -28,9 +28,9 @@ namespace Doughnut {
     private:
         std::queue<std::function<void()>> mQueue{};
         std::mutex mQueueMutex{};
-        std::vector<std::thread> mThreads{};
-
         std::atomic<uint32_t> mWaitingJobCount = 0;
+
+        std::vector<std::thread> mThreads{};
         std::atomic<bool> mExitThreads = false;
         std::mutex mRunMutex{};
         std::condition_variable mRunCondition{};
