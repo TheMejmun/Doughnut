@@ -7,6 +7,7 @@
 #include <mutex>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 
 using namespace Doughnut;
 
@@ -41,7 +42,10 @@ std::string getTimestamp() {
     localtime_s(&timeInfo, &rawTime);
 
     std::stringstream stream{};
-    stream << "[" << timeInfo.tm_hour << ":" << timeInfo.tm_min << ":" << timeInfo.tm_sec << "]";
+    stream << "["
+           << (char) ('0' + (timeInfo.tm_hour / 10)) << (char) ('0' + (timeInfo.tm_hour % 10)) << ":"
+           << (char) ('0' + (timeInfo.tm_min / 10)) << (char) ('0' + (timeInfo.tm_min % 10)) << ":"
+           << (char) ('0' + (timeInfo.tm_sec / 10)) << (char) ('0' + (timeInfo.tm_sec % 10)) << "]";
 
     return stream.str();
 }
