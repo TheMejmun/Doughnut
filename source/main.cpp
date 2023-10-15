@@ -7,8 +7,17 @@
 
 int main() {
 #ifndef NDEBUG
-    Doughnut::Log::init(true, true, false);
+    Doughnut::Log::init(true, true, true);
 #endif
+
+    {
+        trace_scope("Logging");
+        for (uint32_t i = 0; i < 10'000; ++i) {
+            Doughnut::Log::d("LOG", "DEBUG", "TEST", i);
+        }
+    }
+
+    return 0;
 
 #ifndef NDEBUG
     {

@@ -5,12 +5,16 @@
 #ifndef DOUGHNUT_LOGGER_H
 #define DOUGHNUT_LOGGER_H
 
+#include "core/scheduler.h"
+
 #include <string>
 #include <sstream>
 
 // TODO move printing into separate thread
 
 namespace Doughnut::Log {
+    extern Scheduler scheduler__;
+
     enum Level {
         INFO,
         DEBUG,
@@ -38,7 +42,9 @@ namespace Doughnut::Log {
     inline void i(ARGS &&... args) {
         if (infoEnabled()) {
             auto formatted = format(args...);
-            log(INFO, formatted);
+            scheduler__.queue({[=]() {
+                log__(INFO, formatted);
+            }});
         }
     }
 
@@ -46,7 +52,9 @@ namespace Doughnut::Log {
     inline void d(ARGS &&... args) {
         if (debugEnabled()) {
             auto formatted = format(args...);
-            log(DEBUG, formatted);
+            scheduler__.queue({[=]() {
+                log__(DEBUG, formatted);
+            }});
         }
     }
 
@@ -54,17 +62,21 @@ namespace Doughnut::Log {
     inline void v(ARGS &&... args) {
         if (verboseEnabled()) {
             auto formatted = format(args...);
-            log(VERBOSE, formatted);
+            scheduler__.queue({[=]() {
+                log__(VERBOSE, formatted);
+            }});
         }
     }
 
     template<typename... ARGS>
     inline void e(ARGS &&... args) {
         auto formatted = format(args...);
-        log(ERROR, formatted);
+        scheduler__.queue({[=]() {
+            log__(ERROR, formatted);
+        }});
     }
 
-    void log(Level level, const std::string &message);
+    void log__(Level level, const std::string &message);
 
     void init(bool enableInfo, bool enableDebug, bool enableVerbose);
 }

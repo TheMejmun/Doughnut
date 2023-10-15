@@ -11,7 +11,8 @@
 
 using namespace Doughnut;
 
-std::mutex iPrintMutex{};
+Scheduler Log::scheduler__{1};
+
 bool iInfoEnabled = false;
 bool iDebugEnabled = false;
 bool iVerboseEnabled = false;
@@ -50,9 +51,8 @@ std::string getTimestamp() {
     return stream.str();
 }
 
-void Log::log(Log::Level level, const std::string &message) {
+void Log::log__(Log::Level level, const std::string &message) {
     auto time = getTimestamp();
-    std::lock_guard<std::mutex> guard{iPrintMutex};
     switch (level) {
         case INFO:
             std::cout << time << " I: " << message << "\n";
