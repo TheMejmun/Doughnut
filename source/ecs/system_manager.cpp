@@ -8,11 +8,13 @@ using namespace ECS2;
 
 // TODO could fail due to race conditions in 'TestSystem::update'
 void ECS2::testSystemManager() {
-    EntityManager<int, long> em{};
+    EntityManager<int, long, std::mutex *> em{};
 
     em.makeEntity();
     em.insertComponent<int>(0);
     em.insertComponent<long>(0);
+    std::mutex updateDataMutex{};
+    em.insertComponent<std::mutex *>(&updateDataMutex, 0);
     auto &executions = *em.requestAll<int>()[0];
     auto &constructed = *em.requestAll<long>()[0];
 
@@ -25,6 +27,8 @@ void ECS2::testSystemManager() {
         void update(const double delta, decltype(em) &entityManager) override {
             auto &executions = *entityManager.requestAll<int>()[0];
             auto &constructed = *entityManager.requestAll<long>()[0];
+            auto &mutex = **entityManager.requestAll<std::mutex *>()[0];
+            std::lock_guard<std::mutex> guard{mutex};
             if (firstUpdate) {
                 constructed += 1;
                 firstUpdate = false;
