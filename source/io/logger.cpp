@@ -10,7 +10,7 @@
 
 using namespace Doughnut;
 
-std::mutex printMutex{};
+std::mutex iPrintMutex{};
 bool iInfoEnabled = false;
 bool iDebugEnabled = false;
 bool iVerboseEnabled = false;
@@ -48,26 +48,19 @@ std::string getTimestamp() {
 
 void Log::log(Log::Level level, const std::string &message) {
     auto time = getTimestamp();
+    std::lock_guard<std::mutex> guard{iPrintMutex};
     switch (level) {
         case INFO:
-            printMutex.lock();
             std::cout << time << " I: " << message << "\n";
-            printMutex.unlock();
             break;
         case DEBUG:
-            printMutex.lock();
             std::cout << time << " D: " << message << "\n";
-            printMutex.unlock();
             break;
         case VERBOSE:
-            printMutex.lock();
             std::cout << time << " V: " << message << "\n";
-            printMutex.unlock();
             break;
         case ERROR:
-            printMutex.lock();
             std::cerr << time << " E: " << message << std::endl;
-            printMutex.unlock();
             break;
     }
 }
