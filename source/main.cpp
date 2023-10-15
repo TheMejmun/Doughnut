@@ -9,12 +9,6 @@ int main() {
 #ifndef NDEBUG
     Doughnut::Log::init(true, true, false);
 #endif
-    Doughnut::Log::i("INFO");
-    Doughnut::Log::d("DEBUG");
-    Doughnut::Log::v("VERBOSE");
-    Doughnut::Log::e("ERROR", "AAAAAAAAAAHHHH");
-
-    return 0;
 
 #ifndef NDEBUG
     {
