@@ -8,6 +8,8 @@
 #include <string>
 #include <sstream>
 
+// TODO move printing into separate thread
+
 namespace Doughnut::Log {
     enum Level {
         INFO,
