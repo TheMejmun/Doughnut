@@ -3,7 +3,7 @@
 //
 
 #include "application.h"
-#include "io/printer.h"
+#include "io/logger.h"
 #include "ecs/entities/dense_sphere.h"
 #include "ecs/entities/monkey.h"
 #include "ecs/entities/camera.h"
@@ -27,12 +27,12 @@ void Application::run() {
 }
 
 void Application::init() {
-    info("Creating Application");
+    Log::i("Creating Application");
 
 #ifdef NDEBUG
-    std::cout << this->mTitle << " is running in release mode." << std::endl;
+    Log::i(this->mTitle, "is running in release mode.");
 #else
-    std::cout << this->mTitle << " is running in debug mode." << std::endl;
+    Log::i(this->mTitle, "is running in debug mode.");
 #endif
 
     mESM = std::make_unique<EntitySystemManagerSpec>();
@@ -114,7 +114,7 @@ void Application::mainLoop() {
 }
 
 void Application::destroy() {
-    info("Destroying Application");
+    Log::i("Destroying Application");
 
     // Reset in order
     mRenderer.reset();

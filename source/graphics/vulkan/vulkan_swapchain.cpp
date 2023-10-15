@@ -2,7 +2,6 @@
 // Created by Saman on 24.08.23.
 //
 
-#include "io/printer.h"
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "graphics/vulkan/vulkan_instance.h"
 #include "graphics/vulkan/vulkan_devices.h"
@@ -10,11 +9,13 @@
 #include "graphics/vulkan/vulkan_memory.h"
 #include "graphics/vulkan/vulkan_imgui.h"
 #include "graphics/vulkan/vulkan_images.h"
+#include "io/logger.h"
 
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <array>
 #include <algorithm>
 
+using namespace Doughnut;
 using namespace Doughnut::GFX::Vk;
 
 // Global
@@ -80,9 +81,9 @@ VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
         }
     }
 
-    verbose( "Picked Swapchain Surface Format: " );
-    verbose( "\tFormat: " << out.format );
-    verbose( "\tColor Space: " << out.colorSpace );
+    Log::v("Picked Swapchain Surface Format: ");
+    Log::v("\tFormat:", out.format);
+    Log::v("\tColor Space:", out.colorSpace);
 
     return out;
 }
@@ -108,7 +109,7 @@ VkPresentModeKHR Swapchain::chooseSwapPresentMode(const std::vector<VkPresentMod
         }
     }
 
-    info( "Picked Swapchain Present Mode: " << presentModeNames[currentIndex] );
+    Log::i("Picked Swapchain Present Mode:", presentModeNames[currentIndex]);
     return presentModePreferences[currentIndex];
 }
 
@@ -140,12 +141,12 @@ VkExtent2D Swapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilit
     Swapchain::framebufferHeight = out.height;
     Swapchain::aspectRatio = static_cast<float>(out.width) / static_cast<float>(out.height);
 
-    info( "Swapchain extents set to: " << out.width << " * " << out.height );
+    Log::i("Swapchain extents set to:", out.width, "*", out.height);
     return out;
 }
 
 bool Swapchain::recreateSwapchain(RenderState &state) {
-    verbose( "Recreating Swapchain" );
+    Log::v("Recreating Swapchain");
 
     // May need to recreate render pass here if e.g. window moves to HDR monitor
 
@@ -163,7 +164,7 @@ bool Swapchain::recreateSwapchain(RenderState &state) {
 }
 
 bool Swapchain::createSwapchain() {
-    info( "Creating Swapchain" );
+    Log::i("Creating Swapchain");
 
     Swapchain::SwapchainSupportDetails swapchainSupport = Swapchain::querySwapchainSupport(
             Devices::physical);
@@ -173,7 +174,7 @@ bool Swapchain::createSwapchain() {
     VkExtent2D extentTemp = chooseSwapExtent(swapchainSupport.capabilities);
 
     if (extentTemp.width < 1 || extentTemp.height < 1) {
-        verbose( "Invalid swapchain extents. Retry later!" );
+        Log::v("Invalid swapchain extents. Retry later!");
         Swapchain::needsNewSwapchain = true;
         return false;
     }
@@ -184,7 +185,7 @@ bool Swapchain::createSwapchain() {
         Swapchain::minImageCount > swapchainSupport.capabilities.maxImageCount) {
         Swapchain::minImageCount = swapchainSupport.capabilities.maxImageCount;
     }
-    verbose( "Creating the swapchain with at least " << Swapchain::minImageCount << " images!" );
+    Log::v("Creating the swapchain with at least", Swapchain::minImageCount, "images!");
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -245,7 +246,7 @@ bool Swapchain::createSwapchain() {
 }
 
 void Swapchain::destroySwapchain() {
-    info( "Destroying Swapchain" );
+    Log::i("Destroying Swapchain");
 
     for (auto &swapchainFramebuffer: Swapchain::framebuffers) {
         vkDestroyFramebuffer(Devices::logical, swapchainFramebuffer, nullptr);
@@ -269,7 +270,7 @@ void Swapchain::createImageViews() {
 
     for (uint32_t i = 0; i < Swapchain::images.size(); ++i) {
         Swapchain::imageViews[i] = Images::createImageView(Swapchain::images[i],
-                                                                       Swapchain::imageFormat);
+                                                           Swapchain::imageFormat);
     }
 }
 
@@ -277,18 +278,18 @@ void Swapchain::createDepthResources() {
     VkFormat depthFormat = findDepthFormat();
 
     Images::createImage(Swapchain::extent.width,
-                              Swapchain::extent.height,
-                              depthFormat,
-                              VK_IMAGE_TILING_OPTIMAL,
-                              VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                              Swapchain::depthImage,
-                              Swapchain::depthImageMemory);
+                        Swapchain::extent.height,
+                        depthFormat,
+                        VK_IMAGE_TILING_OPTIMAL,
+                        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                        Swapchain::depthImage,
+                        Swapchain::depthImageMemory);
     Swapchain::depthImageView = Images::createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
 VkFormat Swapchain::findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling,
-                                              VkFormatFeatureFlags features) {
+                                        VkFormatFeatureFlags features) {
     for (VkFormat format: candidates) {
         VkFormatProperties props;
         vkGetPhysicalDeviceFormatProperties(Devices::physical, format, &props);

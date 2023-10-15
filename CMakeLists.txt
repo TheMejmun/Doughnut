@@ -56,7 +56,6 @@ set(HEADER_FILES
 
         ${HEADER_FOLDER}/io/input_manager.h
         ${HEADER_FOLDER}/io/window_manager.h
-        ${HEADER_FOLDER}/io/printer.h
 
         ${HEADER_FOLDER}/ecs/entity_manager.h
         ${HEADER_FOLDER}/ecs/system_manager.h

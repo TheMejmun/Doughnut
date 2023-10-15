@@ -7,7 +7,7 @@
 
 #define NEW_SCHEDULER
 
-#include "io/printer.h"
+#include "io/logger.h"
 #include "entity_manager.h"
 #include "util/os.h"
 
@@ -39,11 +39,11 @@ namespace ECS2 {
     public:
         explicit SystemManager(ENTITY_MANAGER *entityManager) : mEntityManager(entityManager) {
             static_assert(0 < LAYERS, "There must be at least one layer.");
-            info("Creating SystemManager");
+            Doughnut::Log::i("Creating SystemManager");
         }
 
         ~SystemManager() {
-            info("Destroying SystemManager");
+            Doughnut::Log::i("Destroying SystemManager");
         }
 
         template<class SYSTEM, uint32_t LAYER>

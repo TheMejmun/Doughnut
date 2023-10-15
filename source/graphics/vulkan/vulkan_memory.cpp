@@ -3,8 +3,9 @@
 //
 
 #include "graphics/vulkan/vulkan_memory.h"
-#include "io/printer.h"
 #include "graphics/vulkan/vulkan_devices.h"
+
+#include <stdexcept>
 
 using namespace Doughnut::GFX::Vk;
 

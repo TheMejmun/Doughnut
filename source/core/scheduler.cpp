@@ -3,7 +3,7 @@
 //
 
 #include "core/scheduler.h"
-#include "io/printer.h"
+#include "io/logger.h"
 
 #include <iostream>
 #include <cassert>
@@ -24,7 +24,7 @@ static void threadBody(
 ) {
     while (!*exit) {
         while (true) {
-            std::function<void()> job;
+            std::function < void() > job;
 
             {
                 std::lock_guard<std::mutex> queueLock(*queueMutex);
@@ -33,7 +33,7 @@ static void threadBody(
                 } else {
                     job = queue->front();
                     queue->pop();
-                    verbose(std::this_thread::get_id() << " Took a job.");
+                    Doughnut::Log::v(std::this_thread::get_id(), "Took a job.");
                 }
             }
 
@@ -42,12 +42,12 @@ static void threadBody(
         }
 
         // Moved condition block below first iteration of checking for jobs. Caused deadlocks otherwise.
-        verbose(std::this_thread::get_id() << " Going to sleep.");
+        Doughnut::Log::v(std::this_thread::get_id(), "Going to sleep.");
         std::unique_lock<std::mutex> runLock(*runMutex);
         runCondition->wait(runLock);
         runLock.unlock(); // TODO this unlock could theoretically throw an exception if not locked & the condition sporadically unlocks (I think)
     }
-    verbose(std::this_thread::get_id() << " Exiting thread.");
+    Doughnut::Log::v(std::this_thread::get_id(), "Exiting thread.");
 }
 
 Scheduler::Scheduler() {
@@ -183,5 +183,5 @@ void Doughnut::testScheduler() {
     assert(scheduler.done());
     assert(task4Done);
 
-    std::cout << "Scheduler test successful." << std::endl;
+    Doughnut::Log::i("Scheduler test successful.");
 }
