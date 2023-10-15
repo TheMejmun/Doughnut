@@ -9,6 +9,7 @@
 #include <cassert>
 
 using namespace Doughnut;
+using namespace std::literals::chrono_literals;
 
 static inline const char *bool_to_string(bool b) {
     return b ? "true" : "false";
@@ -33,7 +34,8 @@ static void threadBody(
                 } else {
                     job = queue->front();
                     queue->pop();
-                    Doughnut::Log::v(std::this_thread::get_id(), "Took a job.");
+                    if (Log::verboseEnabled())
+                        std::cout << std::this_thread::get_id() << " Took a job.\n";
                 }
             }
 
@@ -41,13 +43,24 @@ static void threadBody(
             --(*waitingJobCount);
         }
 
+        if(*exit){
+            if (Log::verboseEnabled()) {
+                std::cout << std::this_thread::get_id() << " Exiting before lock.\n";
+                break;
+            }
+        }
+
         // Moved condition block below first iteration of checking for jobs. Caused deadlocks otherwise.
-        Doughnut::Log::v(std::this_thread::get_id(), "Going to sleep.");
+        if (Log::verboseEnabled())
+            std::cout << std::this_thread::get_id() << " Going to sleep.\n";
         std::unique_lock<std::mutex> runLock(*runMutex);
         runCondition->wait(runLock);
+        // runCondition->wait_for(runLock, 100ms);
         runLock.unlock(); // TODO this unlock could theoretically throw an exception if not locked & the condition sporadically unlocks (I think)
     }
-    Doughnut::Log::v(std::this_thread::get_id(), "Exiting thread.");
+
+    if (Log::verboseEnabled())
+        std::cout << std::this_thread::get_id() << " Exiting thread.\n";
 }
 
 Scheduler::Scheduler() {
