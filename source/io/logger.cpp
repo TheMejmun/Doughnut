@@ -45,25 +45,26 @@ std::string getTimestamp() {
 }
 
 void Doughnut::log(Doughnut::LogLevel level, const std::string &message) {
+    auto time = getTimestamp();
     switch (level) {
         case INFO:
             printMutex.lock();
-            std::cout << getTimestamp() << " I: " << message << "\n";
+            std::cout << time << " I: " << message << "\n";
             printMutex.unlock();
             break;
         case DEBUG:
             printMutex.lock();
-            std::cout << getTimestamp() << " D: " << message << "\n";
+            std::cout << time << " D: " << message << "\n";
             printMutex.unlock();
             break;
         case VERBOSE:
             printMutex.lock();
-            std::cout << getTimestamp() << " V: " << message << "\n";
+            std::cout << time << " V: " << message << "\n";
             printMutex.unlock();
             break;
         case ERROR:
             printMutex.lock();
-            std::cerr << getTimestamp() << " E: " << message << std::endl;
+            std::cerr << time << " E: " << message << std::endl;
             printMutex.unlock();
             break;
     }
