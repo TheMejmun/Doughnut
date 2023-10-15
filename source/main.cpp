@@ -7,12 +7,13 @@
 
 int main() {
 #ifndef NDEBUG
-    Doughnut::initLogger(true, true, false);
+    Doughnut::Log::init(true, true, false);
 #endif
-    Doughnut::i("INFO");
-    Doughnut::d("DEBUG");
-    Doughnut::v("VERBOSE");
-    Doughnut::e("ERROR");
+    Doughnut::Log::i("INFO");
+    Doughnut::Log::d("DEBUG");
+    Doughnut::Log::v("VERBOSE");
+    Doughnut::Log::e("ERROR", "AAAAAAAAAAHHHH");
+
     return 0;
 
 #ifndef NDEBUG

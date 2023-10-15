@@ -8,8 +8,8 @@
 #include <string>
 #include <sstream>
 
-namespace Doughnut {
-    enum LogLevel {
+namespace Doughnut::Log {
+    enum Level {
         INFO,
         DEBUG,
         VERBOSE,
@@ -62,9 +62,9 @@ namespace Doughnut {
         log(ERROR, formatted);
     }
 
-    void log(LogLevel level, const std::string &message);
+    void log(Level level, const std::string &message);
 
-    void initLogger(bool enableInfo, bool enableDebug, bool enableVerbose);
+    void init(bool enableInfo, bool enableDebug, bool enableVerbose);
 }
 
 #endif //DOUGHNUT_LOGGER_H

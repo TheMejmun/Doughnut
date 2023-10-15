@@ -8,26 +8,28 @@
 #include <sstream>
 #include <iostream>
 
+using namespace Doughnut;
+
 std::mutex printMutex{};
 bool iInfoEnabled = false;
 bool iDebugEnabled = false;
 bool iVerboseEnabled = false;
 
-void Doughnut::initLogger(bool enableInfo, bool enableDebug, bool enableVerbose) {
+void Log::init(bool enableInfo, bool enableDebug, bool enableVerbose) {
     iInfoEnabled = enableInfo;
     iDebugEnabled = enableDebug;
     iVerboseEnabled = enableVerbose;
 }
 
-bool Doughnut::infoEnabled() {
+bool Log::infoEnabled() {
     return iInfoEnabled;
 }
 
-bool Doughnut::debugEnabled() {
+bool Log::debugEnabled() {
     return iDebugEnabled;
 }
 
-bool Doughnut::verboseEnabled() {
+bool Log::verboseEnabled() {
     return iVerboseEnabled;
 }
 
@@ -44,7 +46,7 @@ std::string getTimestamp() {
     return stream.str();
 }
 
-void Doughnut::log(Doughnut::LogLevel level, const std::string &message) {
+void Log::log(Log::Level level, const std::string &message) {
     auto time = getTimestamp();
     switch (level) {
         case INFO:
