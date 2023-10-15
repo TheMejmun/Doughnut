@@ -9,6 +9,7 @@
 #include <queue>
 #include <mutex>
 #include <thread>
+#include <functional>
 
 namespace Doughnut {
     class Scheduler {

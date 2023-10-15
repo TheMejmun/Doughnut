@@ -6,6 +6,7 @@
 #include "io/printer.h"
 
 #include <iostream>
+#include <cassert>
 
 using namespace Doughnut;
 
