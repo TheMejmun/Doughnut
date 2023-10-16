@@ -9,14 +9,16 @@
 
 #include <array>
 
-VkRenderPass VulkanRenderPasses::renderPass = nullptr;
+using namespace Doughnut::GFX::Vk;
 
-void VulkanRenderPasses::create() {
-    INF "Creating VulkanRenderPasses" ENDL;
+VkRenderPass RenderPasses::renderPass = nullptr;
+
+void RenderPasses::create() {
+    info( "Creating RenderPasses" );
 
     // Color attachment
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = VulkanSwapchain::imageFormat;
+    colorAttachment.format = Swapchain::imageFormat;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT; // MSAA
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // Before rendering
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // After rendering
@@ -31,7 +33,7 @@ void VulkanRenderPasses::create() {
 
     // Depth attachment
     VkAttachmentDescription depthAttachment{};
-    depthAttachment.format = VulkanSwapchain::findDepthFormat();
+    depthAttachment.format = Swapchain::findDepthFormat();
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -78,14 +80,14 @@ void VulkanRenderPasses::create() {
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-    if (vkCreateRenderPass(VulkanDevices::logical, &renderPassInfo, nullptr, &VulkanRenderPasses::renderPass) !=
+    if (vkCreateRenderPass(Devices::logical, &renderPassInfo, nullptr, &RenderPasses::renderPass) !=
         VK_SUCCESS) {
-        THROW("Failed to create render pass!");
+        throw std::runtime_error("Failed to create render pass!");
     }
 }
 
-void VulkanRenderPasses::destroy() {
-    INF "Destroying VulkanRenderPasses" ENDL;
+void RenderPasses::destroy() {
+    info( "Destroying RenderPasses" );
 
-    vkDestroyRenderPass(VulkanDevices::logical, VulkanRenderPasses::renderPass, nullptr);
+    vkDestroyRenderPass(Devices::logical, RenderPasses::renderPass, nullptr);
 }

@@ -6,31 +6,10 @@
 #define REALTIME_CELL_COLLAPSE_RENDERER_H
 
 #include "preprocessor.h"
-#include "renderer.h"
-#include "util/importer.h"
-#include "vertex.h"
-#include "triangle.h"
-#include "util/timer.h"
-#include "io/printer.h"
-#include "graphics/vulkan/vulkan_buffers.h"
-#include "projector.h"
-#include "ecs/ecs.h"
-#include "graphics/vulkan/vulkan_devices.h"
-#include "graphics/vulkan/vulkan_instance.h"
-#include "graphics/render_state.h"
+#include "typedefs.h"
+#include "ecs/components/ui_state.h"
+#include "render_state.h"
 
-#include <glm/glm.hpp>
-#include <glfw/glfw3.h>
-#include <string>
-#include <utility>
-#include <vector>
-#include <optional>
-#include <stdexcept>
-#include <iostream>
-#include <cstring>
-#include <set>
-#include <limits> // Necessary for std::numeric_limits
-#include <algorithm> // Necessary for std::clamp
 #include <thread>
 
 //#define WIREFRAME_MODE
@@ -38,92 +17,69 @@
 
 // TODO https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Frames_in_flight
 
-class Renderer {
-public:
-    void create(const std::string &title, GLFWwindow *window);
+namespace Doughnut::GFX {
+    class Renderer {
+    public:
+        Renderer(const std::string &title, GLFWwindow *window);
 
-    sec draw(const sec &delta, ECS &ecs);
+        ~Renderer();
 
-    void destroy();
+        double draw(const double &delta, EntityManagerSpec &ecs);
 
-    UiState *getUiState();
+        void resetMesh();
 
-    void resetMesh();
+    private:
 
-private:
+        void createGraphicsPipeline();
 
-    void createGraphicsPipeline();
+        void createDescriptorSetLayout();
 
-    void createDescriptorSetLayout();
+        // TODO Take out delta time
+        void updateUniformBuffer(const double &delta, EntityManagerSpec &ecs);
 
-    // TODO Take out delta time
-    void updateUniformBuffer(const sec &delta, ECS &ecs);
+        void createDescriptorPool();
 
-    void createDescriptorPool();
+        void createDescriptorSets();
 
-    void createDescriptorSets();
+        void initVulkan();
 
-    void initVulkan();
+        void destroyVulkan();
 
-    void destroyVulkan();
+        VkShaderModule createShaderModule(const std::vector<char> &code);
 
-    VkShaderModule createShaderModule(const std::vector<char> &code);
+        void createCommandPool();
 
-    void createCommandPool();
+        // TODO void createTextureImage();
 
-    // TODO void createTextureImage();
+        void createSyncObjects();
 
-    void createSyncObjects();
+        void recordCommandBuffer(EntityManagerSpec &ecs, VkCommandBuffer buffer, uint32_t imageIndex);
 
-    void recordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex);
+        void uploadRenderables(EntityManagerSpec &ecs);
 
-    static inline bool EvaluatorActiveCamera(const Components &components) {
-        return components.camera != nullptr && components.transform != nullptr && components.isAlive() &&
-               components.isMainCamera;
+        // return buffer to use
+        void uploadSimplifiedMeshes(EntityManagerSpec &ecs);
+
+        void destroyRenderables(EntityManagerSpec &ecs);
+
+        void drawUi(EntityManagerSpec &ecs);
+
+        RenderState state{};
+
+        Doughnut::Timer::Point lastTimestamp = Timer::now();
+        std::thread simplifiedMeshAllocationThread{};
+
+        VkDescriptorSetLayout descriptorSetLayout = nullptr;
+        VkDescriptorPool descriptorPool = nullptr;
+        std::vector<VkDescriptorSet> descriptorSets{}; // Will be cleaned up with pool
+        VkPipelineLayout pipelineLayout = nullptr;
+        VkPipeline graphicsPipeline = nullptr;
+        VkCommandPool commandPool = nullptr;
+
+        VkSemaphore imageAvailableSemaphore = nullptr;
+        VkSemaphore renderFinishedSemaphore = nullptr;
+        VkFence inFlightFence = nullptr;
     };
-
-    static inline bool EvaluatorToAllocate(const Components &components) {
-        return components.renderMesh != nullptr && components.isAlive() && !components.renderMesh->isAllocated;
-    };
-
-    static inline bool EvaluatorToAllocateSimplifiedMesh(const Components &components) {
-        return components.renderMesh != nullptr && components.isAlive() &&
-               components.renderMeshSimplifiable != nullptr && components.renderMeshSimplifiable->updateSimplifiedMesh;
-    };
-
-    static inline bool EvaluatorToDeallocate(const Components &components) {
-        return components.renderMesh != nullptr && components.willDestroy && components.renderMesh->isAllocated;
-    };
-
-    static inline bool EvaluatorToDraw(const Components &components) {
-        return components.renderMesh != nullptr && components.transform != nullptr && components.isAlive() &&
-               components.renderMesh->isAllocated;
-    };
-
-    void uploadRenderables(ECS &ecs);
-
-    // return buffer to use
-    void uploadSimplifiedMeshes(ECS &ecs);
-
-    void destroyRenderables(ECS &ecs);
-
-    void drawUi();
-
-    RenderState state{};
-
-    chrono_sec_point lastTimestamp = Timer::now();
-    std::thread simplifiedMeshAllocationThread{};
-
-    VkDescriptorSetLayout descriptorSetLayout = nullptr;
-    VkDescriptorPool descriptorPool = nullptr;
-    std::vector<VkDescriptorSet> descriptorSets{}; // Will be cleaned up with pool
-    VkPipelineLayout pipelineLayout = nullptr;
-    VkPipeline graphicsPipeline = nullptr;
-    VkCommandPool commandPool = nullptr;
-
-    VkSemaphore imageAvailableSemaphore = nullptr;
-    VkSemaphore renderFinishedSemaphore = nullptr;
-    VkFence inFlightFence = nullptr;
 };
 
 #endif //REALTIME_CELL_COLLAPSE_RENDERER_H

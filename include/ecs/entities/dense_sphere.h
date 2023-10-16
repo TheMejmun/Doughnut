@@ -6,11 +6,10 @@
 #define REALTIME_CELL_COLLAPSE_DENSE_SPHERE_H
 
 #include "preprocessor.h"
-#include "ecs/entity.h"
+#include "typedefs.h"
 
-class DenseSphere: public Entity{
-public:
-    DenseSphere();
-};
+namespace DenseSphere {
+    void upload(EntityManagerSpec &em);
+}
 
 #endif //REALTIME_CELL_COLLAPSE_DENSE_SPHERE_H

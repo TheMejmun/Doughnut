@@ -1,13 +1,20 @@
 
 #include "application.h"
-#include "io/printer.h"
+#include "core/scheduler.h"
 
 #include <iostream>
-#include <sstream>
 
 int main() {
-    Application app{};
-    app.title = "Hello World!";
+#ifndef NDEBUG
+    {
+        trace_scope("Unit Tests");
+        ECS2::testEntityManager();
+        ECS2::testSystemManager();
+        Doughnut::testScheduler();
+    }
+#endif
+
+    Doughnut::Application app{"Hello World!"};
 
     try {
         app.run();

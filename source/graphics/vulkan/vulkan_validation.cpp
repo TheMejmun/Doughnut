@@ -7,17 +7,19 @@
 #include <vulkan/vulkan.h>
 #include <cstring>
 
+using namespace Doughnut::GFX::Vk;
+
 // Constant
 #ifdef NDEBUG
-extern const bool VulkanValidation::ENABLE_VALIDATION_LAYERS = false;
+extern const bool Validation::ENABLE_VALIDATION_LAYERS = false;
 #else
-extern const bool VulkanValidation::ENABLE_VALIDATION_LAYERS = true;
+extern const bool Validation::ENABLE_VALIDATION_LAYERS = true;
 #endif
-extern const std::vector<const char *> VulkanValidation::VALIDATION_LAYERS = {
+extern const std::vector<const char *> Validation::VALIDATION_LAYERS = {
         "VK_LAYER_KHRONOS_validation"
 };
 
-bool VulkanValidation::checkValidationLayerSupport() {
+bool Validation::checkValidationLayerSupport() {
     // get available layers
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);

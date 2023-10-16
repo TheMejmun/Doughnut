@@ -9,19 +9,16 @@
 
 static InputController *instance;
 
-void InputController::create(GLFWwindow *w, ECS &ecs) {
-    INF "Creating InputManager" ENDL;
+InputController::InputController(GLFWwindow *w) {
+    info("Creating InputManager");
 
     this->window = w;
     instance = this;
 
-    InputStateEntity inputStateEntity{};
-    inputStateEntity.upload(ecs);
-
     glfwSetKeyCallback(window, _callback);
 }
 
-void InputController::update(sec delta, ECS &ecs) {
+void InputController::update(double delta, EntityManagerSpec &entityManager) {
     InputController::handleKey(keySwitch(IM_CLOSE_WINDOW), -1);
     InputController::handleKey(keySwitch(IM_FULLSCREEN), -1);
     InputController::handleKey(keySwitch(IM_MOVE_FORWARD), -1);
@@ -30,15 +27,13 @@ void InputController::update(sec delta, ECS &ecs) {
 
     glfwPollEvents();
 
-    auto entities = ecs.requestEntities(InputController::EvaluatorInputManagerEntity);
-
-    for (auto e: entities) {
-        auto &state = *e->inputState;
-        state.closeWindow = this->closeWindow;
-        state.toggleFullscreen = this->toggleFullscreen;
-        state.moveForward = this->moveForward;
-        state.moveBackward = this->moveBackward;
-        state.toggleRotation = this->toggleRotation;
+    std::vector<InputState *> inputStates = entityManager.template requestAll<InputState>();
+    for (auto inputState: inputStates) {
+        inputState->closeWindow = this->closeWindow;
+        inputState->toggleFullscreen = this->toggleFullscreen;
+        inputState->moveForward = this->moveForward;
+        inputState->moveBackward = this->moveBackward;
+        inputState->toggleRotation = this->toggleRotation;
     }
 }
 
@@ -123,4 +118,6 @@ void InputController::handleKey(KeyState *key, const int &actionCode) {
     }
 }
 
-void InputController::destroy() {}
+InputController::~InputController() {
+    info("Destroying InputManager");
+}

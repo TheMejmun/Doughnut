@@ -4,7 +4,9 @@
 
 #include "util/timer.h"
 
-void FPSCounter::update(sec lastFrametime) {
+using namespace Doughnut::Timer;
+
+void FPSCounter::update(double lastFrametime) {
     this->frametimesLastSecond.push_back(lastFrametime);
 
     while (totalTime() > 1) {
@@ -12,11 +14,17 @@ void FPSCounter::update(sec lastFrametime) {
     }
 }
 
-sec FPSCounter::totalTime() {
-    sec total = 0.0;
+double FPSCounter::totalTime() {
+    double total = 0.0;
     for (const auto &frametime: this->frametimesLastSecond) {
         total += frametime;
     }
 
     return total;
+}
+
+ScopeTracer::~ScopeTracer() {
+    auto timeEnded = Doughnut::Timer::now();
+    auto duration = Doughnut::Timer::duration(mTimeStarted, timeEnded);
+    std::cout << mName << " took " << duration << "s" << std::endl;
 }

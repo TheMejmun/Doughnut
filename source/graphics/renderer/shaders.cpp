@@ -3,6 +3,9 @@
 //
 
 #include "graphics/renderer.h"
+#include "graphics/vulkan/vulkan_devices.h"
+
+using namespace Doughnut::GFX;
 
 VkShaderModule Renderer::createShaderModule(const std::vector<char> &code) {
     VkShaderModuleCreateInfo createInfo{};
@@ -12,8 +15,8 @@ VkShaderModule Renderer::createShaderModule(const std::vector<char> &code) {
     createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
     VkShaderModule shaderModule;
-    if (vkCreateShaderModule(VulkanDevices::logical, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-        THROW("Failed to create shader module!");
+    if (vkCreateShaderModule(Vk::Devices::logical, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create shader module!");
     }
 
     return shaderModule;

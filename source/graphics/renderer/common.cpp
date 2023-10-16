@@ -7,69 +7,69 @@
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "graphics/vulkan/vulkan_images.h"
 #include "graphics/vulkan/vulkan_imgui.h"
+#include "graphics/vulkan/vulkan_buffers.h"
 
-void Renderer::create(const std::string &title, GLFWwindow *window) {
-    INF "Creating Renderer" ENDL;
+using namespace Doughnut::GFX;
+
+Renderer::Renderer(const std::string &title, GLFWwindow *window) {
+    info( "Creating Renderer" );
 
     // Reset
     this->state = {};
-    VulkanBuffers::meshBufferToUse = 0;
+    Vk::Buffers::meshBufferToUse = 0;
 
     this->state.title = title;
     this->state.window = window;
 
-    this->state.uiState.title = title;
-    this->state.uiState.window = window;
-
     this->initVulkan();
-    VulkanImgui::create(this->state);
+    Vk::Imgui::create(this->state);
 }
 
 void Renderer::initVulkan() {
-    VulkanInstance::create(this->state.title);
-    VulkanSwapchain::createSurface(this->state.window);
-    VulkanDevices::create();
-    VulkanSwapchain::createSwapchain();
+    Vk::Instance::create(this->state.title);
+    Vk::Swapchain::createSurface(this->state.window);
+    Vk::Devices::create();
+    Vk::Swapchain::createSwapchain();
     createDescriptorSetLayout();
     createGraphicsPipeline();
-    VulkanBuffers::create();
+    Vk::Buffers::create();
     createDescriptorPool();
     createDescriptorSets();
     createCommandPool();
-    VulkanImages::createTextureImage();
+    Vk::Images::createTextureImage();
     createSyncObjects();
 }
 
 void Renderer::destroyVulkan() {
-    vkDestroySemaphore(VulkanDevices::logical, this->imageAvailableSemaphore, nullptr);
-    vkDestroySemaphore(VulkanDevices::logical, this->renderFinishedSemaphore, nullptr);
-    vkDestroyFence(VulkanDevices::logical, this->inFlightFence, nullptr);
+    vkDestroySemaphore(Vk::Devices::logical, this->imageAvailableSemaphore, nullptr);
+    vkDestroySemaphore(Vk::Devices::logical, this->renderFinishedSemaphore, nullptr);
+    vkDestroyFence(Vk::Devices::logical, this->inFlightFence, nullptr);
 
-    VulkanBuffers::destroy();
+    Vk::Buffers::destroy();
 
-    // VulkanBuffers::destroyCommandBuffer(this->commandPool);
-    vkDestroyCommandPool(VulkanDevices::logical, this->commandPool, nullptr);
-    vkDestroyDescriptorPool(VulkanDevices::logical, this->descriptorPool, nullptr);
-    vkDestroyDescriptorSetLayout(VulkanDevices::logical, this->descriptorSetLayout, nullptr);
-    vkDestroyPipeline(VulkanDevices::logical, this->graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(VulkanDevices::logical, this->pipelineLayout, nullptr);
-    VulkanSwapchain::destroySwapchain();
-    VulkanDevices::destroy();
-    vkDestroySurfaceKHR(VulkanInstance::instance, VulkanSwapchain::surface, nullptr);
+    // Vk::Buffers::destroyCommandBuffer(this->commandPool);
+    vkDestroyCommandPool(Vk::Devices::logical, this->commandPool, nullptr);
+    vkDestroyDescriptorPool(Vk::Devices::logical, this->descriptorPool, nullptr);
+    vkDestroyDescriptorSetLayout(Vk::Devices::logical, this->descriptorSetLayout, nullptr);
+    vkDestroyPipeline(Vk::Devices::logical, this->graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(Vk::Devices::logical, this->pipelineLayout, nullptr);
+    Vk::Swapchain::destroySwapchain();
+    Vk::Devices::destroy();
+    vkDestroySurfaceKHR(Vk::Instance::instance, Vk::Swapchain::surface, nullptr);
 
-    VulkanInstance::destroy();
+    Vk::Instance::destroy();
 }
 
-void Renderer::destroy() {
-    INF "Destroying Renderer" ENDL;
+Renderer::~Renderer() {
+    info( "Destroying Renderer" );
 
     if (this->simplifiedMeshAllocationThread.joinable())
         this->simplifiedMeshAllocationThread.join();
 
     // Wait until resources are not actively being used anymore
-    vkDeviceWaitIdle(VulkanDevices::logical);
+    vkDeviceWaitIdle(Vk::Devices::logical);
 
-    VulkanImgui::destroy();
+    Vk::Imgui::destroy();
 
     this->destroyVulkan();
 }

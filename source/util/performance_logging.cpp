@@ -4,21 +4,27 @@
 
 #include "util/performance_logging.h"
 #include "util/timer.h"
+#include "util/os.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-#ifdef _WIN32
+#ifdef OS_WINDOWS
 // This is required for the windows mkdir function to work.
 #include <direct.h>
-#else
-// macos
-#include <sys/types.h>
+
+#elif defined(OS_MAC)
+// MacOS
 #include <sys/stat.h>
+
+#elif defined(OS_LINUX)
+// TODO Test. Currently just guessing that it's the same as MacOS.
+#include <sys/stat.h>
+
 #endif
 
-extern const sec PerformanceLogging::LOG_DURATION = 60.0;
+extern const double PerformanceLogging::LOG_DURATION = 60.0;
 const uint32_t EXPECTED_MAX_FRAME_COUNT =
         static_cast<uint32_t>(PerformanceLogging::LOG_DURATION) * 2000; // seconds * frames
 
@@ -26,10 +32,10 @@ bool active = false;
 
 std::vector<FrameTimes> frames{};
 
-std::optional<chrono_sec_point> lastCalculationStarted{};
-std::optional<chrono_sec_point> lastUploadStarted{};
-std::vector<sec> calculationDurations{};
-std::vector<sec> uploadDurations{};
+std::optional<Doughnut::Timer::Point> lastCalculationStarted{};
+std::optional<Doughnut::Timer::Point> lastUploadStarted{};
+std::vector<double> calculationDurations{};
+std::vector<double> uploadDurations{};
 
 std::vector<MeshStatistics> meshStatistics{};
 
@@ -40,22 +46,22 @@ void PerformanceLogging::newFrame(const FrameTimes &frameTimes) {
 
 void PerformanceLogging::meshCalculationStarted() {
     if (active)
-        lastCalculationStarted = Timer::now();
+        lastCalculationStarted = Doughnut::Timer::now();
 }
 
 void PerformanceLogging::meshCalculationFinished() {
     if (lastCalculationStarted.has_value())
-        calculationDurations.push_back(Timer::duration(lastCalculationStarted.value(), Timer::now()));
+        calculationDurations.push_back(Doughnut::Timer::duration(lastCalculationStarted.value(), Doughnut::Timer::now()));
 }
 
 void PerformanceLogging::meshUploadStarted() {
     if (active)
-        lastUploadStarted = Timer::now();
+        lastUploadStarted = Doughnut::Timer::now();
 }
 
 void PerformanceLogging::meshUploadFinished(const MeshStatistics &stats) {
     if (lastUploadStarted.has_value()) {
-        uploadDurations.push_back(Timer::duration(lastUploadStarted.value(), Timer::now()));
+        uploadDurations.push_back(Doughnut::Timer::duration(lastUploadStarted.value(), Doughnut::Timer::now()));
         meshStatistics.push_back(stats);
     }
 }
@@ -74,11 +80,11 @@ void PerformanceLogging::update(UiState &uiState) {
             active = true;
         }
 
-        if (Timer::duration(uiState.loggingStartTime, Timer::now()) >= PerformanceLogging::LOG_DURATION) {
+        if (Doughnut::Timer::duration(uiState.loggingStartTime, Doughnut::Timer::now()) >= PerformanceLogging::LOG_DURATION) {
             // Done
 
             // mkdir varies between OSes
-#ifdef _WIN32
+#ifdef OS_WINDOWS
             _mkdir("output");
 #else
             mkdir("output", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -116,7 +122,7 @@ void PerformanceLogging::update(UiState &uiState) {
                  << (totalTotalFrameTime / static_cast<double>(frames.size()))
                  << "\n";
 
-            file << "Average mesh calculation count per second: "
+            file << "Average mesh calculation count per Second: "
                  << (static_cast<double>(calculationDurations.size()) / PerformanceLogging::LOG_DURATION)
                  << "\n";
 
@@ -126,7 +132,7 @@ void PerformanceLogging::update(UiState &uiState) {
                  << (totalCalculationDuration / static_cast<double>(calculationDurations.size()))
                  << "\n";
 
-            file << "Average mesh upload count per second: "
+            file << "Average mesh upload count per Second: "
                  << (static_cast<double>(uploadDurations.size()) / PerformanceLogging::LOG_DURATION)
                  << "\n";
 

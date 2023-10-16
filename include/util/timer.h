@@ -12,40 +12,55 @@
 #include <cmath>
 #include <deque>
 
-using chrono_clock = std::chrono::steady_clock;
-using chrono_sec = std::chrono::duration<double>;
-using chrono_sec_point = std::chrono::time_point<chrono_clock, chrono_sec>;
-using sec = double;
+#define trace_scope(name) auto _tracer = Doughnut::Timer::ScopeTracer(name);
 
-namespace Timer {
-    inline chrono_sec_point now() {
-        return chrono_clock::now();
+namespace Doughnut::Timer {
+    using Clock = std::chrono::steady_clock;
+    using Second = std::chrono::duration<double>;
+    using Point = std::chrono::time_point<Clock, Second>;
+
+    inline Point now() {
+        return Clock::now();
     }
 
-    inline sec duration(const chrono_sec_point &time1, const chrono_sec_point &time2) {
-        return std::abs((sec) (time1 - time2).count());
+    inline double duration(const Point &time1, const Point &time2) {
+        return std::abs((double) (time1 - time2).count());
     }
 
-    inline uint32_t fps(sec frameTimeSec) {
-        return (int) (1.0 / frameTimeSec);
+    inline uint32_t fps(double frameTimeSec) {
+        return static_cast<uint32_t>(1.0 / frameTimeSec);
     }
 
-    inline uint32_t fps(const chrono_sec_point &time1, const chrono_sec_point &time2) {
+    inline uint32_t fps(const Point &time1, const Point &time2) {
         return fps(duration(time1, time2));
     }
+
+    class FPSCounter {
+    public:
+        void update(double lastFrametime);
+
+        [[nodiscard]] inline uint32_t currentFPS() const {
+            return this->frametimesLastSecond.size();
+        }
+
+        std::deque<double> frametimesLastSecond{};
+    private:
+        double totalTime();
+    };
+
+    class ScopeTracer {
+    public:
+        explicit ScopeTracer(const char *name) : mName(name) {}
+
+        explicit ScopeTracer(const std::string &name) : mName(name.c_str()) {}
+
+        ~ScopeTracer();
+
+    private:
+        const char *mName;
+        const Point mTimeStarted = Doughnut::Timer::now();
+    };
 };
 
-class FPSCounter {
-public:
-    void update(sec lastFrametime);
-
-    inline uint32_t currentFPS() {
-        return this->frametimesLastSecond.size();
-    }
-
-    std::deque<sec> frametimesLastSecond{};
-private:
-    sec totalTime();
-};
 
 #endif //REALTIME_CELL_COLLAPSE_TIMER_H

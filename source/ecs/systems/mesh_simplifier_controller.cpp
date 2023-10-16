@@ -4,16 +4,15 @@
 
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "ecs/systems/mesh_simplifier_controller.h"
-#include "ecs/systems/camera_controller.h"
 #include "ecs/entities/camera.h"
 #include "io/printer.h"
 #include "util/timer.h"
 #include "util/performance_logging.h"
+#include "util/os.h"
 
 #include <thread>
 #include <limits>
 #include <unordered_set>
-#include <set>
 #include <algorithm>
 #include <execution>
 
@@ -27,7 +26,7 @@ constexpr uint32_t MAX_INDEX = std::numeric_limits<uint32_t>::max();
 
 std::thread thread;
 uint32_t simplifiedMeshCalculationThreadFrameCounter = 0;
-chrono_sec_point simplifiedMeshCalculationThreadStartedTime{};
+Doughnut::Timer::Point simplifiedMeshCalculationThreadStartedTime{};
 bool meshCalculationDone = false;
 
 struct SVO { // Simplification Vertex Object
@@ -91,7 +90,7 @@ Triangle makeOrientedTriangle(const uint32_t id1, const uint32_t id2, const uint
     if (id1 < id2 && id1 < id3) {
         // id1 is smallest
         return {id1, id2, id3};
-    } else if (id2 < id1 && id2 < id1) {
+    } else if (id2 < id1 && id2 < id3) {
         // id2 is smallest
         return {id2, id3, id1};
     } else {
@@ -147,22 +146,24 @@ std::vector<uint32_t> makeIndexRange(uint32_t untilInclusive) {
     }
 
 
-void simplify(const Components *camera, const Components *components) {
+void simplify(const Projector &cameraProjector,
+              const Transformer4 &cameraTransform,
+              const RenderMesh &from,
+              RenderMeshSimplifiable &to,
+              const Transformer4 &transform) {
     // Init
-    const auto model = components->transform->forward;
-    const auto normalModel = glm::transpose(components->transform->inverse);
-    const auto cameraPos = camera->transform->getPosition();
-    const auto view = camera->camera->getView(*camera->transform);
-    const auto proj = camera->camera->getProjection(VulkanSwapchain::aspectRatio);
+    const auto model = transform.forward;
+    const auto normalModel = glm::transpose(transform.inverse);
+    const auto cameraPos = cameraTransform.getPosition();
+    const auto view = cameraProjector.getView(cameraTransform);
+    const auto proj = cameraProjector.getProjection(Doughnut::GFX::Vk::Swapchain::aspectRatio);
     const auto viewProj = proj * view;
 
-    auto &to = *components->renderMeshSimplifiable;
-    auto &from = *components->renderMesh;
     to.vertices.clear();
     to.indices.clear();
 
-    const uint32_t rasterWidth = VulkanSwapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
-    const uint32_t rasterHeight = VulkanSwapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterWidth = Doughnut::GFX::Vk::Swapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterHeight = Doughnut::GFX::Vk::Swapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
 
     std::vector<SVO> svos{};
     svos.resize(from.vertices.size());
@@ -199,15 +200,19 @@ void simplify(const Components *camera, const Components *components) {
 
     // PARALLELLLLLL
     const auto indices = makeIndexRange(from.vertices.size() - 1);
+    // TODO restore parallelism
+    // std::execution::par not available on macOS
     std::for_each(
+#ifndef OS_MAC
             std::execution::par,
+#endif
             indices.begin(),
             indices.end(),
             positionCalcLambda);
 
     std::vector<SVO> indicesRaster{};
     indicesRaster.resize(rasterWidth * rasterHeight);
-    DBG "Using raster " << rasterWidth << " * " << rasterHeight << " for mesh simplification" ENDL;
+    debug("Using raster " << rasterWidth << " * " << rasterHeight << " for mesh simplification");
     IndexLut lut{};
     lut.resize(from.vertices.size());
     uint32_t newVertexCount = 0;
@@ -276,32 +281,47 @@ void simplify(const Components *camera, const Components *components) {
 #endif
 }
 
-void MeshSimplifierController::update(ECS &ecs, sec *timeTaken, uint32_t *framesTaken) {
+void MeshSimplifierController::update(double delta, EntityManagerSpec &entityManager) {
+    auto &uiState = *entityManager.template requestAll<UiState>()[0];
+
     if (thread.joinable()) {
         simplifiedMeshCalculationThreadFrameCounter++;
         if (meshCalculationDone) {
-            DBG "Mesh calculation thread took " << simplifiedMeshCalculationThreadFrameCounter << " frames" ENDL;
+            debug("Mesh calculation thread took " << simplifiedMeshCalculationThreadFrameCounter << " frames");
             thread.join();
-            *timeTaken = Timer::duration(simplifiedMeshCalculationThreadStartedTime, Timer::now());
-            *framesTaken = simplifiedMeshCalculationThreadFrameCounter;
+            uiState.meshSimplifierTimeTaken = Doughnut::Timer::duration(simplifiedMeshCalculationThreadStartedTime, Doughnut::Timer::now());
+            uiState.meshSimplifierFramesTaken = simplifiedMeshCalculationThreadFrameCounter;
         }
-    } else {
-        auto entities = ecs.requestEntities(MeshSimplifierController::EvaluatorToSimplify);
-        auto camera = ecs.requestEntities(CameraController::EvaluatorActiveCamera)[0];
+    } else if (uiState.runMeshSimplifier) {
+        auto entities = entityManager.requestAll<RenderMesh, RenderMeshSimplifiable, Transformer4>();
+        auto cameras = entityManager.requestAll<Projector, Transformer4>();
+        uint32_t mainCameraIndex;
+        for (uint32_t i = 0; i < std::get<0>(cameras).size(); ++i) {
+            if (std::get<0>(cameras)[i]->isMainCamera) {
+                mainCameraIndex = i;
+                break;
+            }
+        }
 
-        if (!entities.empty()) {
+        if (!std::get<0>(entities).empty()) {
             meshCalculationDone = false;
             simplifiedMeshCalculationThreadFrameCounter = 0;
-            simplifiedMeshCalculationThreadStartedTime = Timer::now();
+            simplifiedMeshCalculationThreadStartedTime = Doughnut::Timer::now();
 
             auto function = [=](bool &done) {
-                for (auto components: entities) {
-                    if (components->renderMeshSimplifiable->simplifiedMeshMutex.try_lock()) {
+                for (uint32_t i = 0; i < std::get<0>(entities).size(); ++i) {
+                    if (std::get<1>(entities)[i]->simplifiedMeshMutex->try_lock()) {
                         PerformanceLogging::meshCalculationStarted();
-                        simplify(camera, components);
-                        components->renderMeshSimplifiable->updateSimplifiedMesh = true;
+                        simplify(
+                                *std::get<0>(cameras)[mainCameraIndex],
+                                *std::get<1>(cameras)[mainCameraIndex],
+                                *std::get<0>(entities)[i],
+                                *std::get<1>(entities)[i],
+                                *std::get<2>(entities)[i]
+                        );
+                        std::get<1>(entities)[i]->updateSimplifiedMesh = true;
                         PerformanceLogging::meshCalculationFinished();
-                        components->renderMeshSimplifiable->simplifiedMeshMutex.unlock();
+                        std::get<1>(entities)[i]->simplifiedMeshMutex->unlock();
                     }
                 }
                 done = true;
@@ -312,7 +332,7 @@ void MeshSimplifierController::update(ECS &ecs, sec *timeTaken, uint32_t *frames
     }
 }
 
-void MeshSimplifierController::destroy() {
+MeshSimplifierController::~MeshSimplifierController() noexcept {
     if (thread.joinable())
         thread.join();
 }

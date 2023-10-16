@@ -5,27 +5,22 @@
 #include "ecs/systems/sphere_controller.h"
 #include "io/printer.h"
 
-
-bool doSphereRotation = false;
-
-void SphereController::update(const sec &delta, ECS &ecs) {
-    auto &inputState = *ecs.requestEntities(InputController::EvaluatorInputManagerEntity)[0]->inputState;
+void SphereController::update(double delta, EntityManagerSpec &entityManager) {
+    auto &inputState = *entityManager.requestAll<InputState>()[0];
 
     if (inputState.toggleRotation == IM_DOWN_EVENT) {
-        doSphereRotation = !doSphereRotation;
+        mDoSphereRotation = !mDoSphereRotation;
     }
 
-    if (doSphereRotation) {
-        auto spheres = ecs.requestEntities(SphereController::EvaluatorRotatingSphere);
+    if (mDoSphereRotation) {
+        auto spheres = entityManager.requestAll<RotatingSphere, Transformer4>();
 
-        for (auto sphere: spheres) {
-            sphere->transform->rotate(
-                    glm::radians(15.0f * static_cast<float >(delta)),
-                    glm::vec3(0, 1, 0));
+        for (uint32_t i = 0; i < std::get<0>(spheres).size(); ++i) {
+            if (std::get<0>(spheres)[i]->isRotatingSphere) { // Kinda redundant check
+                std::get<1>(spheres)[i]->rotate(
+                        glm::radians(15.0f * static_cast<float >(delta)),
+                        glm::vec3(0, 1, 0));
+            }
         }
     }
-}
-
-void SphereController::destroy() {
-
 }

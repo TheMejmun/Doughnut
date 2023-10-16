@@ -10,11 +10,13 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-// Global
-VkInstance VulkanInstance::instance = nullptr;
+using namespace Doughnut::GFX::Vk;
 
-void VulkanInstance::create(const std::string &title) {
-    INF "Creating VulkanInstance" ENDL;
+// Global
+VkInstance Instance::instance = nullptr;
+
+void Instance::create(const std::string &title) {
+    info("Creating Instance");
 
     // App Info
     VkApplicationInfo appInfo{};
@@ -44,17 +46,17 @@ void VulkanInstance::create(const std::string &title) {
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
     // Extensions final
-    VulkanInstance::printAvailableExtensions();
+    Instance::printAvailableExtensions();
     createInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
     // Validation layers
-    if (VulkanValidation::ENABLE_VALIDATION_LAYERS) {
-        if (!VulkanValidation::checkValidationLayerSupport()) {
-            THROW("Validation layers not available!");
+    if (Validation::ENABLE_VALIDATION_LAYERS) {
+        if (!Validation::checkValidationLayerSupport()) {
+            throw ("Validation layers not available!");
         }
-        createInfo.enabledLayerCount = static_cast<uint32_t>(VulkanValidation::VALIDATION_LAYERS.size());
-        createInfo.ppEnabledLayerNames = VulkanValidation::VALIDATION_LAYERS.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(Validation::VALIDATION_LAYERS.size());
+        createInfo.ppEnabledLayerNames = Validation::VALIDATION_LAYERS.data();
     } else {
         createInfo.enabledLayerCount = 0;
     }
@@ -62,25 +64,25 @@ void VulkanInstance::create(const std::string &title) {
     // Done
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
     if (result != VK_SUCCESS) {
-        THROW("Failed to create instance!");
+        throw ("Failed to create instance!");
     }
 }
 
-void VulkanInstance::printAvailableExtensions() {
+void Instance::printAvailableExtensions() {
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-    VRB "Available instance extensions:" ENDL;
+    verbose("Available instance extensions:");
     for (const auto &extension: extensions) {
-        VRB '\t' << extension.extensionName ENDL;
+        verbose('\t' << extension.extensionName);
     }
 }
 
-void VulkanInstance::destroy() {
-    INF "Destroying VulkanInstance" ENDL;
+void Instance::destroy() {
+    info("Destroying Instance");
 
     vkDestroyInstance(instance, nullptr);
 }

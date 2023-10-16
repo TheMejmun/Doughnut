@@ -5,17 +5,17 @@
 
 #include "graphics/renderer.h"
 #include "graphics/vulkan/vulkan_imgui.h"
+#include "graphics/vulkan/vulkan_buffers.h"
 
-UiState *Renderer::getUiState() {
-    return &this->state.uiState;
-}
+using namespace Doughnut::GFX;
 
 void Renderer::resetMesh() {
-    VulkanBuffers::resetMeshBufferToUse();
+    Vk::Buffers::resetMeshBufferToUse();
 }
 
-void Renderer::drawUi(){
-    this->state.uiState.currentMeshVertices = VulkanBuffers::vertexCount[VulkanBuffers::meshBufferToUse];
-    this->state.uiState.currentMeshTriangles = VulkanBuffers::indexCount[VulkanBuffers::meshBufferToUse] / 3;
-    VulkanImgui::draw(this->state);
+void Renderer::drawUi(EntityManagerSpec &ecs) {
+    auto &uiState = *ecs.template requestAll<UiState>()[0];
+    uiState.currentMeshVertices = Vk::Buffers::vertexCount[Vk::Buffers::meshBufferToUse];
+    uiState.currentMeshTriangles = Vk::Buffers::indexCount[Vk::Buffers::meshBufferToUse] / 3;
+    Vk::Imgui::draw(this->state, uiState);
 }

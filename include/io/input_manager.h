@@ -6,24 +6,20 @@
 #define REALTIME_CELL_COLLAPSE_INPUT_MANAGER_H
 
 #include "preprocessor.h"
-#include "ecs/entity.h"
-#include "ecs/system.h"
+#include "typedefs.h"
 #include "ecs/entities/input_state_entity.h"
 
 #include <GLFW/glfw3.h>
 #include <memory>
+#include <vector>
 
-class InputController : public System {
+class InputController {
 public:
-    void create(GLFWwindow *window, ECS &ecs);
+    explicit InputController(GLFWwindow *window);
 
-    virtual void destroy() override;
+    ~InputController();
 
-    virtual void update(sec delta, ECS &ecs) override;
-
-    static inline bool EvaluatorInputManagerEntity(const Components &components) {
-        return components.isAlive() && components.inputState != nullptr;
-    };
+    void update(double delta, EntityManagerSpec &entityManager) ;
 
 private:
     static void _callback(GLFWwindow *window, int key, int scancode, int action, int mods);
