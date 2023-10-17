@@ -84,6 +84,7 @@ set(HEADER_FILES
         include/util/os.h
         include/core/scheduler.h
         include/io/logger.h
+        source/core/thread_safe.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
