@@ -3,12 +3,13 @@
 //
 
 #include "graphics/vulkan/vulkan_buffers.h"
-#include "io/printer.h"
 #include "graphics/uniform_buffer_object.h"
 #include "graphics/vulkan/vulkan_memory.h"
 #include "graphics/vulkan/vulkan_devices.h"
 #include "util/timer.h"
+#include "io/logger.h"
 
+using namespace Doughnut;
 using namespace Doughnut::GFX::Vk;
 
 uint32_t Buffers::maxAllocations = 0, Buffers::currentAllocations = 0;
@@ -45,13 +46,13 @@ uint32_t indexCountToSet, vertexCountToSet;
 uint32_t meshBufferIndexToSet;
 
 void Buffers::create() {
-    info( "Creating Buffers" );
+    Log::i("Creating Buffers");
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
 
     Buffers::maxAllocations = deviceProperties.limits.maxMemoryAllocationCount;
-    verbose( "Maximum memory allocation count: " << Buffers::maxAllocations );
+    Log::v("Maximum memory allocation count:", Buffers::maxAllocations);
 
     vkGetPhysicalDeviceMemoryProperties(Devices::physical, &Buffers::memProperties);
 
@@ -78,7 +79,7 @@ void destroyStagingBuffers() {
 }
 
 void Buffers::destroy() {
-    info( "Destroying Buffers" );
+    Log::i("Destroying Buffers");
 
     vkQueueWaitIdle(Buffers::transferQueue); // In case we are still uploading
     destroyStagingBuffers();
@@ -161,7 +162,7 @@ void Buffers::uploadIndices(const std::vector<uint32_t> &indices, uint32_t buffe
 }
 
 void Buffers::uploadMesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,
-                               bool parallel, uint32_t bufferIndex) {
+                         bool parallel, uint32_t bufferIndex) {
 
     size_t vertexBufferSize = sizeof(Vertex) * vertices.size();
     size_t indexBufferSize = sizeof(uint32_t) * indices.size();
@@ -392,7 +393,7 @@ void Buffers::createTransferCommandPool() {
 }
 
 void Buffers::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-                                 VkBuffer *pBuffer, VkDeviceMemory *pBufferMemory) {
+                           VkBuffer *pBuffer, VkDeviceMemory *pBufferMemory) {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;

@@ -5,12 +5,12 @@
 #define STB_IMAGE_IMPLEMENTATION // Only add this to one cpp file to create the implementation
 
 #include "graphics/vulkan/vulkan_images.h"
-#include "io/printer.h"
 #include "graphics/vulkan/vulkan_devices.h"
 #include "graphics/vulkan/vulkan_memory.h"
 
 #include <vulkan/vulkan.h>
 #include <stb_image.h>
+#include <stdexcept>
 
 using namespace Doughnut::GFX::Vk;
 

@@ -1,10 +1,17 @@
 
+#include "io/logger.h"
 #include "application.h"
 #include "core/scheduler.h"
 
 #include <iostream>
 
 int main() {
+#ifndef NDEBUG
+    Doughnut::Log::init(true, true, false, true);
+#else
+    Doughnut::Log::init(true, false, false, true);
+#endif
+
 #ifndef NDEBUG
     {
         trace_scope("Unit Tests");

@@ -4,18 +4,19 @@
 
 
 #include "graphics/vulkan/vulkan_imgui.h"
-#include "io/printer.h"
 #include "graphics/vulkan/vulkan_instance.h"
 #include "graphics/vulkan/vulkan_devices.h"
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "graphics/vulkan/vulkan_renderpasses.h"
 #include "graphics/vulkan/vulkan_buffers.h"
 #include "graphics/ui.h"
+#include "io/logger.h"
 
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 #include <sstream>
 
+using namespace Doughnut;
 using namespace Doughnut::GFX::Vk;
 
 VkDescriptorPool uiDescriptorPool;
@@ -33,7 +34,7 @@ static void checkVkResult(VkResult err) {
 }
 
 void Imgui::create(RenderState &state) {
-    info("Creating Imgui");
+    Log::i("Creating Imgui");
 
     // https://github.com/ocornut/imgui/blob/master/examples/example_glfw_vulkan/main.cpp
 
@@ -138,7 +139,7 @@ void Imgui::draw(RenderState &renderState, UiState &uiState) {
 }
 
 void Imgui::destroy() {
-    info("Destroying Imgui");
+    Log::i("Destroying Imgui");
 
     vkDeviceWaitIdle(Devices::logical);
 

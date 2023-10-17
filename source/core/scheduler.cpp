@@ -3,16 +3,13 @@
 //
 
 #include "core/scheduler.h"
-#include "io/printer.h"
+#include "io/logger.h"
 
 #include <iostream>
 #include <cassert>
 
 using namespace Doughnut;
-
-static inline const char *bool_to_string(bool b) {
-    return b ? "true" : "false";
-}
+using namespace std::literals::chrono_literals;
 
 static void threadBody(
         std::queue<std::function<void()>> *queue,
@@ -22,9 +19,9 @@ static void threadBody(
         std::mutex *runMutex,
         std::condition_variable *runCondition
 ) {
-    while (!*exit) {
+    while (!exit->load()) {
         while (true) {
-            std::function<void()> job;
+            std::function < void() > job;
 
             {
                 std::lock_guard<std::mutex> queueLock(*queueMutex);
@@ -33,7 +30,6 @@ static void threadBody(
                 } else {
                     job = queue->front();
                     queue->pop();
-                    verbose(std::this_thread::get_id() << " Took a job.");
                 }
             }
 
@@ -41,13 +37,15 @@ static void threadBody(
             --(*waitingJobCount);
         }
 
-        // Moved condition block below first iteration of checking for jobs. Caused deadlocks otherwise.
-        verbose(std::this_thread::get_id() << " Going to sleep.");
         std::unique_lock<std::mutex> runLock(*runMutex);
-        runCondition->wait(runLock);
+        runCondition->wait(runLock,
+                           [=]() {
+                               std::lock_guard<std::mutex> queueLock(*queueMutex);
+                               return exit->load() || (!queue->empty());
+                           }
+        );
         runLock.unlock(); // TODO this unlock could theoretically throw an exception if not locked & the condition sporadically unlocks (I think)
     }
-    verbose(std::this_thread::get_id() << " Exiting thread.");
 }
 
 Scheduler::Scheduler() {
@@ -69,8 +67,9 @@ Scheduler::Scheduler(uint32_t workerCount) {
 
 void Scheduler::await() {
     while (true) {
-        if (mWaitingJobCount == 0)
+        if (mWaitingJobCount == 0) {
             return;
+        }
     }
 }
 
@@ -97,13 +96,15 @@ uint32_t Scheduler::workerCount() {
 }
 
 Scheduler::~Scheduler() {
-    mExitThreads = true; // Variable has to be updated first, otherwise deadlocks occur.
+    // Variable has to be updated first, otherwise deadlocks occur.
+    mExitThreads = true;
     await();
     // This may clear the scheduler before all jobs are completed.
     mRunCondition.notify_all();
     for (auto &thread: mThreads) {
-        if (thread.joinable())
+        if (thread.joinable()) {
             thread.join();
+        }
     }
 }
 
@@ -183,5 +184,5 @@ void Doughnut::testScheduler() {
     assert(scheduler.done());
     assert(task4Done);
 
-    std::cout << "Scheduler test successful." << std::endl;
+    Doughnut::Log::i("Scheduler test successful.");
 }

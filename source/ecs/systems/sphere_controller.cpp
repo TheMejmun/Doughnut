@@ -3,7 +3,6 @@
 //
 
 #include "ecs/systems/sphere_controller.h"
-#include "io/printer.h"
 
 void SphereController::update(double delta, EntityManagerSpec &entityManager) {
     auto &inputState = *entityManager.requestAll<InputState>()[0];

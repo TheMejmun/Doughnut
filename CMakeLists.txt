@@ -56,7 +56,6 @@ set(HEADER_FILES
 
         ${HEADER_FOLDER}/io/input_manager.h
         ${HEADER_FOLDER}/io/window_manager.h
-        ${HEADER_FOLDER}/io/printer.h
 
         ${HEADER_FOLDER}/ecs/entity_manager.h
         ${HEADER_FOLDER}/ecs/system_manager.h
@@ -84,6 +83,8 @@ set(HEADER_FILES
         include/ecs/entities/ui_state_entity.h
         include/util/os.h
         include/core/scheduler.h
+        include/io/logger.h
+        source/core/thread_safe.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
@@ -128,6 +129,7 @@ set(SOURCE_FILES
         source/ecs/entities/monkey.cpp
         source/ecs/entities/ui_state_entity.cpp
         source/core/scheduler.cpp
+        source/io/logger.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

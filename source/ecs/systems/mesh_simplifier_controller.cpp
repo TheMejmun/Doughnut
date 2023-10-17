@@ -5,10 +5,10 @@
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "ecs/systems/mesh_simplifier_controller.h"
 #include "ecs/entities/camera.h"
-#include "io/printer.h"
 #include "util/timer.h"
 #include "util/performance_logging.h"
 #include "util/os.h"
+#include "io/logger.h"
 
 #include <thread>
 #include <limits>
@@ -212,7 +212,7 @@ void simplify(const Projector &cameraProjector,
 
     std::vector<SVO> indicesRaster{};
     indicesRaster.resize(rasterWidth * rasterHeight);
-    debug("Using raster " << rasterWidth << " * " << rasterHeight << " for mesh simplification");
+    Doughnut::Log::d("Using raster", rasterWidth, "*", rasterHeight, "for mesh simplification");
     IndexLut lut{};
     lut.resize(from.vertices.size());
     uint32_t newVertexCount = 0;
@@ -287,7 +287,7 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
     if (thread.joinable()) {
         simplifiedMeshCalculationThreadFrameCounter++;
         if (meshCalculationDone) {
-            debug("Mesh calculation thread took " << simplifiedMeshCalculationThreadFrameCounter << " frames");
+            Doughnut::Log::d("Mesh calculation thread took", simplifiedMeshCalculationThreadFrameCounter, "frames");
             thread.join();
             uiState.meshSimplifierTimeTaken = Doughnut::Timer::duration(simplifiedMeshCalculationThreadStartedTime, Doughnut::Timer::now());
             uiState.meshSimplifierFramesTaken = simplifiedMeshCalculationThreadFrameCounter;

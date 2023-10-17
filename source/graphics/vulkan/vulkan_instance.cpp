@@ -3,20 +3,21 @@
 //
 
 #include "graphics/vulkan/vulkan_instance.h"
-#include "io/printer.h"
 #include "graphics/vulkan/vulkan_validation.h"
+#include "io/logger.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <vector>
 
 using namespace Doughnut::GFX::Vk;
+using namespace Doughnut;
 
 // Global
 VkInstance Instance::instance = nullptr;
 
 void Instance::create(const std::string &title) {
-    info("Creating Instance");
+    Log::i("Creating Instance");
 
     // App Info
     VkApplicationInfo appInfo{};
@@ -53,7 +54,7 @@ void Instance::create(const std::string &title) {
     // Validation layers
     if (Validation::ENABLE_VALIDATION_LAYERS) {
         if (!Validation::checkValidationLayerSupport()) {
-            throw ("Validation layers not available!");
+            throw std::runtime_error("Validation layers not available!");
         }
         createInfo.enabledLayerCount = static_cast<uint32_t>(Validation::VALIDATION_LAYERS.size());
         createInfo.ppEnabledLayerNames = Validation::VALIDATION_LAYERS.data();
@@ -64,7 +65,7 @@ void Instance::create(const std::string &title) {
     // Done
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
     if (result != VK_SUCCESS) {
-        throw ("Failed to create instance!");
+        std::runtime_error("Failed to create instance!");
     }
 }
 
@@ -75,14 +76,16 @@ void Instance::printAvailableExtensions() {
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-    verbose("Available instance extensions:");
+    std::stringstream stream{};
+    stream << "Available instance extensions:\n";
     for (const auto &extension: extensions) {
-        verbose('\t' << extension.extensionName);
+        stream << '\t' << extension.extensionName << "\n";
     }
+    Log::v(stream.str());
 }
 
 void Instance::destroy() {
-    info("Destroying Instance");
+    Log::i("Destroying Instance");
 
     vkDestroyInstance(instance, nullptr);
 }

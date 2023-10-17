@@ -4,17 +4,18 @@
 
 #include "graphics/vulkan/vulkan_renderpasses.h"
 #include "graphics/vulkan/vulkan_devices.h"
-#include "io/printer.h"
 #include "graphics/vulkan/vulkan_swapchain.h"
+#include "io/logger.h"
 
 #include <array>
 
+using namespace Doughnut;
 using namespace Doughnut::GFX::Vk;
 
 VkRenderPass RenderPasses::renderPass = nullptr;
 
 void RenderPasses::create() {
-    info( "Creating RenderPasses" );
+    Log::i("Creating RenderPasses");
 
     // Color attachment
     VkAttachmentDescription colorAttachment{};
@@ -87,7 +88,7 @@ void RenderPasses::create() {
 }
 
 void RenderPasses::destroy() {
-    info( "Destroying RenderPasses" );
+    Log::i("Destroying RenderPasses");
 
     vkDestroyRenderPass(Devices::logical, RenderPasses::renderPass, nullptr);
 }
