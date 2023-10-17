@@ -7,9 +7,11 @@
 #include "graphics/vulkan/vulkan_swapchain.h"
 #include "util/performance_logging.h"
 #include "graphics/vulkan/vulkan_buffers.h"
+#include "io/logger.h"
 
 // SYSTEMS THAT PLUG INTO THE ECS
 
+using namespace Doughnut;
 using namespace Doughnut::GFX;
 
 void Renderer::uploadRenderables(EntityManagerSpec &ecs) {
@@ -24,12 +26,12 @@ void Renderer::uploadRenderables(EntityManagerSpec &ecs) {
 
 void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
     if (Vk::Buffers::waitingForFence) {
-        debug("Waiting for fence");
+        Log::d("Waiting for fence");
         if (Vk::Buffers::isTransferQueueReady()) {
-            debug("Ready");
+            Log::d("Ready");
             Vk::Buffers::finishTransfer();
         } else {
-            debug("Not ready");
+            Log::d("Not ready");
             return;
         }
     }

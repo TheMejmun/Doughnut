@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_ENTITY_MANAGER_H
 #define DOUGHNUT_ENTITY_MANAGER_H
 
-#include "io/printer.h"
+#include "io/logger.h"
 #include "util/timer.h"
 
 #include <cstdint>
@@ -24,12 +24,12 @@ namespace ECS2 {
     class EntityManager {
     public:
         EntityManager() {
-            info("Creating EntityManager");
+            Doughnut::Log::i("Creating EntityManager");
             init<COMPONENTS...>();
         }
 
         ~EntityManager() {
-            info("Destroying EntityManager");
+            Doughnut::Log::i("Destroying EntityManager");
         }
 
         uint32_t makeEntity() {
@@ -89,11 +89,11 @@ namespace ECS2 {
             uint32_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
 
             if (!mIndexArrays[denseId][componentVectorId].has_value()) {
-                verbose("Inserting component " << typeid(COMPONENT).name());
+                Doughnut::Log::v("Inserting component ", typeid(COMPONENT).name());
                 mIndexArrays[denseId][componentVectorId] = componentVector<COMPONENT>().size();
                 componentVector<COMPONENT>().emplace_back(component);
             } else {
-                verbose("Overriding component " << typeid(COMPONENT).name());
+                Doughnut::Log::v("Overriding component ", typeid(COMPONENT).name());
                 uint32_t componentId = *mIndexArrays[denseId][componentVectorId];
                 componentVector<COMPONENT>()[componentId] = std::move(component);
             }
@@ -109,12 +109,12 @@ namespace ECS2 {
             uint32_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
 
             if (!mIndexArrays[denseId][componentVectorId].has_value()) {
-                verbose("Inserting component " << typeid(COMPONENT).name());
+                Doughnut::Log::v("Inserting component ", typeid(COMPONENT).name());
                 mIndexArrays[denseId][componentVectorId] = componentVector<COMPONENT>().size();
                 componentVector<COMPONENT>().emplace_back();
                 return &componentVector<COMPONENT>().back();
             } else {
-                verbose("Overriding component " << typeid(COMPONENT).name());
+                Doughnut::Log::v("Overriding component ", typeid(COMPONENT).name());
                 uint32_t componentId = *mIndexArrays[denseId][componentVectorId];
                 componentVector<COMPONENT>().emplace(componentVector<COMPONENT>().begin() + componentId);
                 return &componentVector<COMPONENT>()[componentId];
@@ -335,7 +335,7 @@ namespace ECS2 {
 
         template<class T>
         void initType() {
-            verbose("Adding type " << typeid(T).name());
+            Doughnut::Log::v("Adding type ", typeid(T).name());
 
             const auto typeIndex = std::type_index(typeid(T));
             assert(!mTypeIndexMap.contains(typeIndex) && "Can not add multiple components of the same type due to ambiguity");

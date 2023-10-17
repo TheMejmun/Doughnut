@@ -8,11 +8,13 @@
 #include "graphics/vulkan/vulkan_images.h"
 #include "graphics/vulkan/vulkan_imgui.h"
 #include "graphics/vulkan/vulkan_buffers.h"
+#include "io/logger.h"
 
+using namespace Doughnut;
 using namespace Doughnut::GFX;
 
 Renderer::Renderer(const std::string &title, GLFWwindow *window) {
-    info( "Creating Renderer" );
+    Log::i("Creating Renderer");
 
     // Reset
     this->state = {};
@@ -61,7 +63,7 @@ void Renderer::destroyVulkan() {
 }
 
 Renderer::~Renderer() {
-    info( "Destroying Renderer" );
+    Log::i("Destroying Renderer");
 
     if (this->simplifiedMeshAllocationThread.joinable())
         this->simplifiedMeshAllocationThread.join();

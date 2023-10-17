@@ -3,7 +3,7 @@
 //
 
 #include "util/importer.h"
-#include "io/printer.h"
+#include "io/logger.h"
 
 #include <fstream>
 #include <assimp/Importer.hpp>
@@ -44,9 +44,10 @@ Importinator::Mesh Importinator::importMesh(const std::string &filename) {
 
     if (scene == nullptr) {
         throw std::runtime_error(importer.GetErrorString());
-    } else {
-        debug( "Read mesh " << filename );
     }
+
+    std::stringstream stream;
+    stream << "Read mesh " << filename;
 
     for (uint32_t meshIndex = 0; meshIndex < (scene->mNumMeshes); ++meshIndex) {
         const aiMesh *mesh = *(scene->mMeshes + meshIndex);
@@ -88,8 +89,11 @@ Importinator::Mesh Importinator::importMesh(const std::string &filename) {
             out.indices[i * 3 + 2] = (*(face.mIndices + 2));
         }
     }
-    debug( "\tIndices: " << out.indices.size() );
-    debug( "\tVertices: " << out.vertices.size() );
+
+    stream << "\n\tIndices: " << out.indices.size();
+    stream << "\n\tVertices: " << out.vertices.size();
+
+    Doughnut::Log::d(stream.str());
 
     return out;
 }

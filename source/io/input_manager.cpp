@@ -3,14 +3,14 @@
 //
 
 #include "io/input_manager.h"
-#include "io/printer.h"
+#include "io/logger.h"
 
 #include <iostream>
 
 static InputController *instance;
 
 InputController::InputController(GLFWwindow *w) {
-    info("Creating InputManager");
+    Doughnut::Log::i("Creating InputManager");
 
     this->window = w;
     instance = this;
@@ -119,5 +119,5 @@ void InputController::handleKey(KeyState *key, const int &actionCode) {
 }
 
 InputController::~InputController() {
-    info("Destroying InputManager");
+    Doughnut::Log::i("Destroying InputManager");
 }

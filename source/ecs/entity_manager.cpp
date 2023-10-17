@@ -69,7 +69,7 @@ void ECS2::testEntityManager() {
     assert(em.componentCount<int>() == 1);
     assert(em.getComponent<int>(id2) == 3);
 
-    std::cout << "EntityManager test successful." << std::endl;
+    Doughnut::Log::i("EntityManager test successful.");
 }
 
 void ECS2::benchmark(uint32_t count) {

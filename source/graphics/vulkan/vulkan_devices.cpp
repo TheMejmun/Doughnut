@@ -2,16 +2,17 @@
 // Created by Saman on 24.08.23.
 //
 
-#include "io/printer.h"
 #include "graphics/vulkan/vulkan_devices.h"
 #include "graphics/vulkan/vulkan_validation.h"
 #include "graphics/vulkan/vulkan_instance.h"
 #include "graphics/vulkan/vulkan_swapchain.h"
+#include "io/logger.h"
 
 #include <set>
 #include <cstdint>
 
 using namespace Doughnut::GFX::Vk;
+using namespace Doughnut;
 
 // Constant
 extern const std::vector<const char *> Devices::REQUIRED_DEVICE_EXTENSIONS = {
@@ -28,7 +29,7 @@ Devices::QueueFamilyIndices Devices::queueFamilyIndices{};
 Devices::OptionalFeatures  Devices::optionalFeatures{};
 
 void Devices::create() {
-    info("Creating Devices");
+    Log::i("Creating Devices");
 
     Devices::pickPhysical();
     Devices::createLogical();
@@ -40,13 +41,15 @@ void Devices::printAvailablePhysicalDevices() {
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(Instance::instance, &deviceCount, devices.data());
 
-    verbose("Available physical devices:");
+    std::stringstream stream{};
+    stream << "Available physical devices:\n";
 
     for (const auto &device: devices) {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        verbose("\t" << deviceProperties.deviceName);
+        stream << "\t" << deviceProperties.deviceName << "\n";
     }
+    Log::v(stream.str());
 }
 
 void Devices::pickPhysical() {
@@ -74,7 +77,7 @@ void Devices::pickPhysical() {
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
-    info("Picked physical device: " << deviceProperties.deviceName);
+    Log::i("Picked physical device: ", deviceProperties.deviceName);
 
     if (Devices::physical == VK_NULL_HANDLE) {
         throw std::runtime_error("Failed to find a suitable GPU!");
@@ -129,12 +132,13 @@ bool Devices::checkExtensionSupport(VkPhysicalDevice device) {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
-    verbose("Available device extensions for " << deviceProperties.deviceName << ":");
-
+    std::stringstream stream{};
+    stream << "Available device extensions for " << deviceProperties.deviceName << ":\n";
     for (const auto &extension: availableExtensions) {
-        verbose('\t' << extension.extensionName);
+        stream << '\t' << extension.extensionName << "\n";
         requiredExtensions.erase(extension.extensionName);
     }
+    Log::v(stream.str());
 
     return requiredExtensions.empty();
 }
@@ -268,16 +272,13 @@ bool Devices::QueueFamilyIndices::hasUniqueTransferQueue() const {
 }
 
 void Devices::QueueFamilyIndices::print() {
-    verbose(
-            "QueueFamilyIndices:"
-                    << " Graphics: " << this->graphicsFamily.value()
-                    << " Present: " << this->presentFamily.value()
-                    << " Transfer: " << this->transferFamily.value()
+    Log::v(
+            "QueueFamilyIndices: Graphics:", this->graphicsFamily.value(), "Present:", this->presentFamily.value(), "Transfer:", this->transferFamily.value()
     );
 }
 
 void Devices::destroy() {
-    info("Destroying Devices");
+    Log::i("Destroying Devices");
 
     vkDestroyDevice(Devices::logical, nullptr);
 }

@@ -6,19 +6,20 @@
 #include "graphics/uniform_buffer_object.h"
 #include "graphics/vulkan/vulkan_renderpasses.h"
 #include "graphics/vulkan/vulkan_swapchain.h"
-#include "graphics/vulkan/vulkan_imgui.h"
 #include "graphics/vulkan/vulkan_devices.h"
 #include "graphics/vulkan/vulkan_buffers.h"
 #include "util/importer.h"
+#include "io/logger.h"
 
+using namespace Doughnut;
 using namespace Doughnut::GFX;
 
 void Renderer::createGraphicsPipeline() {
     // TODO pull these out of here
     auto vertShaderCode = Importinator::readFile("resources/shaders/sphere.vert.spv");
-    verbose( "Loaded vertex shader with byte size: " << vertShaderCode.size() );
+    Log::v("Loaded vertex shader with byte size:", vertShaderCode.size());
     auto fragShaderCode = Importinator::readFile("resources/shaders/sphere.frag.spv");
-    verbose( "Loaded fragment shader with byte size: " << fragShaderCode.size());
+    Log::v("Loaded fragment shader with byte size:", fragShaderCode.size());
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -367,11 +368,11 @@ double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
     if (Vk::Swapchain::shouldRecreateSwapchain()) {
         bool success = Vk::Swapchain::recreateSwapchain(this->state);
         if (success) {
-            debug( "Created new swapchain" );
+            Log::d("Created new swapchain");
             Vk::Swapchain::needsNewSwapchain = false;
 
         } else {
-            debug( "Failed to create new swapchain" );
+            Log::d("Failed to create new swapchain");
             return -1;
         }
     }
@@ -391,11 +392,11 @@ double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
                                                     this->imageAvailableSemaphore, nullptr, &imageIndex);
 
     if (acquireImageResult == VK_ERROR_OUT_OF_DATE_KHR) {
-        debug( "Swapchain is out of date" );
+        Log::d("Swapchain is out of date");
         Vk::Swapchain::recreateSwapchain(this->state);
         return Timer::duration(beforeFence, afterFence); // Why not
     } else if (acquireImageResult == VK_SUBOPTIMAL_KHR) {
-        debug( "Swapchain is suboptimal" );
+        Log::d("Swapchain is suboptimal");
         Vk::Swapchain::needsNewSwapchain = true;
 
     } else if (acquireImageResult != VK_SUCCESS) {

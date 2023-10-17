@@ -60,5 +60,5 @@ void ECS2::testSystemManager() {
     assert(constructed == 6);
     assert(executions == 12);
 
-    std::cout << "SystemManager test successful." << std::endl;
+    Doughnut::Log::i("SystemManager test successful.");
 }
