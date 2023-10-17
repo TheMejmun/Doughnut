@@ -3,6 +3,7 @@
 //
 
 #include "util/timer.h"
+#include "io/logger.h"
 
 using namespace Doughnut::Timer;
 
@@ -26,5 +27,5 @@ double FPSCounter::totalTime() {
 ScopeTracer::~ScopeTracer() {
     auto timeEnded = Doughnut::Timer::now();
     auto duration = Doughnut::Timer::duration(mTimeStarted, timeEnded);
-    std::cout << mName << " took " << duration << "s" << std::endl;
+    Doughnut::Log::t(mName, "took", duration, "s");
 }
