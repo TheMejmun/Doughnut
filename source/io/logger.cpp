@@ -11,16 +11,18 @@
 
 using namespace Doughnut;
 
-Scheduler Log::scheduler__{1};
+Scheduler Log::Internal::scheduler{1};
 
 bool iInfoEnabled = false;
 bool iDebugEnabled = false;
 bool iVerboseEnabled = false;
+bool iTraceEnabled = false;
 
-void Log::init(bool enableInfo, bool enableDebug, bool enableVerbose) {
+void Log::init(bool enableInfo, bool enableDebug, bool enableVerbose, bool enableTrace) {
     iInfoEnabled = enableInfo;
     iDebugEnabled = enableDebug;
     iVerboseEnabled = enableVerbose;
+    iTraceEnabled = enableTrace;
 }
 
 bool Log::infoEnabled() {
@@ -33,6 +35,10 @@ bool Log::debugEnabled() {
 
 bool Log::verboseEnabled() {
     return iVerboseEnabled;
+}
+
+bool Log::traceEnabled() {
+    return iTraceEnabled;
 }
 
 std::string getTimestamp() {
@@ -51,7 +57,7 @@ std::string getTimestamp() {
     return stream.str();
 }
 
-void Log::log__(Log::Level level, const std::string &message) {
+void Log::Internal::log(Log::Internal::Level level, const std::string &message) {
     auto time = getTimestamp();
     switch (level) {
         case INFO:
@@ -62,6 +68,9 @@ void Log::log__(Log::Level level, const std::string &message) {
             break;
         case VERBOSE:
             std::cout << time << " V: " << message << "\n";
+            break;
+        case TRACE:
+            std::cout << time << " T: " << message << "\n";
             break;
         case ERROR:
             std::cerr << time << " E: " << message << std::endl;
