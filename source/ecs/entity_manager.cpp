@@ -8,10 +8,10 @@ using namespace ECS2;
 
 void ECS2::testEntityManager() {
     struct test {
-        uint32_t someValue = 0;
+        size_t someValue = 0;
     };
 
-    ECS2::EntityManager<test, int, double, uint32_t> em;
+    ECS2::EntityManager<test, int, double, size_t> em;
     assert(em.entityCount() == 0);
     assert(em.componentCount<int>() == 0);
 
@@ -72,7 +72,7 @@ void ECS2::testEntityManager() {
     Doughnut::Log::i("EntityManager test successful.");
 }
 
-void ECS2::benchmark(uint32_t count) {
+void ECS2::benchmark(size_t count) {
     struct Component1 {
         double one;
         double two;
@@ -126,21 +126,21 @@ void ECS2::benchmark(uint32_t count) {
 
     {
         trace_scope("MAKE ENTITIES");
-        for (uint32_t i = 0; i < count; ++i) {
+        for (size_t i = 0; i < count; ++i) {
             em.makeEntity();
         }
     }
 
     {
         trace_scope("INSERT C1");
-        for (uint32_t i = 0; i < count; ++i) {
+        for (size_t i = 0; i < count; ++i) {
             em.insertComponent(Component1{}, i);
         }
     }
 
     {
         trace_scope("INSERT C2");
-        for (uint32_t i = 0; i < count; ++i) {
+        for (size_t i = 0; i < count; ++i) {
             if (i % 2 == 0) {
                 em.insertComponent(Component2{}, i);
             }
@@ -149,7 +149,7 @@ void ECS2::benchmark(uint32_t count) {
 
     {
         trace_scope("INSERT C3");
-        for (uint32_t i = 0; i < count; ++i) {
+        for (size_t i = 0; i < count; ++i) {
             if (i % 3 == 0) {
                 em.insertComponent(Component3{}, i);
             }
