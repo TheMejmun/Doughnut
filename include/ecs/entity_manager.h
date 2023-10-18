@@ -100,7 +100,7 @@ namespace ECS2 {
         }
 
         template<class COMPONENT>
-        COMPONENT *insertComponent(size_t entity) {
+        void insertComponent(size_t entity) {
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
@@ -112,12 +112,10 @@ namespace ECS2 {
                 Doughnut::Log::v("Inserting component ", typeid(COMPONENT).name());
                 mIndexArrays[denseId][componentVectorId] = componentVector<COMPONENT>().size();
                 componentVector<COMPONENT>().emplace_back();
-                return &componentVector<COMPONENT>().back();
             } else {
                 Doughnut::Log::v("Overriding component ", typeid(COMPONENT).name());
                 size_t componentId = *mIndexArrays[denseId][componentVectorId];
                 componentVector<COMPONENT>().emplace(componentVector<COMPONENT>().begin() + componentId);
-                return &componentVector<COMPONENT>()[componentId];
             }
         }
 
@@ -153,7 +151,7 @@ namespace ECS2 {
         }
 
         template<class COMPONENT>
-        COMPONENT getComponent(size_t entity) {
+        COMPONENT* getComponent(size_t entity) {
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
@@ -164,7 +162,7 @@ namespace ECS2 {
 
             assert(componentIndex.has_value());
 
-            return componentVector<COMPONENT>()[*componentIndex];
+            return &componentVector<COMPONENT>()[*componentIndex];
         }
 
         template<class T, class... OTHER>

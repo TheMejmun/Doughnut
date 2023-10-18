@@ -22,12 +22,12 @@ void ECS2::testEntityManager() {
     em.insertComponent(0, id);
     assert(em.entityCount() == 1);
     assert(em.componentCount<int>() == 1);
-    assert(em.getComponent<int>(id) == 0);
+    assert(*em.getComponent<int>(id) == 0);
 
     em.insertComponent(1, id);
     assert(em.entityCount() == 1);
     assert(em.componentCount<int>() == 1);
-    assert(em.getComponent<int>(id) == 1);
+    assert(*em.getComponent<int>(id) == 1);
 
     em.removeComponent<int>(id);
     assert(em.entityCount() == 1);
@@ -36,7 +36,7 @@ void ECS2::testEntityManager() {
     em.insertComponent(2, id);
     assert(em.entityCount() == 1);
     assert(em.componentCount<int>() == 1);
-    assert(em.getComponent<int>(id) == 2);
+    assert(*em.getComponent<int>(id) == 2);
 
     auto id2 = em.makeEntity();
     assert(em.entityCount() == 2);
@@ -49,8 +49,8 @@ void ECS2::testEntityManager() {
     em.insertComponent(3, id2);
     assert(em.entityCount() == 3);
     assert(em.componentCount<int>() == 2);
-    assert(em.getComponent<int>(id2) == 3);
-    assert(em.getComponent<int>(id) == 2);
+    assert(*em.getComponent<int>(id2) == 3);
+    assert(*em.getComponent<int>(id) == 2);
 
     auto allInts = em.requestAll<int>();
     assert(allInts.size() == 2);
@@ -66,7 +66,7 @@ void ECS2::testEntityManager() {
     em.removeEntity(id);
     assert(em.entityCount() == 2);
     assert(em.componentCount<int>() == 1);
-    assert(em.getComponent<int>(id2) == 3);
+    assert(*em.getComponent<int>(id2) == 3);
 
     Doughnut::Log::i("EntityManager test successful.");
 }
