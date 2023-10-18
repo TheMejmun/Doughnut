@@ -12,9 +12,9 @@ void CameraController::update(const double delta, EntityManagerSpec &entityManag
     InputState *inputState = entityManager.template requestAll<InputState>()[0];
     auto cameras = entityManager.template requestAll<Projector, Transformer4>();
 
-    for (uint32_t i = 0; i < std::get<0>(cameras).size(); ++i) {
-        if (std::get<0>(cameras)[i]->isMainCamera) {
-            auto transform = std::get<1>(cameras)[i];
+    for (auto & camera : cameras) {
+        if (std::get<0>(camera)->isMainCamera) {
+            auto transform = std::get<1>(camera);
 
             int move = 0;
             if (inputState->moveForward == IM_DOWN_EVENT ||

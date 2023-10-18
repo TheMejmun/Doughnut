@@ -74,15 +74,15 @@ void Renderer::updateUniformBuffer(const double &delta, EntityManagerSpec &ecs) 
 
     // TODO not just for one object
     UniformBufferObject ubo{};
-    ubo.model = std::get<1>(entities)[0]->forward;
+    ubo.model = std::get<1>(entities[0])->forward;
 
     auto cameras = ecs.requestAll<Projector, Transformer4>();
     Transformer4 *cameraTransform;
     Projector *cameraProjector;
-    for (int i = 0; i < std::get<0>(cameras).size(); ++i) {
-        if (std::get<0>(cameras)[i]->isMainCamera) {
-            cameraTransform = std::get<1>(cameras)[i];
-            cameraProjector = std::get<0>(cameras)[i];
+    for (auto &camera: cameras) {
+        if (std::get<0>(camera)->isMainCamera) {
+            cameraTransform = std::get<1>(camera);
+            cameraProjector = std::get<0>(camera);
             break;
         }
     }

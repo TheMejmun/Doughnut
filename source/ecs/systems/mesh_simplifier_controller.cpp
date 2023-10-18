@@ -296,32 +296,32 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
         auto entities = entityManager.requestAll<RenderMesh, RenderMeshSimplifiable, Transformer4>();
         auto cameras = entityManager.requestAll<Projector, Transformer4>();
         uint32_t mainCameraIndex;
-        for (uint32_t i = 0; i < std::get<0>(cameras).size(); ++i) {
-            if (std::get<0>(cameras)[i]->isMainCamera) {
+        for (uint32_t i = 0; i < cameras.size(); ++i) {
+            if (std::get<0>(cameras[i])->isMainCamera) {
                 mainCameraIndex = i;
                 break;
             }
         }
 
-        if (!std::get<0>(entities).empty()) {
+        if (!entities.empty()) {
             meshCalculationDone = false;
             simplifiedMeshCalculationThreadFrameCounter = 0;
             simplifiedMeshCalculationThreadStartedTime = Doughnut::Timer::now();
 
             auto function = [=](bool &done) {
-                for (uint32_t i = 0; i < std::get<0>(entities).size(); ++i) {
-                    if (std::get<1>(entities)[i]->simplifiedMeshMutex->try_lock()) {
+                for (const auto & entity : entities) {
+                    if (std::get<1>(entity)->simplifiedMeshMutex->try_lock()) {
                         PerformanceLogging::meshCalculationStarted();
                         simplify(
-                                *std::get<0>(cameras)[mainCameraIndex],
-                                *std::get<1>(cameras)[mainCameraIndex],
-                                *std::get<0>(entities)[i],
-                                *std::get<1>(entities)[i],
-                                *std::get<2>(entities)[i]
+                                *std::get<0>(cameras[mainCameraIndex]),
+                                *std::get<1>(cameras[mainCameraIndex]),
+                                *std::get<0>(entity),
+                                *std::get<1>(entity),
+                                *std::get<2>(entity)
                         );
-                        std::get<1>(entities)[i]->updateSimplifiedMesh = true;
+                        std::get<1>(entity)->updateSimplifiedMesh = true;
                         PerformanceLogging::meshCalculationFinished();
-                        std::get<1>(entities)[i]->simplifiedMeshMutex->unlock();
+                        std::get<1>(entity)->simplifiedMeshMutex->unlock();
                     }
                 }
                 done = true;
