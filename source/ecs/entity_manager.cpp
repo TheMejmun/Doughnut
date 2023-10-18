@@ -61,8 +61,7 @@ void ECS2::testEntityManager() {
     assert(allDoubles.empty());
 
     auto allIntsAndDoubles = em.requestAll<int, double>();
-    assert(std::get<0>(allIntsAndDoubles).empty());
-    assert(std::get<1>(allIntsAndDoubles).empty());
+    assert(allIntsAndDoubles.empty());
 
     em.removeEntity(id);
     assert(em.entityCount() == 2);

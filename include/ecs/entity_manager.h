@@ -167,14 +167,20 @@ namespace ECS2 {
             return componentVector<COMPONENT>()[*componentIndex];
         }
 
-        template<class T>
-        std::vector<T *> requestAll() {
-            std::vector<T *> out{};
+        template<class T, class... OTHER>
+        std::conditional<(sizeof...(OTHER) > 0),
+                std::vector<std::tuple<T *, OTHER *...>>,
+                std::vector<T *>
+        >::type requestAll() {
+            typename std::conditional<(sizeof...(OTHER) > 0),
+                    std::vector<std::tuple<T *, OTHER *...>>,
+                    std::vector<T *>
+            >::type out{};
 
             std::vector<bool> matchesArchetype{};
             matchesArchetype.resize(mDenseEntities.size(), true);
 
-            collectArchetypeMatches<T>(matchesArchetype);
+            collectArchetypeMatches<T, OTHER...>(matchesArchetype);
 
             size_t totalMatches = 0;
             for (auto b: matchesArchetype) {
@@ -186,34 +192,13 @@ namespace ECS2 {
             size_t archetypeIndex = 0;
             for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
                 if (matchesArchetype[denseIndex]) {
-                    insertSingleArchetypeComponents<T>(out, mIndexArrays[denseIndex], archetypeIndex);
-                    ++archetypeIndex;
-                }
-            }
 
-            return out;
-        }
+                    if constexpr (sizeof...(OTHER) > 0) {
+                        insertArchetypeComponents<std::tuple<T *, OTHER *...>, T, OTHER...>(out, mIndexArrays[denseIndex], archetypeIndex);
+                    } else {
+                        insertSingleArchetypeComponents<T>(out, mIndexArrays[denseIndex], archetypeIndex);
+                    }
 
-        template<class T, class T2, class... OTHER>
-        std::tuple<std::vector<T *>, std::vector<T2 *>, std::vector<OTHER *>...> requestAll() {
-            std::tuple<std::vector<T *>, std::vector<T2 *>, std::vector<OTHER *>...> out{};
-
-            std::vector<bool> matchesArchetype{};
-            matchesArchetype.resize(mDenseEntities.size(), true);
-
-            collectArchetypeMatches<T, T2, OTHER...>(matchesArchetype);
-
-            size_t totalMatches = 0;
-            for (auto b: matchesArchetype) {
-                if (b) ++totalMatches;
-            }
-
-            resizeArchetypes<std::tuple<std::vector<T *>, std::vector<T2 *>, std::vector<OTHER *>...>, T, T2, OTHER...>(out, totalMatches);
-
-            size_t archetypeIndex = 0;
-            for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
-                if (matchesArchetype[denseIndex]) {
-                    insertArchetypeComponents<std::tuple<std::vector<T *>, std::vector<T2 *>, std::vector<OTHER *>...>, T, T2, OTHER...>(out, mIndexArrays[denseIndex], archetypeIndex);
                     ++archetypeIndex;
                 }
             }
@@ -280,11 +265,11 @@ namespace ECS2 {
         }
 
         template<class TUPLE, class T, class... OTHER>
-        inline void insertArchetypeComponents(TUPLE &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
+        inline void insertArchetypeComponents(std::vector<TUPLE> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
             const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
             const size_t componentIndex = *indexArray[typeIndex];
 
-            std::get<std::vector<T *>>(output)[archetypeIndex] = &componentVector<T>()[componentIndex];
+            std::get<T *>(output[archetypeIndex]) = &componentVector<T>()[componentIndex];
 
             if constexpr (sizeof...(OTHER) > 0)
                 insertArchetypeComponents<TUPLE, OTHER...>(output, indexArray, archetypeIndex);
