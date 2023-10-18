@@ -33,6 +33,8 @@ namespace ECS2 {
         }
 
         size_t makeEntity() {
+            std::lock_guard<std::mutex> guard{mEntityWriteMutex};
+
             assert(mDenseEntities.size() == mIndexArrays.size());
 
             size_t newIndex;
@@ -220,6 +222,12 @@ namespace ECS2 {
 
         std::map<std::type_index, size_t> mTypeIndexMap{};
         std::tuple<std::vector<COMPONENTS>...> mComponentVectors{};
+
+        std::mutex mEntityWriteMutex{};
+        std::array<std::mutex, sizeof...(COMPONENTS)> mComponentWriteMutices{};
+        // TODO remove entitites in commit
+        // TODO insert and remove components in commit
+
 
         template<typename T>
         inline std::vector<T> &componentVector() {
