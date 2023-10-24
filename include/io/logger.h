@@ -28,7 +28,7 @@ namespace Doughnut::Log {
         std::string format(ARGS &&... args) {
             std::stringstream stream{};
             (
-                    [&] { stream << args << " "; }(),
+                    (stream << args << " "),
                     ...
             );
             return stream.str();

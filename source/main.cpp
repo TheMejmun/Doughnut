@@ -21,6 +21,21 @@ int main() {
     }
 #endif
 
+//    {
+//        Doughnut::Timer::ScopeTracer tracer1{"Execute Logs"};
+//        {
+//            Doughnut::Timer::ScopeTracer tracer2{"Insert Logs"};
+//
+//            for (uint32_t i = 0; i < 100'000; ++i) {
+//                Doughnut::Log::i("TESTING", "LOGGER", "FOLDED", i);
+//            }
+//        }
+//
+//        Doughnut::Log::Internal::scheduler.await();
+//
+//        return 0;
+//    }
+
     Doughnut::Application app{"Hello World!"};
 
     try {
