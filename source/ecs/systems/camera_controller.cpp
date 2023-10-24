@@ -9,8 +9,8 @@
 #include "ecs/components/projector.h"
 
 void CameraController::update(const double delta, EntityManagerSpec &entityManager) {
-    InputState *inputState = entityManager.template requestAll<InputState>()[0];
-    auto cameras = entityManager.template requestAll<Projector, Transformer4>();
+    InputState *inputState = entityManager.template getArchetype<InputState>()[0];
+    auto cameras = entityManager.template getArchetype<Projector, Transformer4>();
 
     for (auto & camera : cameras) {
         if (std::get<0>(camera)->isMainCamera) {

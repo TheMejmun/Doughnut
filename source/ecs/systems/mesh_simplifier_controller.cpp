@@ -282,7 +282,7 @@ void simplify(const Projector &cameraProjector,
 }
 
 void MeshSimplifierController::update(double delta, EntityManagerSpec &entityManager) {
-    auto &uiState = *entityManager.template requestAll<UiState>()[0];
+    auto &uiState = *entityManager.template getArchetype<UiState>()[0];
 
     if (thread.joinable()) {
         simplifiedMeshCalculationThreadFrameCounter++;
@@ -293,8 +293,8 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
             uiState.meshSimplifierFramesTaken = simplifiedMeshCalculationThreadFrameCounter;
         }
     } else if (uiState.runMeshSimplifier) {
-        auto entities = entityManager.requestAll<RenderMesh, RenderMeshSimplifiable, Transformer4>();
-        auto cameras = entityManager.requestAll<Projector, Transformer4>();
+        auto entities = entityManager.getArchetype<RenderMesh, RenderMeshSimplifiable, Transformer4>();
+        auto cameras = entityManager.getArchetype<Projector, Transformer4>();
         uint32_t mainCameraIndex;
         for (uint32_t i = 0; i < cameras.size(); ++i) {
             if (std::get<0>(cameras[i])->isMainCamera) {

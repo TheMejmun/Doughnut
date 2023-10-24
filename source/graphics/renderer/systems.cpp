@@ -15,7 +15,7 @@ using namespace Doughnut;
 using namespace Doughnut::GFX;
 
 void Renderer::uploadRenderables(EntityManagerSpec &ecs) {
-    auto entities = ecs.requestAll<RenderMesh>();
+    auto entities = ecs.getArchetype<RenderMesh>();
     for (auto renderMesh: entities) {
         if (renderMesh->isAllocated) continue;
         Vk::Buffers::uploadVertices(renderMesh->vertices);
@@ -36,7 +36,7 @@ void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
         }
     }
     const auto startTime = Timer::now();
-    auto entities = ecs.requestAll<RenderMeshSimplifiable>();
+    auto entities = ecs.getArchetype<RenderMeshSimplifiable>();
 
     uint32_t bufferToUse = 1;
     if (Vk::Buffers::meshBufferToUse == 1) bufferToUse = 2;
@@ -60,7 +60,7 @@ void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
 
     if (uploadedAny) {
         // Treat this like a return
-        auto &uiState = *ecs.requestAll<UiState>()[0];
+        auto &uiState = *ecs.getArchetype<UiState>()[0];
         uiState.meshUploadTimeTaken = Timer::duration(startTime, Timer::now());
     }
 }
@@ -70,13 +70,13 @@ void Renderer::destroyRenderables(EntityManagerSpec &ecs) {
 }
 
 void Renderer::updateUniformBuffer(const double &delta, EntityManagerSpec &ecs) {
-    auto entities = ecs.requestAll<RenderMesh, Transformer4>();
+    auto entities = ecs.getArchetype<RenderMesh, Transformer4>();
 
     // TODO not just for one object
     UniformBufferObject ubo{};
     ubo.model = std::get<1>(entities[0])->forward;
 
-    auto cameras = ecs.requestAll<Projector, Transformer4>();
+    auto cameras = ecs.getArchetype<Projector, Transformer4>();
     Transformer4 *cameraTransform;
     Projector *cameraProjector;
     for (auto &camera: cameras) {

@@ -17,10 +17,10 @@ struct RenderMeshSimplifiable {
     bool isAllocated = false;
     uint32_t bufferIndex = 0;
     bool updateSimplifiedMesh = false;
-    std::unique_ptr<std::mutex> simplifiedMeshMutex;
+    std::shared_ptr<std::mutex> simplifiedMeshMutex;
 
     RenderMeshSimplifiable(){
-        simplifiedMeshMutex = std::make_unique<std::mutex>();
+        simplifiedMeshMutex = std::shared_ptr<std::mutex>();
     }
 };
 

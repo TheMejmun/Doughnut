@@ -33,12 +33,11 @@ namespace ECS2 {
         }
 
         size_t makeEntity() {
-            std::lock_guard<std::mutex> guard{mEntityWriteMutex};
+            std::lock_guard<std::mutex> guard{mMakeEntityMutex};
 
             assert(mDenseEntities.size() == mIndexArrays.size());
 
             size_t newIndex;
-
             if (mSparseEntities.size() == mDenseEntities.size()) {
                 newIndex = mSparseEntities.size();
                 mSparseEntities.emplace_back();
@@ -58,37 +57,26 @@ namespace ECS2 {
             return newIndex;
         }
 
-        void removeEntity(size_t entity) {
+        void requestEntityDeletion(size_t entity) {
+            std::lock_guard<std::mutex> guard{mDeleteEntityMutex};
+
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
 
-            assert(mDenseEntities.size() == mIndexArrays.size());
-            assert(entity < mSparseEntities.size());
-
-            size_t denseIndex = mSparseEntities[entity];
-            assert(denseIndex < mDenseEntities.size());
-
-            removeAllComponents<COMPONENTS...>(entity);
-
-            size_t otherSparseIndex = mDenseEntities.back();
-            mSparseEntities[otherSparseIndex] = denseIndex;
-            mDenseEntities[denseIndex] = otherSparseIndex;
-            mDenseEntities.pop_back();
-            mIndexArrays[denseIndex] = mIndexArrays.back();
-            mIndexArrays.pop_back();
-
-            mSparseEntities[entity] = std::numeric_limits<size_t>::max();
+            mEntitiesToRemove.push_back(entity);
         }
 
         template<class COMPONENT>
         void insertComponent(COMPONENT component, size_t entity) {
+            size_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            std::lock_guard<std::mutex> guard{mInsertComponentMutices[componentVectorId]};
+
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
 
             size_t denseId = mSparseEntities[entity];
-            size_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
 
             if (!mIndexArrays[denseId][componentVectorId].has_value()) {
                 Doughnut::Log::v("Inserting component ", typeid(COMPONENT).name());
@@ -103,12 +91,14 @@ namespace ECS2 {
 
         template<class COMPONENT>
         void insertComponent(size_t entity) {
+            size_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            std::lock_guard<std::mutex> guard{mInsertComponentMutices[componentVectorId]};
+
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
 
             size_t denseId = mSparseEntities[entity];
-            size_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
 
             if (!mIndexArrays[denseId][componentVectorId].has_value()) {
                 Doughnut::Log::v("Inserting component ", typeid(COMPONENT).name());
@@ -122,7 +112,7 @@ namespace ECS2 {
         }
 
         template<class COMPONENT>
-        void removeComponent(size_t entity) {
+        void requestComponentDeletion(size_t entity) {
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
@@ -152,8 +142,36 @@ namespace ECS2 {
             }
         }
 
+        void commitDeletions(){
+            std::lock_guard<std::mutex> guard1{mDeleteEntityMutex};
+            std::lock_guard<std::mutex> guard2{mMakeEntityMutex};
+
+            for (const auto entity: mEntitiesToRemove) {
+                assert(entity < mSparseEntities.size()
+                       && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
+                       && "Accessing non-existent entity.");
+
+                assert(mDenseEntities.size() == mIndexArrays.size());
+                assert(entity < mSparseEntities.size());
+
+                size_t denseIndex = mSparseEntities[entity];
+                assert(denseIndex < mDenseEntities.size());
+
+                removeAllComponents<COMPONENTS...>(entity);
+
+                size_t otherSparseIndex = mDenseEntities.back();
+                mSparseEntities[otherSparseIndex] = denseIndex;
+                mDenseEntities[denseIndex] = otherSparseIndex;
+                mDenseEntities.pop_back();
+                mIndexArrays[denseIndex] = mIndexArrays.back();
+                mIndexArrays.pop_back();
+
+                mSparseEntities[entity] = std::numeric_limits<size_t>::max();
+            }
+        }
+
         template<class COMPONENT>
-        COMPONENT* getComponent(size_t entity) {
+        COMPONENT *getComponent(size_t entity) {
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
@@ -172,7 +190,7 @@ namespace ECS2 {
         std::conditional<(sizeof...(OTHER) > 0),
                 std::vector<std::tuple<T *, OTHER *...>>,
                 std::vector<T *>
-        >::type requestAll() {
+        >::type getArchetype() {
             typename std::conditional<(sizeof...(OTHER) > 0),
                     std::vector<std::tuple<T *, OTHER *...>>,
                     std::vector<T *>
@@ -224,11 +242,15 @@ namespace ECS2 {
         std::map<std::type_index, size_t> mTypeIndexMap{};
         std::tuple<std::vector<COMPONENTS>...> mComponentVectors{};
 
-        std::mutex mEntityWriteMutex{};
-        std::array<std::mutex, sizeof...(COMPONENTS)> mComponentWriteMutices{};
-        // TODO remove entitites in commit
-        // TODO insert and remove components in commit
+        std::mutex mMakeEntityMutex{};
+        std::mutex mDeleteEntityMutex{};
+        std::vector<size_t> mEntitiesToRemove{};
 
+        std::array<std::mutex, sizeof...(COMPONENTS)> mInsertComponentMutices{};
+        std::array<std::mutex, sizeof...(COMPONENTS)> mDeleteComponentMutices{};
+        std::tuple<std::vector<COMPONENTS>...> mComponentRemoveVectors{};
+        // TODO remove entitites in commit
+        // TODO remove components in commit
 
         template<typename T>
         inline std::vector<T> &componentVector() {
@@ -237,7 +259,9 @@ namespace ECS2 {
 
         template<class T, class... OTHER>
         void removeAllComponents(size_t entity) {
-            removeComponent<T>(entity);
+// TODO            (requestComponentDeletion<OTHER>(entity), ...);
+
+            requestComponentDeletion<T>(entity);
 
             if constexpr (sizeof...(OTHER) > 0)
                 removeAllComponents<OTHER...>(entity);

@@ -29,7 +29,7 @@ void ECS2::testEntityManager() {
     assert(em.componentCount<int>() == 1);
     assert(*em.getComponent<int>(id) == 1);
 
-    em.removeComponent<int>(id);
+    em.requestComponentDeletion<int>(id);
     assert(em.entityCount() == 1);
     assert(em.componentCount<int>() == 0);
 
@@ -52,18 +52,20 @@ void ECS2::testEntityManager() {
     assert(*em.getComponent<int>(id2) == 3);
     assert(*em.getComponent<int>(id) == 2);
 
-    auto allInts = em.requestAll<int>();
+    auto allInts = em.getArchetype<int>();
     assert(allInts.size() == 2);
     // Test values
     assert((*allInts[0] == 2 && *allInts[1] == 3) || (*allInts[0] == 3 && *allInts[1] == 2));
 
-    auto allDoubles = em.requestAll<double>();
+    auto allDoubles = em.getArchetype<double>();
     assert(allDoubles.empty());
 
-    auto allIntsAndDoubles = em.requestAll<int, double>();
+    auto allIntsAndDoubles = em.getArchetype<int, double>();
     assert(allIntsAndDoubles.empty());
 
-    em.removeEntity(id);
+    em.requestEntityDeletion(id);
+    assert(em.entityCount() == 3);
+    em.commitDeletions();
     assert(em.entityCount() == 2);
     assert(em.componentCount<int>() == 1);
     assert(*em.getComponent<int>(id2) == 3);
@@ -157,16 +159,16 @@ void ECS2::benchmark(size_t count) {
 
     {
         trace_scope("GET ARCHETYPE 0");
-        auto requested = em.requestAll<Component1>();
+        auto requested = em.getArchetype<Component1>();
     }
 
     {
         trace_scope("GET ARCHETYPE 1");
-        auto requested = em.requestAll<Component1, Component2>();
+        auto requested = em.getArchetype<Component1, Component2>();
     }
 
     {
         trace_scope("GET ARCHETYPE 2");
-        auto requested = em.requestAll<Component1, Component2, Component3>();
+        auto requested = em.getArchetype<Component1, Component2, Component3>();
     }
 }

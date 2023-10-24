@@ -5,14 +5,14 @@
 #include "ecs/systems/sphere_controller.h"
 
 void SphereController::update(double delta, EntityManagerSpec &entityManager) {
-    auto &inputState = *entityManager.requestAll<InputState>()[0];
+    auto &inputState = *entityManager.getArchetype<InputState>()[0];
 
     if (inputState.toggleRotation == IM_DOWN_EVENT) {
         mDoSphereRotation = !mDoSphereRotation;
     }
 
     if (mDoSphereRotation) {
-        auto spheres = entityManager.requestAll<RotatingSphere, Transformer4>();
+        auto spheres = entityManager.getArchetype<RotatingSphere, Transformer4>();
 
         for (auto &sphere: spheres) {
             if (std::get<0>(sphere)->isRotatingSphere) { // Kinda redundant check
