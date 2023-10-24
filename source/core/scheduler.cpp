@@ -101,6 +101,7 @@ Scheduler::~Scheduler() {
     trace_scope("~Scheduler")
     await();
     {
+        // https://www.modernescpp.com/index.php/c-core-guidelines-be-aware-of-the-traps-of-condition-variables/
         // Must acquire lock before notifying in order to avoid deadlocks
         std::lock_guard<std::mutex> runGuard{mRunMutex};
         mExitThreads = true;

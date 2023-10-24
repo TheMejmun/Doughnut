@@ -27,5 +27,5 @@ double FPSCounter::totalTime() {
 ScopeTracer::~ScopeTracer() {
     auto timeEnded = Doughnut::Timer::now();
     auto duration = Doughnut::Timer::duration(mTimeStarted, timeEnded);
-    Doughnut::Log::t(mName, "took", duration, "s");
+    Doughnut::Log::t(mName, "took", lround(1000 * duration), "ms");
 }
