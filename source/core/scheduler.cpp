@@ -49,8 +49,8 @@ static void threadBody(
 }
 
 Scheduler::Scheduler() {
-    const auto processor_count = std::thread::hardware_concurrency();
-    mThreads.reserve(processor_count);
+    const auto processorCount = std::thread::hardware_concurrency();
+    mThreads.reserve(processorCount / 2);
     for (size_t i = 0; i < mThreads.capacity(); ++i) {
         mThreads.emplace_back(threadBody,
                               &mQueue, &mQueueMutex, &mWaitingJobCount, &mExitThreads, &mRunMutex, &mRunCondition);
