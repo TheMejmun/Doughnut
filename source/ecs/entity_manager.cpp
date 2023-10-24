@@ -31,6 +31,8 @@ void ECS2::testEntityManager() {
 
     em.requestComponentDeletion<int>(id);
     assert(em.entityCount() == 1);
+    assert(em.componentCount<int>() == 1);
+    em.commitDeletions();
     assert(em.componentCount<int>() == 0);
 
     em.insertComponent(2, id);

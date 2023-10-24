@@ -19,6 +19,7 @@
 #include <optional>
 #include <cassert>
 
+// TODO DEADLOCKED SOMEWHERE HERE
 namespace ECS2 {
     template<class... COMPONENTS>
     class EntityManager {
@@ -69,80 +70,61 @@ namespace ECS2 {
 
         template<class COMPONENT>
         void insertComponent(COMPONENT component, size_t entity) {
-            size_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
-            std::lock_guard<std::mutex> guard{mInsertComponentMutices[componentVectorId]};
+            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            std::lock_guard<std::mutex> guard{mInsertComponentMutices[typeIndex]};
 
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
 
-            size_t denseId = mSparseEntities[entity];
+            const size_t denseId = mSparseEntities[entity];
 
-            if (!mIndexArrays[denseId][componentVectorId].has_value()) {
+            if (!mIndexArrays[denseId][typeIndex].has_value()) {
                 Doughnut::Log::v("Inserting component ", typeid(COMPONENT).name());
-                mIndexArrays[denseId][componentVectorId] = componentVector<COMPONENT>().size();
+                mIndexArrays[denseId][typeIndex] = componentVector<COMPONENT>().size();
                 componentVector<COMPONENT>().emplace_back(component);
             } else {
                 Doughnut::Log::v("Overriding component ", typeid(COMPONENT).name());
-                size_t componentId = *mIndexArrays[denseId][componentVectorId];
+                size_t componentId = *mIndexArrays[denseId][typeIndex];
                 componentVector<COMPONENT>()[componentId] = std::move(component);
             }
         }
 
         template<class COMPONENT>
         void insertComponent(size_t entity) {
-            size_t componentVectorId = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
-            std::lock_guard<std::mutex> guard{mInsertComponentMutices[componentVectorId]};
+            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            std::lock_guard<std::mutex> guard{mInsertComponentMutices[typeIndex]};
 
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
 
-            size_t denseId = mSparseEntities[entity];
+            const size_t denseId = mSparseEntities[entity];
 
-            if (!mIndexArrays[denseId][componentVectorId].has_value()) {
+            if (!mIndexArrays[denseId][typeIndex].has_value()) {
                 Doughnut::Log::v("Inserting component ", typeid(COMPONENT).name());
-                mIndexArrays[denseId][componentVectorId] = componentVector<COMPONENT>().size();
+                mIndexArrays[denseId][typeIndex] = componentVector<COMPONENT>().size();
                 componentVector<COMPONENT>().emplace_back();
             } else {
                 Doughnut::Log::v("Overriding component ", typeid(COMPONENT).name());
-                size_t componentId = *mIndexArrays[denseId][componentVectorId];
+                size_t componentId = *mIndexArrays[denseId][typeIndex];
                 componentVector<COMPONENT>().emplace(componentVector<COMPONENT>().begin() + componentId);
             }
         }
 
         template<class COMPONENT>
         void requestComponentDeletion(size_t entity) {
+            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            std::lock_guard<std::mutex> guard{mDeleteComponentMutices[typeIndex]};
+
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
 
-            assert(mDenseEntities.size() == mIndexArrays.size());
-            assert(entity < mSparseEntities.size());
-
-            const size_t denseIndex = mSparseEntities[entity];
-            assert(denseIndex < mDenseEntities.size());
-
-            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
-            std::optional<size_t> &componentIndex = mIndexArrays[denseIndex][typeIndex];
-            if (componentIndex.has_value()) {
-                auto currentLastIndex = componentVector<COMPONENT>().size() - 1;
-
-                // Move current rear to deleted position and update other entity with new component position
-                componentVector<COMPONENT>()[*componentIndex] = componentVector<COMPONENT>().back();
-                for (auto &otherIndexArray: mIndexArrays) {
-                    if (otherIndexArray[typeIndex].has_value() && *otherIndexArray[typeIndex] == currentLastIndex) {
-                        otherIndexArray[typeIndex] = *componentIndex;
-                        break;
-                    }
-                }
-
-                componentVector<COMPONENT>().pop_back();
-                componentIndex.reset();
-            }
+            mDeletableComponentVectors[typeIndex].push_back(entity);
         }
 
-        void commitDeletions(){
+        void commitDeletions() {
             std::lock_guard<std::mutex> guard1{mDeleteEntityMutex};
             std::lock_guard<std::mutex> guard2{mMakeEntityMutex};
 
@@ -157,7 +139,7 @@ namespace ECS2 {
                 size_t denseIndex = mSparseEntities[entity];
                 assert(denseIndex < mDenseEntities.size());
 
-                removeAllComponents<COMPONENTS...>(entity);
+                deleteAllComponents<COMPONENTS...>(entity);
 
                 size_t otherSparseIndex = mDenseEntities.back();
                 mSparseEntities[otherSparseIndex] = denseIndex;
@@ -168,6 +150,8 @@ namespace ECS2 {
 
                 mSparseEntities[entity] = std::numeric_limits<size_t>::max();
             }
+
+            deleteDeletableComponents<COMPONENTS...>();
         }
 
         template<class COMPONENT>
@@ -248,23 +232,69 @@ namespace ECS2 {
 
         std::array<std::mutex, sizeof...(COMPONENTS)> mInsertComponentMutices{};
         std::array<std::mutex, sizeof...(COMPONENTS)> mDeleteComponentMutices{};
-        std::tuple<std::vector<COMPONENTS>...> mComponentRemoveVectors{};
-        // TODO remove entitites in commit
-        // TODO remove components in commit
+        std::array<std::vector<size_t>, sizeof...(COMPONENTS)> mDeletableComponentVectors{};
 
         template<typename T>
         inline std::vector<T> &componentVector() {
             return std::get<std::vector<T>>(mComponentVectors);
         }
 
+        template<class COMPONENT>
+        void deleteComponent(size_t entity) {
+            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            std::lock_guard<std::mutex> guard{mDeleteComponentMutices[typeIndex]};
+
+            assert(entity < mSparseEntities.size()
+                   && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
+                   && "Accessing non-existent entity.");
+
+            assert(mDenseEntities.size() == mIndexArrays.size());
+            assert(entity < mSparseEntities.size());
+
+            const size_t denseIndex = mSparseEntities[entity];
+            assert(denseIndex < mDenseEntities.size());
+
+            std::optional<size_t> &componentIndex = mIndexArrays[denseIndex][typeIndex];
+            if (componentIndex.has_value()) {
+                const auto currentLastIndex = componentVector<COMPONENT>().size() - 1;
+
+                // Move current rear to deleted position and update other entity with new component position
+                componentVector<COMPONENT>()[*componentIndex] = componentVector<COMPONENT>().back();
+                for (auto &otherIndexArray: mIndexArrays) {
+                    if (otherIndexArray[typeIndex].has_value() && *otherIndexArray[typeIndex] == currentLastIndex) {
+                        otherIndexArray[typeIndex] = *componentIndex;
+                        break;
+                    }
+                }
+
+                componentVector<COMPONENT>().pop_back();
+                componentIndex.reset();
+            }
+        }
+
         template<class T, class... OTHER>
-        void removeAllComponents(size_t entity) {
+        void deleteAllComponents(size_t entity) {
 // TODO            (requestComponentDeletion<OTHER>(entity), ...);
 
-            requestComponentDeletion<T>(entity);
+            deleteComponent<T>(entity);
 
             if constexpr (sizeof...(OTHER) > 0)
-                removeAllComponents<OTHER...>(entity);
+                deleteAllComponents<OTHER...>(entity);
+        }
+
+        template<class T, class... OTHER>
+        void deleteDeletableComponents() {
+            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
+            auto &deletableVector = mDeletableComponentVectors[typeIndex];
+
+            for (const size_t entity: deletableVector) {
+                deleteComponent<T>(entity);
+            }
+
+            deletableVector.clear();
+
+            if constexpr (sizeof...(OTHER) > 0)
+                deleteDeletableComponents<OTHER...>();
         }
 
         template<class T, class... OTHER>
