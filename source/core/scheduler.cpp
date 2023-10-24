@@ -95,6 +95,7 @@ uint32_t Scheduler::workerCount() {
     return mThreads.size();
 }
 
+// TODO still deadlocking sometimes
 Scheduler::~Scheduler() {
     // Variable has to be updated first, otherwise deadlocks occur.
     mExitThreads = true;
