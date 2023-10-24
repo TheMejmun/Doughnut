@@ -4,6 +4,7 @@
 
 #include "core/scheduler.h"
 #include "io/logger.h"
+#include "util/timer.h"
 
 #include <iostream>
 #include <cassert>
@@ -37,6 +38,7 @@ static void threadBody(
             --(*waitingJobCount);
         }
 
+        // Will be unlocked when it goes out of scope
         std::unique_lock<std::mutex> runLock(*runMutex);
         runCondition->wait(runLock,
                            [=]() {
@@ -44,7 +46,6 @@ static void threadBody(
                                return exit->load() || (!queue->empty());
                            }
         );
-        runLock.unlock(); // TODO this unlock could theoretically throw an exception if not locked & the condition sporadically unlocks (I think)
     }
 }
 
@@ -78,7 +79,8 @@ bool Scheduler::done() {
 }
 
 void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
-    std::lock_guard<std::mutex> guard(mQueueMutex);
+    std::lock_guard<std::mutex> runGuard{mRunMutex};
+    std::lock_guard<std::mutex> queueGuard(mQueueMutex);
     for (auto &job: functions) {
         ++mWaitingJobCount;
         mQueue.emplace(job);
@@ -95,13 +97,15 @@ uint32_t Scheduler::workerCount() {
     return mThreads.size();
 }
 
-// TODO still deadlocking sometimes
 Scheduler::~Scheduler() {
-    // Variable has to be updated first, otherwise deadlocks occur.
-    mExitThreads = true;
+    trace_scope("~Scheduler")
     await();
-    // This may clear the scheduler before all jobs are completed.
-    mRunCondition.notify_all();
+    {
+        // Must acquire lock before notifying in order to avoid deadlocks
+        std::lock_guard<std::mutex> runGuard{mRunMutex};
+        mExitThreads = true;
+        mRunCondition.notify_all();
+    }
     for (auto &thread: mThreads) {
         if (thread.joinable()) {
             thread.join();

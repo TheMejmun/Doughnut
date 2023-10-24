@@ -14,7 +14,6 @@ int main() {
 
 #ifndef NDEBUG
     {
-        trace_scope("Unit Tests");
         ECS2::testEntityManager();
         ECS2::testSystemManager();
         Doughnut::testScheduler();
