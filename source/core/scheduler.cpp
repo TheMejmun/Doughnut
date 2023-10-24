@@ -184,5 +184,5 @@ void Doughnut::testScheduler() {
     assert(scheduler.done());
     assert(task4Done);
 
-    Doughnut::Log::i("Scheduler test successful.");
+    Log::i("Scheduler test successful.");
 }

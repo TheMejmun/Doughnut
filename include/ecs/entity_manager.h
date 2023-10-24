@@ -167,6 +167,7 @@ namespace ECS2 {
             return &componentVector<COMPONENT>()[*componentIndex];
         }
 
+        // TODO sort for better cache hits
         template<class T, class... OTHER>
         std::conditional<(sizeof...(OTHER) > 0),
                 std::vector<std::tuple<T *, OTHER *...>>,
