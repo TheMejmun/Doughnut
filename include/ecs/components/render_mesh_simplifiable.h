@@ -20,7 +20,7 @@ struct RenderMeshSimplifiable {
     std::shared_ptr<std::mutex> simplifiedMeshMutex;
 
     RenderMeshSimplifiable(){
-        simplifiedMeshMutex = std::shared_ptr<std::mutex>();
+        simplifiedMeshMutex = std::make_shared<std::mutex>();
     }
 };
 
