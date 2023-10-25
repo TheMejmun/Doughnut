@@ -12,6 +12,9 @@ int main() {
     Doughnut::Log::init(true, false, false, true);
 #endif
 
+    ECS2::benchmark(1'000'000);
+    return 0;
+
 #ifndef NDEBUG
     {
         ECS2::testEntityManager();
@@ -19,6 +22,8 @@ int main() {
         Doughnut::testScheduler();
     }
 #endif
+
+
 
 //    {
 //        Doughnut::Timer::ScopeTracer tracer1{"Execute Logs"};

@@ -7,6 +7,7 @@
 
 #include "io/logger.h"
 #include "util/timer.h"
+#include "util/templates.h"
 
 #include <cstdint>
 #include <vector>
@@ -26,7 +27,14 @@ namespace ECS2 {
     public:
         EntityManager() {
             Doughnut::Log::i("Creating EntityManager");
-            init<COMPONENTS...>();
+
+            ([&] {
+                Doughnut::Log::v("Adding type ", typeid(COMPONENTS).name());
+
+                const auto typeIndex = std::type_index(typeid(COMPONENTS));
+                assert(!mTypeIndexMap.contains(typeIndex) && "Can not add multiple components of the same type due to ambiguity");
+                mTypeIndexMap[typeIndex] = mTypeIndexMap.size();
+            }(), ...);
         }
 
         ~EntityManager() {
@@ -70,7 +78,7 @@ namespace ECS2 {
 
         template<class COMPONENT>
         void insertComponent(COMPONENT component, size_t entity) {
-            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            const size_t typeIndex = indexOf<COMPONENT>();
             std::lock_guard<std::mutex> guard{mInsertComponentMutices[typeIndex]};
 
             assert(entity < mSparseEntities.size()
@@ -92,7 +100,7 @@ namespace ECS2 {
 
         template<class COMPONENT>
         void insertComponent(size_t entity) {
-            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            const size_t typeIndex = indexOf<COMPONENT>();
             std::lock_guard<std::mutex> guard{mInsertComponentMutices[typeIndex]};
 
             assert(entity < mSparseEntities.size()
@@ -114,7 +122,7 @@ namespace ECS2 {
 
         template<class COMPONENT>
         void requestComponentDeletion(size_t entity) {
-            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            const size_t typeIndex = indexOf<COMPONENT>();
             std::lock_guard<std::mutex> guard{mDeleteComponentMutices[typeIndex]};
 
             assert(entity < mSparseEntities.size()
@@ -139,7 +147,7 @@ namespace ECS2 {
                 size_t denseIndex = mSparseEntities[entity];
                 assert(denseIndex < mDenseEntities.size());
 
-                deleteAllComponents<COMPONENTS...>(entity);
+                deleteAllComponents(entity);
 
                 size_t otherSparseIndex = mDenseEntities.back();
                 mSparseEntities[otherSparseIndex] = denseIndex;
@@ -151,7 +159,7 @@ namespace ECS2 {
                 mSparseEntities[entity] = std::numeric_limits<size_t>::max();
             }
 
-            deleteDeletableComponents<COMPONENTS...>();
+            deleteDeletableComponents();
         }
 
         template<class COMPONENT>
@@ -161,8 +169,7 @@ namespace ECS2 {
                    && "Accessing non-existent entity.");
 
             const size_t denseIndex = mSparseEntities[entity];
-            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
-            const std::optional<size_t> &componentIndex = mIndexArrays[denseIndex][typeIndex];
+            const std::optional<size_t> &componentIndex = mIndexArrays[denseIndex][indexOf<COMPONENT>()];
 
             assert(componentIndex.has_value());
 
@@ -170,20 +177,14 @@ namespace ECS2 {
         }
 
         // TODO sort for better cache hits
-        template<class T, class... OTHER>
-        std::conditional<(sizeof...(OTHER) > 0),
-                std::vector<std::tuple<T *, OTHER *...>>,
-                std::vector<T *>
-        >::type getArchetype() {
-            typename std::conditional<(sizeof...(OTHER) > 0),
-                    std::vector<std::tuple<T *, OTHER *...>>,
-                    std::vector<T *>
-            >::type out{};
+        template<class... T>
+        std::vector<typename Doughnut::TupleOrSingle<T *...>::Type> getArchetype() {
+            typename std::vector<typename Doughnut::TupleOrSingle<T *...>::Type> out{};
 
             std::vector<bool> matchesArchetype{};
             matchesArchetype.resize(mDenseEntities.size(), true);
 
-            collectArchetypeMatches<T, OTHER...>(matchesArchetype);
+            collectArchetypeMatches<T...>(matchesArchetype);
 
             size_t totalMatches = 0;
             for (auto b: matchesArchetype) {
@@ -196,10 +197,10 @@ namespace ECS2 {
             for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
                 if (matchesArchetype[denseIndex]) {
 
-                    if constexpr (sizeof...(OTHER) > 0) {
-                        insertArchetypeComponents<std::tuple<T *, OTHER *...>, T, OTHER...>(out, mIndexArrays[denseIndex], archetypeIndex);
+                    if constexpr (sizeof...(T) > 1) {
+                        insertArchetypeComponents<T...>(out, mIndexArrays[denseIndex], archetypeIndex);
                     } else {
-                        insertSingleArchetypeComponents<T>(out, mIndexArrays[denseIndex], archetypeIndex);
+                        insertSingleArchetypeComponents<typename Doughnut::FirstOf<T...>::Type>(out, mIndexArrays[denseIndex], archetypeIndex);
                     }
 
                     ++archetypeIndex;
@@ -234,14 +235,19 @@ namespace ECS2 {
         std::array<std::mutex, sizeof...(COMPONENTS)> mDeleteComponentMutices{};
         std::array<std::vector<size_t>, sizeof...(COMPONENTS)> mDeletableComponentVectors{};
 
-        template<typename T>
-        inline std::vector<T> &componentVector() {
-            return std::get<std::vector<T>>(mComponentVectors);
+        template<typename COMPONENT>
+        inline std::vector<COMPONENT> &componentVector() {
+            return std::get<std::vector<COMPONENT>>(mComponentVectors);
+        }
+
+        template<class COMPONENT>
+        inline size_t indexOf() {
+            return mTypeIndexMap[std::type_index(typeid(COMPONENT))];
         }
 
         template<class COMPONENT>
         void deleteComponent(size_t entity) {
-            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(COMPONENT))];
+            const size_t typeIndex = indexOf<COMPONENT>();
             std::lock_guard<std::mutex> guard{mDeleteComponentMutices[typeIndex]};
 
             assert(entity < mSparseEntities.size()
@@ -272,88 +278,54 @@ namespace ECS2 {
             }
         }
 
-        template<class T, class... OTHER>
         void deleteAllComponents(size_t entity) {
-// TODO            (requestComponentDeletion<OTHER>(entity), ...);
-
-            deleteComponent<T>(entity);
-
-            if constexpr (sizeof...(OTHER) > 0)
-                deleteAllComponents<OTHER...>(entity);
+            (deleteComponent<COMPONENTS>(entity), ...);
         }
 
-        template<class T, class... OTHER>
         void deleteDeletableComponents() {
-            const size_t typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
-            auto &deletableVector = mDeletableComponentVectors[typeIndex];
+            ([&] {
+                auto &deletableVector = mDeletableComponentVectors[indexOf<COMPONENTS>()];
 
-            for (const size_t entity: deletableVector) {
-                deleteComponent<T>(entity);
-            }
-
-            deletableVector.clear();
-
-            if constexpr (sizeof...(OTHER) > 0)
-                deleteDeletableComponents<OTHER...>();
-        }
-
-        template<class T, class... OTHER>
-        void collectArchetypeMatches(std::vector<bool> &valid) {
-            for (size_t i = 0; i < valid.size(); ++i) {
-                if (valid[i] && !matchesArchetype<T>(i)) {
-                    valid[i] = false;
+                for (const size_t entity: deletableVector) {
+                    deleteComponent<COMPONENTS>(entity);
                 }
-            }
 
-            if constexpr (sizeof...(OTHER) > 0)
-                collectArchetypeMatches<OTHER...>(valid);
+                deletableVector.clear();
+            }(), ...);
         }
 
-        template<class T>
-        inline bool matchesArchetype(size_t denseIndex) {
-            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
-            const std::optional<size_t> &componentIndex = mIndexArrays[denseIndex][typeIndex];
+        template<class... T>
+        void collectArchetypeMatches(std::vector<bool> &valid) {
+            ([&] {
+                for (size_t i = 0; i < valid.size(); ++i) {
+                    if (valid[i] && !hasComponent<T>(i)) {
+                        valid[i] = false;
+                    }
+                }
+            }(), ...);
+        }
+
+        template<class COMPONENT>
+        bool hasComponent(size_t denseIndex) {
+            const std::optional<size_t> &componentIndex = mIndexArrays[denseIndex][indexOf<COMPONENT>()];
 
             return componentIndex.has_value();
         }
 
-        template<class TUPLE, class T, class... OTHER>
-        void resizeArchetypes(TUPLE &output, size_t totalMatches) {
-            std::get<std::vector<T *>>(output).resize(totalMatches);
+        template<class... T>
+        void insertArchetypeComponents(std::vector<std::tuple<T *...>> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
+            ([&] {
+                const size_t componentIndex = *indexArray[indexOf<T>()];
 
-            if constexpr (sizeof...(OTHER) > 0)
-                resizeArchetypes<TUPLE, OTHER...>(output, totalMatches);
+                std::get<T *>(output[archetypeIndex]) = &componentVector<T>()[componentIndex];
+            }(), ...);
         }
 
-        template<class TUPLE, class T, class... OTHER>
-        inline void insertArchetypeComponents(std::vector<TUPLE> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
-            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
-            const size_t componentIndex = *indexArray[typeIndex];
+        template<class COMPONENT>
+        void insertSingleArchetypeComponents(std::vector<COMPONENT *> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
+            const size_t componentIndex = *indexArray[indexOf<COMPONENT>()];
 
-            std::get<T *>(output[archetypeIndex]) = &componentVector<T>()[componentIndex];
-
-            if constexpr (sizeof...(OTHER) > 0)
-                insertArchetypeComponents<TUPLE, OTHER...>(output, indexArray, archetypeIndex);
-        }
-
-        template<class T>
-        inline void insertSingleArchetypeComponents(std::vector<T *> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
-            const auto typeIndex = mTypeIndexMap[std::type_index(typeid(T))];
-            const size_t componentIndex = *indexArray[typeIndex];
-
-            output[archetypeIndex] = &componentVector<T>()[componentIndex];
-        }
-
-        template<class T, class... OTHER>
-        void init() {
-            Doughnut::Log::v("Adding type ", typeid(T).name());
-
-            const auto typeIndex = std::type_index(typeid(T));
-            assert(!mTypeIndexMap.contains(typeIndex) && "Can not add multiple components of the same type due to ambiguity");
-            mTypeIndexMap[typeIndex] = mTypeIndexMap.size();
-
-            if constexpr (sizeof...(OTHER) > 0)
-                init<OTHER...>();
+            output[archetypeIndex] = &componentVector<COMPONENT>()[componentIndex];
         }
     };
 
