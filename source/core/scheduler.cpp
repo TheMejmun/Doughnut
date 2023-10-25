@@ -16,11 +16,11 @@ static void threadBody(
         std::queue<std::function<void()>> *queue,
         std::mutex *queueMutex,
         std::atomic<uint32_t> *waitingJobCount,
-        std::atomic<bool> *exit,
+        const bool *exit,
         std::mutex *runMutex,
         std::condition_variable *runCondition
 ) {
-    while (!exit->load()) {
+    while (!(*exit)) {
         while (true) {
             std::function < void() > job;
 
@@ -42,8 +42,7 @@ static void threadBody(
         std::unique_lock<std::mutex> runLock(*runMutex);
         runCondition->wait(runLock,
                            [=]() {
-                               std::lock_guard<std::mutex> queueLock(*queueMutex);
-                               return exit->load() || (!queue->empty());
+                               return (*exit) || (!queue->empty());
                            }
         );
     }
