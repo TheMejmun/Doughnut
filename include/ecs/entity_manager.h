@@ -89,10 +89,10 @@ namespace ECS2 {
 
             if (!mIndexArrays[denseId][typeIndex].has_value()) {
                 mIndexArrays[denseId][typeIndex] = componentVector<COMPONENT>().size();
-                componentVector<COMPONENT>().emplace_back(component);
+                componentVector<COMPONENT>().emplace_back(entity, component);
             } else {
                 size_t componentId = *mIndexArrays[denseId][typeIndex];
-                componentVector<COMPONENT>()[componentId] = std::move(component);
+                componentVector<COMPONENT>()[componentId] = {entity,component};
             }
         }
 
@@ -109,10 +109,10 @@ namespace ECS2 {
 
             if (!mIndexArrays[denseId][typeIndex].has_value()) {
                 mIndexArrays[denseId][typeIndex] = componentVector<COMPONENT>().size();
-                componentVector<COMPONENT>().emplace_back();
+                componentVector<COMPONENT>().emplace_back(entity, COMPONENT());
             } else {
                 size_t componentId = *mIndexArrays[denseId][typeIndex];
-                componentVector<COMPONENT>().emplace(componentVector<COMPONENT>().begin() + componentId);
+                componentVector<COMPONENT>()[componentId] = {entity, COMPONENT()};
             }
         }
 
@@ -169,7 +169,7 @@ namespace ECS2 {
 
             assert(componentIndex.has_value());
 
-            return &componentVector<COMPONENT>()[*componentIndex];
+            return &std::get<1>(componentVector<COMPONENT>()[*componentIndex]);
         }
 
         // TODO sort for better cache hits
@@ -222,7 +222,7 @@ namespace ECS2 {
         std::vector<std::array<std::optional<size_t>, sizeof...(COMPONENTS)>> mIndexArrays{};
 
         std::map<std::type_index, size_t> mTypeIndexMap{};
-        std::tuple<std::vector<COMPONENTS>...> mComponentVectors{};
+        std::tuple<std::vector<std::tuple<size_t, COMPONENTS>>...> mComponentVectors{};
 
         std::mutex mMakeEntityMutex{};
         std::mutex mDeleteEntityMutex{};
@@ -233,8 +233,8 @@ namespace ECS2 {
         std::array<std::vector<size_t>, sizeof...(COMPONENTS)> mDeletableComponentVectors{};
 
         template<typename COMPONENT>
-        inline std::vector<COMPONENT> &componentVector() {
-            return std::get<std::vector<COMPONENT>>(mComponentVectors);
+        inline std::vector<std::tuple<size_t, COMPONENT>> &componentVector() {
+            return std::get<std::vector<std::tuple<size_t, COMPONENT>>>(mComponentVectors);
         }
 
         template<class COMPONENT>
@@ -259,16 +259,13 @@ namespace ECS2 {
 
             std::optional<size_t> &componentIndex = mIndexArrays[denseIndex][typeIndex];
             if (componentIndex.has_value()) {
-                const auto currentLastIndex = componentVector<COMPONENT>().size() - 1;
 
                 // Move current rear to deleted position and update other entity with new component position
                 componentVector<COMPONENT>()[*componentIndex] = componentVector<COMPONENT>().back();
-                for (auto &otherIndexArray: mIndexArrays) {
-                    if (otherIndexArray[typeIndex].has_value() && *otherIndexArray[typeIndex] == currentLastIndex) {
-                        otherIndexArray[typeIndex] = *componentIndex;
-                        break;
-                    }
-                }
+
+                const size_t otherEntity = std::get<0>(componentVector<COMPONENT>().back());
+                const size_t otherDenseIndex = mSparseEntities[otherEntity];
+                mIndexArrays[otherDenseIndex][typeIndex] = *componentIndex;
 
                 componentVector<COMPONENT>().pop_back();
                 componentIndex.reset();
@@ -314,7 +311,7 @@ namespace ECS2 {
             ([&] {
                 const size_t componentIndex = *indexArray[indexOf<T>()];
 
-                std::get<T *>(output[archetypeIndex]) = &componentVector<T>()[componentIndex];
+                std::get<T *>(output[archetypeIndex]) = &std::get<1>(componentVector<T>()[componentIndex]);
             }(), ...);
         }
 
@@ -322,7 +319,7 @@ namespace ECS2 {
         void insertSingleArchetypeComponents(std::vector<COMPONENT *> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
             const size_t componentIndex = *indexArray[indexOf<COMPONENT>()];
 
-            output[archetypeIndex] = &componentVector<COMPONENT>()[componentIndex];
+            output[archetypeIndex] = &std::get<1>(componentVector<COMPONENT>()[componentIndex]);
         }
     };
 

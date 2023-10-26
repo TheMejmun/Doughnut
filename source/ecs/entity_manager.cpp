@@ -11,7 +11,7 @@ void ECS2::testEntityManager() {
         size_t someValue = 0;
     };
 
-    ECS2::EntityManager<test, int, double, size_t> em;
+    ECS2::EntityManager<test, int, double> em;
     assert(em.entityCount() == 0);
     assert(em.componentCount<int>() == 0);
 
