@@ -29,7 +29,7 @@ namespace ECS2 {
             Doughnut::Log::i("Creating EntityManager");
 
             ([&] {
-                Doughnut::Log::v("Adding type ", typeid(COMPONENTS).name());
+                Doughnut::Log::v("Adding type", typeid(COMPONENTS).name());
 
                 const auto typeIndex = std::type_index(typeid(COMPONENTS));
                 assert(!mTypeIndexMap.contains(typeIndex) && "Can not add multiple components of the same type due to ambiguity");
@@ -88,11 +88,9 @@ namespace ECS2 {
             const size_t denseId = mSparseEntities[entity];
 
             if (!mIndexArrays[denseId][typeIndex].has_value()) {
-                Doughnut::Log::v("Inserting component ", typeid(COMPONENT).name());
                 mIndexArrays[denseId][typeIndex] = componentVector<COMPONENT>().size();
                 componentVector<COMPONENT>().emplace_back(component);
             } else {
-                Doughnut::Log::v("Overriding component ", typeid(COMPONENT).name());
                 size_t componentId = *mIndexArrays[denseId][typeIndex];
                 componentVector<COMPONENT>()[componentId] = std::move(component);
             }
@@ -110,11 +108,9 @@ namespace ECS2 {
             const size_t denseId = mSparseEntities[entity];
 
             if (!mIndexArrays[denseId][typeIndex].has_value()) {
-                Doughnut::Log::v("Inserting component ", typeid(COMPONENT).name());
                 mIndexArrays[denseId][typeIndex] = componentVector<COMPONENT>().size();
                 componentVector<COMPONENT>().emplace_back();
             } else {
-                Doughnut::Log::v("Overriding component ", typeid(COMPONENT).name());
                 size_t componentId = *mIndexArrays[denseId][typeIndex];
                 componentVector<COMPONENT>().emplace(componentVector<COMPONENT>().begin() + componentId);
             }
@@ -190,6 +186,7 @@ namespace ECS2 {
             for (auto b: matchesArchetype) {
                 if (b) ++totalMatches;
             }
+            Doughnut::Log::v("Archetype matches:", totalMatches, "for", typeid(typename Doughnut::TupleOrSingle<T...>::Type).name());
 
             out.resize(totalMatches);
 
