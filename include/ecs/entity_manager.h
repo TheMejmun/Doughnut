@@ -20,8 +20,12 @@
 #include <optional>
 #include <cassert>
 
-// TODO DEADLOCKED SOMEWHERE HERE
 namespace ECS2 {
+    // TODO add this to components
+    struct EntityInfo {
+        size_t entity;
+    };
+
     template<class... COMPONENTS>
     class EntityManager {
     public:
@@ -92,7 +96,7 @@ namespace ECS2 {
                 componentVector<COMPONENT>().emplace_back(entity, component);
             } else {
                 size_t componentId = *mIndexArrays[denseId][typeIndex];
-                componentVector<COMPONENT>()[componentId] = {entity,component};
+                componentVector<COMPONENT>()[componentId] = {entity, component};
             }
         }
 
