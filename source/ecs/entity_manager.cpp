@@ -144,18 +144,16 @@ void ECS2::benchmark(size_t count) {
     {
         trace_scope("INSERT C2");
         for (size_t i = 0; i < count; ++i) {
-            if (i % 2 == 0) {
+            if (i % 2 == 0)
                 em.insertComponent(Component2{}, i);
-            }
         }
     }
 
     {
         trace_scope("INSERT C3");
         for (size_t i = 0; i < count; ++i) {
-            if (i % 3 == 0) {
+            if (i % 3 == 0)
                 em.insertComponent(Component3{}, i);
-            }
         }
     }
 
@@ -172,5 +170,63 @@ void ECS2::benchmark(size_t count) {
     {
         trace_scope("GET ARCHETYPE 2");
         auto requested = em.getArchetype<Component1, Component2, Component3>();
+    }
+
+    {
+        trace_scope("GET & MODIFY C1 (BEFORE DELETE)");
+        auto requested = em.getArchetype<Component1>();
+        for (size_t i = 0; i < count / 2; ++i) {
+            const auto component = requested[i];
+            component->one += 1.0;
+            component->two += 1.0;
+            component->three += 1.0;
+            component->four += 1.0;
+        }
+    }
+
+    {
+        trace_scope("REQUEST DELETE C1");
+        for (size_t i = 0; i < count; ++i) {
+            if (i % 2 == 0)
+                em.requestComponentDeletion<Component1>(i);
+        }
+    }
+
+    {
+        trace_scope("COMMIT DELETE")
+        em.commitDeletions();
+    }
+
+    {
+        trace_scope("GET & MODIFY C1 (AFTER DELETE)");
+        auto requested = em.getArchetype<Component1>();
+        for (size_t i = 0; i < count / 2; ++i) {
+            const auto component = requested[i];
+            component->one += 1.0;
+            component->two += 1.0;
+            component->three += 1.0;
+            component->four += 1.0;
+        }
+    }
+
+    {
+        trace_scope("REQUEST DELETE C2");
+        for (size_t i = 0; i < count; ++i) {
+            if (i % 2 == 0)
+                em.requestComponentDeletion<Component2>(i);
+        }
+    }
+
+    {
+        trace_scope("REQUEST DELETE C3");
+        for (size_t i = 0; i < count; ++i) {
+            if (i % 2 == 0)
+                em.requestComponentDeletion<Component3>(i);
+        }
+    }
+
+    {
+        trace_scope("COMMIT DELETE")
+        em.commitDeletions();
     }
 }
