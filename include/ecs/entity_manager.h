@@ -21,7 +21,7 @@
 #include <optional>
 #include <cassert>
 
-namespace ECS2 {
+namespace Doughnut::ECS {
     // TODO add this to components
     struct EntityInfo {
         size_t entity;

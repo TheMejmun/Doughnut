@@ -4,10 +4,10 @@
 
 #include "ecs/system_manager.h"
 
-using namespace ECS2;
+using namespace Doughnut::ECS;
 
 // TODO could fail due to race conditions in 'TestSystem::update'
-void ECS2::testSystemManager() {
+void Doughnut::ECS::testSystemManager() {
     EntityManager<int, long, std::mutex *> em{};
 
     em.makeEntity();

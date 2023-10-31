@@ -8,7 +8,7 @@
 #include "preprocessor.h"
 #include "typedefs.h"
 
-class MeshSimplifierController : public ECS2::System<EntityManagerSpec> {
+class MeshSimplifierController : public Doughnut::ECS::System<EntityManagerSpec> {
 public:
     ~MeshSimplifierController() noexcept override;
 

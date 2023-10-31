@@ -12,7 +12,7 @@ int main() {
     Doughnut::Log::init(true, false, false, true);
 #endif
 
-//    ECS2::benchmarkEntityManager(1'000'000);
+//    Doughnut::ECS::benchmarkEntityManager(1'000'000);
 //    return 0;
 
 //    Doughnut::Log::benchmarkLogger(1'000'000);
@@ -20,8 +20,8 @@ int main() {
 
 #ifndef NDEBUG
     {
-        ECS2::testEntityManager();
-        ECS2::testSystemManager();
+        Doughnut::ECS::testEntityManager();
+        Doughnut::ECS::testSystemManager();
         Doughnut::testScheduler();
     }
 #endif
