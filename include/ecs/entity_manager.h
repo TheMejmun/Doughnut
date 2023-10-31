@@ -330,7 +330,7 @@ namespace ECS2 {
 
     void testEntityManager();
 
-    void benchmark(size_t count);
+    void benchmarkEntityManager(size_t count);
 }
 
 #endif //DOUGHNUT_ENTITY_MANAGER_H
