@@ -13,7 +13,7 @@ namespace Doughnut {
 
     template<class... T>
     struct TupleOrSingle {
-        using Type = std::conditional<(sizeof...(T) > 1),
+        using Type = typename std::conditional<(sizeof...(T) > 1),
                 std::tuple<T...>,
                 typename FirstOf<T...>::Type
         >::type;
