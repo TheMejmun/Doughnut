@@ -3,6 +3,7 @@
 //
 
 #include "io/logger.h"
+#include "util/os.h"
 
 #include <mutex>
 #include <sstream>
@@ -42,12 +43,21 @@ bool Log::traceEnabled() {
 }
 
 std::string getTimestamp() {
+#ifdef OS_WINDOWS
     time_t rawTime;
     time(&rawTime);
 
     struct tm timeInfo{};
     localtime_s(&timeInfo, &rawTime);
 
+#else
+    time_t rawTime;
+    time(&rawTime);
+
+    struct tm timeInfo{};
+    localtime_r(&rawTime, &timeInfo);
+
+#endif
     std::stringstream stream{};
     stream << "["
            << (char) ('0' + (timeInfo.tm_hour / 10)) << (char) ('0' + (timeInfo.tm_hour % 10)) << ":"
