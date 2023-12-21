@@ -25,7 +25,7 @@
 #include <memory>
 #include <execution>
 
-namespace ECS2 {
+namespace Doughnut::ECS {
     template<class ENTITY_MANAGER>
     class System {
     public:

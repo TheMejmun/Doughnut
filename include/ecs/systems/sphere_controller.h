@@ -8,7 +8,7 @@
 #include "preprocessor.h"
 #include "typedefs.h"
 
-class SphereController : public ECS2::System<EntityManagerSpec> {
+class SphereController : public Doughnut::ECS::System<EntityManagerSpec> {
 public:
     void update(double delta, EntityManagerSpec &entityManager) override;
 private:

@@ -12,13 +12,13 @@ int main() {
     Doughnut::Log::init(true, false, false, true);
 #endif
 
-    ECS2::benchmark(1'000'000);
+    Doughnut::ECS::benchmark(1'000'000);
     return 0;
 
 #ifndef NDEBUG
     {
-        ECS2::testEntityManager();
-        ECS2::testSystemManager();
+        Doughnut::ECS::testEntityManager();
+        Doughnut::ECS::testSystemManager();
         Doughnut::testScheduler();
     }
 #endif
