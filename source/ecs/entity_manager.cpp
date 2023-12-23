@@ -75,7 +75,7 @@ void Doughnut::ECS::testEntityManager() {
     Doughnut::Log::i("EntityManager test successful.");
 }
 
-void Doughnut::ECS::benchmark(size_t count) {
+void Doughnut::ECS::benchmarkEntityManager(size_t count) {
     struct Component1 {
         double one;
         double two;

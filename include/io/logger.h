@@ -87,6 +87,8 @@ namespace Doughnut::Log {
     inline void e(ARGS &&... args) {
         Internal::logFormattedAsync(Internal::ERROR, args...);
     }
+
+    void benchmarkLogger(size_t count);
 }
 
 #endif //DOUGHNUT_LOGGER_H

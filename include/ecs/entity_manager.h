@@ -8,6 +8,7 @@
 #include "io/logger.h"
 #include "util/timer.h"
 #include "util/templates.h"
+#include "core/types.h"
 
 #include <cstdint>
 #include <vector>
@@ -173,7 +174,7 @@ namespace Doughnut::ECS {
 
             assert(componentIndex.has_value());
 
-            return &std::get<1>(componentVector<COMPONENT>()[*componentIndex]);
+            return &componentVector<COMPONENT>()[*componentIndex].value;
         }
 
         // TODO sort for better cache hits
@@ -226,7 +227,7 @@ namespace Doughnut::ECS {
         std::vector<std::array<std::optional<size_t>, sizeof...(COMPONENTS)>> mIndexArrays{};
 
         std::map<std::type_index, size_t> mTypeIndexMap{};
-        std::tuple<std::vector<std::tuple<size_t, COMPONENTS>>...> mComponentVectors{};
+        std::tuple<std::vector<Doughnut::WithIndex<COMPONENTS>>...> mComponentVectors{};
 
         std::mutex mMakeEntityMutex{};
         std::mutex mDeleteEntityMutex{};
@@ -237,8 +238,8 @@ namespace Doughnut::ECS {
         std::array<std::vector<size_t>, sizeof...(COMPONENTS)> mDeletableComponentVectors{};
 
         template<typename COMPONENT>
-        inline std::vector<std::tuple<size_t, COMPONENT>> &componentVector() {
-            return std::get<std::vector<std::tuple<size_t, COMPONENT>>>(mComponentVectors);
+        inline std::vector<Doughnut::WithIndex<COMPONENT>> &componentVector() {
+            return std::get<std::vector<Doughnut::WithIndex<COMPONENT>>>(mComponentVectors);
         }
 
         template<class COMPONENT>
@@ -267,7 +268,7 @@ namespace Doughnut::ECS {
                 // Move current rear to deleted position and update other entity with new component position
                 componentVector<COMPONENT>()[*componentIndex] = componentVector<COMPONENT>().back();
 
-                const size_t otherEntity = std::get<0>(componentVector<COMPONENT>().back());
+                const size_t otherEntity = componentVector<COMPONENT>().back().index;
                 const size_t otherDenseIndex = mSparseEntities[otherEntity];
                 mIndexArrays[otherDenseIndex][typeIndex] = *componentIndex;
 
@@ -315,7 +316,7 @@ namespace Doughnut::ECS {
             ([&] {
                 const size_t componentIndex = *indexArray[indexOf<T>()];
 
-                std::get<T *>(output[archetypeIndex]) = &std::get<1>(componentVector<T>()[componentIndex]);
+                std::get<T *>(output[archetypeIndex]) = &componentVector<T>()[componentIndex].value;
             }(), ...);
         }
 
@@ -323,13 +324,13 @@ namespace Doughnut::ECS {
         void insertSingleArchetypeComponents(std::vector<COMPONENT *> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
             const size_t componentIndex = *indexArray[indexOf<COMPONENT>()];
 
-            output[archetypeIndex] = &std::get<1>(componentVector<COMPONENT>()[componentIndex]);
+            output[archetypeIndex] = &componentVector<COMPONENT>()[componentIndex].value;
         }
     };
 
     void testEntityManager();
 
-    void benchmark(size_t count);
+    void benchmarkEntityManager(size_t count);
 }
 
 #endif //DOUGHNUT_ENTITY_MANAGER_H
