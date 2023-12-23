@@ -42,13 +42,13 @@ void Application::init() {
 
     // Entities
     Camera::upload(mESM->mEntities);
-    mESM->mEntities.getArchetype<Projector>()[0]->isMainCamera = true;
+    mESM->mEntities.getArchetype<Projector>()[0].components->isMainCamera = true;
 
     InputStateEntity::upload(mESM->mEntities);
     UiStateEntity::upload(mESM->mEntities);
-    auto &uiState = *mESM->mEntities.template getArchetype<UiState>()[0];
-    uiState.isMonkeyMesh = mMonkeyMode;
-    uiState.title = mTitle;
+    const auto uiState = mESM->mEntities.template getArchetype<UiState>()[0].components;
+    uiState->isMonkeyMesh = mMonkeyMode;
+    uiState->title = mTitle;
 
     if (mMonkeyMode) {
         Monkey::upload(mESM->mEntities);
@@ -69,18 +69,18 @@ void Application::mainLoop() {
 
         // Input
         mInputManager->update(mDeltaTime, mESM->mEntities);
-        auto &inputState = *mESM->mEntities.template getArchetype<InputState>()[0];
-        if (inputState.closeWindow == IM_DOWN_EVENT)
+        const auto inputState = mESM->mEntities.template getArchetype<InputState>()[0].components;
+        if (inputState->closeWindow == IM_DOWN_EVENT)
             mWindowManager->close();
-        if (inputState.toggleFullscreen == IM_DOWN_EVENT)
+        if (inputState->toggleFullscreen == IM_DOWN_EVENT)
             mWindowManager->toggleFullscreen();
 
         // UI
-        auto &uiState = *mESM->mEntities.template getArchetype<UiState>()[0];
-        uiState.fps.update(mDeltaTime);
-        uiState.cpuWaitTime = mCurrentCpuWaitTime;
+       const auto uiState = mESM->mEntities.template getArchetype<UiState>()[0].components;
+        uiState->fps.update(mDeltaTime);
+        uiState->cpuWaitTime = mCurrentCpuWaitTime;
 
-        if (uiState.switchMesh) {
+        if (uiState->switchMesh) {
             mExitAfterMainLoop = false;
             mMonkeyMode = !mMonkeyMode;
             mWindowManager->close();
@@ -89,8 +89,8 @@ void Application::mainLoop() {
         // Update camera Z for UI
         auto cameras = mESM->mEntities.template getArchetype<Projector, Transformer4>();
         for (auto & camera : cameras) {
-            if (std::get<0>(camera)->isMainCamera) {
-                uiState.cameraZ = std::get<1>(camera)->getPosition().z;
+            if (std::get<0>(camera.components)->isMainCamera) {
+                uiState->cameraZ = std::get<1>(camera.components)->getPosition().z;
                 break;
             }
         }
@@ -98,7 +98,7 @@ void Application::mainLoop() {
         mESM->mSystems.update(mDeltaTime);
 
         // Render
-        if (uiState.returnToOriginalMeshBuffer)
+        if (uiState->returnToOriginalMeshBuffer)
             mRenderer->resetMesh();
         mCurrentCpuWaitTime = mRenderer->draw(mDeltaTime, mESM->mEntities);
 

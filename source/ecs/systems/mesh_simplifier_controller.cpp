@@ -282,22 +282,22 @@ void simplify(const Projector &cameraProjector,
 }
 
 void MeshSimplifierController::update(double delta, EntityManagerSpec &entityManager) {
-    auto &uiState = *entityManager.template getArchetype<UiState>()[0];
+   const auto uiState = entityManager.template getArchetype<UiState>()[0].components;
 
     if (thread.joinable()) {
         simplifiedMeshCalculationThreadFrameCounter++;
         if (meshCalculationDone) {
             Doughnut::Log::d("Mesh calculation thread took", simplifiedMeshCalculationThreadFrameCounter, "frames");
             thread.join();
-            uiState.meshSimplifierTimeTaken = Doughnut::Timer::duration(simplifiedMeshCalculationThreadStartedTime, Doughnut::Timer::now());
-            uiState.meshSimplifierFramesTaken = simplifiedMeshCalculationThreadFrameCounter;
+            uiState->meshSimplifierTimeTaken = Doughnut::Timer::duration(simplifiedMeshCalculationThreadStartedTime, Doughnut::Timer::now());
+            uiState->meshSimplifierFramesTaken = simplifiedMeshCalculationThreadFrameCounter;
         }
-    } else if (uiState.runMeshSimplifier) {
+    } else if (uiState->runMeshSimplifier) {
         auto entities = entityManager.getArchetype<RenderMesh, RenderMeshSimplifiable, Transformer4>();
         auto cameras = entityManager.getArchetype<Projector, Transformer4>();
         uint32_t mainCameraIndex;
         for (uint32_t i = 0; i < cameras.size(); ++i) {
-            if (std::get<0>(cameras[i])->isMainCamera) {
+            if (std::get<0>(cameras[i].components)->isMainCamera) {
                 mainCameraIndex = i;
                 break;
             }
@@ -310,18 +310,21 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
 
             auto function = [=](bool &done) {
                 for (const auto & entity : entities) {
-                    if (std::get<1>(entity)->simplifiedMeshMutex->try_lock()) {
+                    const auto renderMesh = std::get<0>(entity.components);
+                    const auto renderMeshSimplifiable = std::get<1>(entity.components);
+                    const auto transformer = std::get<2>(entity.components);
+                    if (renderMeshSimplifiable->simplifiedMeshMutex->try_lock()) {
                         PerformanceLogging::meshCalculationStarted();
                         simplify(
-                                *std::get<0>(cameras[mainCameraIndex]),
-                                *std::get<1>(cameras[mainCameraIndex]),
-                                *std::get<0>(entity),
-                                *std::get<1>(entity),
-                                *std::get<2>(entity)
+                                *std::get<0>(cameras[mainCameraIndex].components),
+                                *std::get<1>(cameras[mainCameraIndex].components),
+                                *renderMesh,
+                                *renderMeshSimplifiable,
+                                *transformer
                         );
-                        std::get<1>(entity)->updateSimplifiedMesh = true;
+                        renderMeshSimplifiable->updateSimplifiedMesh = true;
                         PerformanceLogging::meshCalculationFinished();
-                        std::get<1>(entity)->simplifiedMeshMutex->unlock();
+                        renderMeshSimplifiable->simplifiedMeshMutex->unlock();
                     }
                 }
                 done = true;

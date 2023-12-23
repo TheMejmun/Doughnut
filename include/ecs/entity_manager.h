@@ -23,8 +23,10 @@
 
 namespace Doughnut::ECS {
     // TODO add this to components
-    struct EntityInfo {
+    template<class... COMPONENTS>
+    struct Reference {
         size_t entity;
+        Doughnut::TupleOrSingle<COMPONENTS *...>::Type components;
     };
 
     template<class... COMPONENTS>
@@ -71,7 +73,7 @@ namespace Doughnut::ECS {
             return newIndex;
         }
 
-        void requestEntityDeletion(size_t entity) {
+        void requestEntityDeletion(const size_t entity) {
             std::lock_guard<std::mutex> guard{mDeleteEntityMutex};
 
             assert(entity < mSparseEntities.size()
@@ -82,7 +84,7 @@ namespace Doughnut::ECS {
         }
 
         template<class COMPONENT>
-        void insertComponent(COMPONENT component, size_t entity) {
+        void insertComponent(COMPONENT component, const size_t entity) {
             const size_t typeIndex = indexOf<COMPONENT>();
             std::lock_guard<std::mutex> guard{mInsertComponentMutices[typeIndex]};
 
@@ -102,7 +104,7 @@ namespace Doughnut::ECS {
         }
 
         template<class COMPONENT>
-        void insertComponent(size_t entity) {
+        void insertComponent(const size_t entity) {
             const size_t typeIndex = indexOf<COMPONENT>();
             std::lock_guard<std::mutex> guard{mInsertComponentMutices[typeIndex]};
 
@@ -122,7 +124,7 @@ namespace Doughnut::ECS {
         }
 
         template<class COMPONENT>
-        void requestComponentDeletion(size_t entity) {
+        void requestComponentDeletion(const size_t entity) {
             const size_t typeIndex = indexOf<COMPONENT>();
             std::lock_guard<std::mutex> guard{mDeleteComponentMutices[typeIndex]};
 
@@ -164,7 +166,7 @@ namespace Doughnut::ECS {
         }
 
         template<class COMPONENT>
-        COMPONENT *getComponent(size_t entity) {
+        COMPONENT *getComponent(const size_t entity) {
             assert(entity < mSparseEntities.size()
                    && mSparseEntities[entity] != std::numeric_limits<size_t>::max()
                    && "Accessing non-existent entity.");
@@ -178,20 +180,20 @@ namespace Doughnut::ECS {
         }
 
         // TODO sort for better cache hits
-        template<class... T>
-        std::vector<typename Doughnut::TupleOrSingle<T *...>::Type> getArchetype() {
-            typename std::vector<typename Doughnut::TupleOrSingle<T *...>::Type> out{};
+        template<class... COMPONENT>
+        std::vector<Reference<COMPONENT ...>> getArchetype() {
+            typename std::vector<Reference<COMPONENT ...>> out{};
 
             std::vector<bool> matchesArchetype{};
             matchesArchetype.resize(mDenseEntities.size(), true);
 
-            collectArchetypeMatches<T...>(matchesArchetype);
+            collectArchetypeMatches<COMPONENT...>(matchesArchetype);
 
             size_t totalMatches = 0;
             for (auto b: matchesArchetype) {
                 if (b) ++totalMatches;
             }
-            Doughnut::Log::v("Archetype matches:", totalMatches, "for", typeid(typename Doughnut::TupleOrSingle<T...>::Type).name());
+            Doughnut::Log::v("Archetype matches:", totalMatches, "for", typeid(typename Doughnut::TupleOrSingle<COMPONENT...>::Type).name());
 
             out.resize(totalMatches);
 
@@ -199,10 +201,12 @@ namespace Doughnut::ECS {
             for (size_t denseIndex = 0; denseIndex < mDenseEntities.size(); ++denseIndex) {
                 if (matchesArchetype[denseIndex]) {
 
-                    if constexpr (sizeof...(T) > 1) {
-                        insertArchetypeComponents<T...>(out, mIndexArrays[denseIndex], archetypeIndex);
+                    out[archetypeIndex].entity = mDenseEntities[denseIndex];
+
+                    if constexpr (sizeof...(COMPONENT) > 1) {
+                        insertArchetypeComponents<COMPONENT...>(out, mIndexArrays[denseIndex], archetypeIndex);
                     } else {
-                        insertSingleArchetypeComponents<typename Doughnut::FirstOf<T...>::Type>(out, mIndexArrays[denseIndex], archetypeIndex);
+                        insertSingleArchetypeComponents<typename Doughnut::FirstOf<COMPONENT...>::Type>(out, mIndexArrays[denseIndex], archetypeIndex);
                     }
 
                     ++archetypeIndex;
@@ -237,9 +241,9 @@ namespace Doughnut::ECS {
         std::array<std::mutex, sizeof...(COMPONENTS)> mDeleteComponentMutices{};
         std::array<std::vector<size_t>, sizeof...(COMPONENTS)> mDeletableComponentVectors{};
 
-        template<typename COMPONENT>
-        inline std::vector<Doughnut::WithIndex<COMPONENT>> &componentVector() {
-            return std::get<std::vector<Doughnut::WithIndex<COMPONENT>>>(mComponentVectors);
+        template<typename T>
+        inline std::vector<Doughnut::WithIndex<T>> &componentVector() {
+            return std::get<std::vector<Doughnut::WithIndex<T>>>(mComponentVectors);
         }
 
         template<class COMPONENT>
@@ -248,7 +252,7 @@ namespace Doughnut::ECS {
         }
 
         template<class COMPONENT>
-        void deleteComponent(size_t entity) {
+        void deleteComponent(const size_t entity) {
             const size_t typeIndex = indexOf<COMPONENT>();
             std::lock_guard<std::mutex> guard{mDeleteComponentMutices[typeIndex]};
 
@@ -277,7 +281,7 @@ namespace Doughnut::ECS {
             }
         }
 
-        void deleteAllComponents(size_t entity) {
+        void deleteAllComponents(const size_t entity) {
             (deleteComponent<COMPONENTS>(entity), ...);
         }
 
@@ -304,27 +308,27 @@ namespace Doughnut::ECS {
             }(), ...);
         }
 
-        template<class COMPONENT>
-        bool hasComponent(size_t denseIndex) {
-            const std::optional<size_t> &componentIndex = mIndexArrays[denseIndex][indexOf<COMPONENT>()];
+        template<class T>
+        bool hasComponent(const size_t denseIndex) {
+            const std::optional<size_t> &componentIndex = mIndexArrays[denseIndex][indexOf<T>()];
 
             return componentIndex.has_value();
         }
 
         template<class... T>
-        void insertArchetypeComponents(std::vector<std::tuple<T *...>> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
+        void insertArchetypeComponents(std::vector<Reference<T...>> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, const size_t archetypeIndex) {
             ([&] {
                 const size_t componentIndex = *indexArray[indexOf<T>()];
 
-                std::get<T *>(output[archetypeIndex]) = &componentVector<T>()[componentIndex].value;
+                std::get<T *>(output[archetypeIndex].components) = &componentVector<T>()[componentIndex].value;
             }(), ...);
         }
 
-        template<class COMPONENT>
-        void insertSingleArchetypeComponents(std::vector<COMPONENT *> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, size_t archetypeIndex) {
-            const size_t componentIndex = *indexArray[indexOf<COMPONENT>()];
+        template<class T>
+        void insertSingleArchetypeComponents(std::vector<Reference<T>> &output, const std::array<std::optional<size_t>, sizeof...(COMPONENTS)> &indexArray, const size_t archetypeIndex) {
+            const size_t componentIndex = *indexArray[indexOf<T>()];
 
-            output[archetypeIndex] = &componentVector<COMPONENT>()[componentIndex].value;
+            output[archetypeIndex].components = &componentVector<T>()[componentIndex].value;
         }
     };
 

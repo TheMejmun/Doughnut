@@ -9,12 +9,12 @@
 #include "ecs/components/projector.h"
 
 void CameraController::update(const double delta, EntityManagerSpec &entityManager) {
-    InputState *inputState = entityManager.template getArchetype<InputState>()[0];
-    auto cameras = entityManager.template getArchetype<Projector, Transformer4>();
+    const auto inputState = entityManager.template getArchetype<InputState>()[0].components;
+    const auto cameras = entityManager.template getArchetype<Projector, Transformer4>();
 
-    for (auto & camera : cameras) {
-        if (std::get<0>(camera)->isMainCamera) {
-            auto transform = std::get<1>(camera);
+    for (const auto &camera: cameras) {
+        if (std::get<0>(camera.components)->isMainCamera) {
+            const auto transform = std::get<1>(camera.components);
 
             int move = 0;
             if (inputState->moveForward == IM_DOWN_EVENT ||

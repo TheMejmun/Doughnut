@@ -31,7 +31,7 @@ namespace PerformanceLogging {
 
     void meshUploadFinished(const MeshStatistics &meshStatistics);
 
-    void update(UiState &uiState);
+    void update(UiState *uiState);
 }
 
 #endif //REALTIME_CELL_COLLAPSE_PERFORMANCE_LOGGING_H

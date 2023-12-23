@@ -15,8 +15,9 @@ using namespace Doughnut;
 using namespace Doughnut::GFX;
 
 void Renderer::uploadRenderables(EntityManagerSpec &ecs) {
-    auto entities = ecs.getArchetype<RenderMesh>();
-    for (auto renderMesh: entities) {
+    const auto entities = ecs.getArchetype<RenderMesh>();
+    for (auto entity: entities) {
+        auto renderMesh = entity.components;
         if (renderMesh->isAllocated) continue;
         Vk::Buffers::uploadVertices(renderMesh->vertices);
         Vk::Buffers::uploadIndices(renderMesh->indices);
@@ -43,7 +44,8 @@ void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
 
     bool uploadedAny = false;
 
-    for (auto renderMeshSimplifiable: entities) {
+    for (const auto &entity: entities) {
+        const auto renderMeshSimplifiable = entity.components;
         if (renderMeshSimplifiable->updateSimplifiedMesh && renderMeshSimplifiable->simplifiedMeshMutex->try_lock()) {
             PerformanceLogging::meshUploadStarted();
             // TODO this upload produced a bad access error
@@ -60,7 +62,7 @@ void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
 
     if (uploadedAny) {
         // Treat this like a return
-        auto &uiState = *ecs.getArchetype<UiState>()[0];
+        auto &uiState = *ecs.getArchetype<UiState>()[0].components;
         uiState.meshUploadTimeTaken = Timer::duration(startTime, Timer::now());
     }
 }
@@ -70,19 +72,20 @@ void Renderer::destroyRenderables(EntityManagerSpec &ecs) {
 }
 
 void Renderer::updateUniformBuffer(const double &delta, EntityManagerSpec &ecs) {
-    auto entities = ecs.getArchetype<RenderMesh, Transformer4>();
+    const auto entities = ecs.getArchetype<RenderMesh, Transformer4>();
 
     // TODO not just for one object
     UniformBufferObject ubo{};
-    ubo.model = std::get<1>(entities[0])->forward;
+    const auto& transformer=std::get<1>(entities[0].components);
+    ubo.model = transformer->forward;
 
-    auto cameras = ecs.getArchetype<Projector, Transformer4>();
+    const auto cameras = ecs.getArchetype<Projector, Transformer4>();
     Transformer4 *cameraTransform;
     Projector *cameraProjector;
     for (auto &camera: cameras) {
-        if (std::get<0>(camera)->isMainCamera) {
-            cameraTransform = std::get<1>(camera);
-            cameraProjector = std::get<0>(camera);
+        if (std::get<0>(camera.components)->isMainCamera) {
+            cameraTransform = std::get<1>(camera.components);
+            cameraProjector = std::get<0>(camera.components);
             break;
         }
     }

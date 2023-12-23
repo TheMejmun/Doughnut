@@ -12,7 +12,7 @@ int main() {
     Doughnut::Log::init(true, false, false, true);
 #endif
 
-//    Doughnut::ECS::benchmarkEntityManager(1'000'000);
+//    Doughnut::ECS::benchmarkEntityManager(10'000'000);
 //    return 0;
 
 //    Doughnut::Log::benchmarkLogger(1'000'000);

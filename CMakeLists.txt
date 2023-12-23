@@ -84,7 +84,6 @@ set(HEADER_FILES
         include/util/os.h
         include/core/scheduler.h
         include/io/logger.h
-        source/core/thread_safe.h
         include/util/templates.h
         source/core/types.h
 )
@@ -132,6 +131,7 @@ set(SOURCE_FILES
         source/ecs/entities/ui_state_entity.cpp
         source/core/scheduler.cpp
         source/io/logger.cpp
+        source/core/thread_safe.h
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

@@ -66,8 +66,8 @@ void PerformanceLogging::meshUploadFinished(const MeshStatistics &stats) {
     }
 }
 
-void PerformanceLogging::update(UiState &uiState) {
-    if (uiState.loggingStarted) {
+void PerformanceLogging::update(UiState *uiState) {
+    if (uiState->loggingStarted) {
         if (!active) {
             // Reset and start
             frames.clear();
@@ -80,7 +80,7 @@ void PerformanceLogging::update(UiState &uiState) {
             active = true;
         }
 
-        if (Doughnut::Timer::duration(uiState.loggingStartTime, Doughnut::Timer::now()) >= PerformanceLogging::LOG_DURATION) {
+        if (Doughnut::Timer::duration(uiState->loggingStartTime, Doughnut::Timer::now()) >= PerformanceLogging::LOG_DURATION) {
             // Done
 
             // mkdir varies between OSes
@@ -93,12 +93,12 @@ void PerformanceLogging::update(UiState &uiState) {
             std::stringstream nameBuilder{};
             nameBuilder << std::setprecision(2) << std::fixed;
             nameBuilder << "output/performance_log";
-            nameBuilder << "_z" << uiState.cameraZ;
-            if (uiState.isMonkeyMesh)
+            nameBuilder << "_z" << uiState->cameraZ;
+            if (uiState->isMonkeyMesh)
                 nameBuilder << "_monkey";
             else
                 nameBuilder << "_sphere";
-            if (uiState.runMeshSimplifier)
+            if (uiState->runMeshSimplifier)
                 nameBuilder << "_with_cell_collapse";
             nameBuilder << ".txt";
 
@@ -161,7 +161,7 @@ void PerformanceLogging::update(UiState &uiState) {
             file.close();
 
             active = false;
-            uiState.loggingStarted = false;
+            uiState->loggingStarted = false;
         }
     }
 }

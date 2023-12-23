@@ -11,60 +11,74 @@ void Doughnut::ECS::testEntityManager() {
         size_t someValue = 0;
     };
 
+    // Init
     Doughnut::ECS::EntityManager<test, int, double> em;
     assert(em.entityCount() == 0);
     assert(em.componentCount<int>() == 0);
 
+    // Make entity 1
     auto id = em.makeEntity();
     assert(em.entityCount() == 1);
     assert(em.componentCount<int>() == 0);
 
+    // Insert component 1
     em.insertComponent(0, id);
     assert(em.entityCount() == 1);
     assert(em.componentCount<int>() == 1);
     assert(*em.getComponent<int>(id) == 0);
 
+    // Overwrite component 1
     em.insertComponent(1, id);
     assert(em.entityCount() == 1);
     assert(em.componentCount<int>() == 1);
     assert(*em.getComponent<int>(id) == 1);
 
+    // Delete component 1
     em.requestComponentDeletion<int>(id);
     assert(em.entityCount() == 1);
     assert(em.componentCount<int>() == 1);
     em.commitDeletions();
     assert(em.componentCount<int>() == 0);
 
+    // Insert component 1
     em.insertComponent(2, id);
     assert(em.entityCount() == 1);
     assert(em.componentCount<int>() == 1);
     assert(*em.getComponent<int>(id) == 2);
 
+    // Make entity 2
     auto id2 = em.makeEntity();
     assert(em.entityCount() == 2);
     assert(em.componentCount<int>() == 1);
 
+    // Make entity 3
     auto id3 = em.makeEntity();
     assert(em.entityCount() == 3);
     assert(em.componentCount<int>() == 1);
 
+    // Insert component 2
     em.insertComponent(3, id2);
     assert(em.entityCount() == 3);
     assert(em.componentCount<int>() == 2);
     assert(*em.getComponent<int>(id2) == 3);
     assert(*em.getComponent<int>(id) == 2);
 
+    // Get all int components
     auto allInts = em.getArchetype<int>();
     assert(allInts.size() == 2);
-    // Test values
-    assert((*allInts[0] == 2 && *allInts[1] == 3) || (*allInts[0] == 3 && *allInts[1] == 2));
+    // Test values and indices
+    assert((*allInts[0].components == 2 && allInts[0].entity == id && *allInts[1].components == 3 && allInts[1].entity == id2) ||
+           (*allInts[1].components == 2 && allInts[1].entity == id && *allInts[0].components == 3 && allInts[0].entity == id2));
 
+    // Get all double components
     auto allDoubles = em.getArchetype<double>();
     assert(allDoubles.empty());
 
+    // Get all double and int components
     auto allIntsAndDoubles = em.getArchetype<int, double>();
     assert(allIntsAndDoubles.empty());
 
+    // Delete entity 1
     em.requestEntityDeletion(id);
     assert(em.entityCount() == 3);
     em.commitDeletions();
@@ -75,7 +89,7 @@ void Doughnut::ECS::testEntityManager() {
     Doughnut::Log::i("EntityManager test successful.");
 }
 
-void Doughnut::ECS::benchmarkEntityManager(size_t count) {
+void Doughnut::ECS::benchmarkEntityManager(const size_t count) {
     struct Component1 {
         double one;
         double two;
@@ -176,7 +190,7 @@ void Doughnut::ECS::benchmarkEntityManager(size_t count) {
         trace_scope("GET & MODIFY C1 (BEFORE DELETE)");
         auto requested = em.getArchetype<Component1>();
         for (size_t i = 0; i < count / 2; ++i) {
-            const auto component = requested[i];
+            const auto component = requested[i].components;
             component->one += 1.0;
             component->two += 1.0;
             component->three += 1.0;
@@ -201,7 +215,7 @@ void Doughnut::ECS::benchmarkEntityManager(size_t count) {
         trace_scope("GET & MODIFY C1 (AFTER DELETE)");
         auto requested = em.getArchetype<Component1>();
         for (size_t i = 0; i < count / 2; ++i) {
-            const auto component = requested[i];
+            const auto component = requested[i].components;
             component->one += 1.0;
             component->two += 1.0;
             component->three += 1.0;

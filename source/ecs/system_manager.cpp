@@ -15,8 +15,8 @@ void Doughnut::ECS::testSystemManager() {
     em.insertComponent<long>(0);
     std::mutex updateDataMutex{};
     em.insertComponent<std::mutex *>(&updateDataMutex, 0);
-    auto &executions = *em.getArchetype<int>()[0];
-    auto &constructed = *em.getArchetype<long>()[0];
+    auto &executions = *(em.getArchetype<int>()[0].components);
+    auto &constructed = *(em.getArchetype<long>()[0].components);
 
     SystemManager<decltype(em), 3> sm{&em};
 
@@ -25,9 +25,9 @@ void Doughnut::ECS::testSystemManager() {
         ~TestSystem() override = default;
 
         void update(const double delta, decltype(em) &entityManager) override {
-            auto &executions = *entityManager.getArchetype<int>()[0];
-            auto &constructed = *entityManager.getArchetype<long>()[0];
-            auto &mutex = **entityManager.getArchetype<std::mutex *>()[0];
+            auto &executions = *entityManager.getArchetype<int>()[0].components;
+            auto &constructed = *entityManager.getArchetype<long>()[0].components;
+            auto &mutex = **entityManager.getArchetype<std::mutex *>()[0].components;
             std::lock_guard<std::mutex> guard{mutex};
             if (firstUpdate) {
                 constructed += 1;

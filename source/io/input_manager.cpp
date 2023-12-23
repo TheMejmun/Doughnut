@@ -27,8 +27,9 @@ void InputController::update(double delta, EntityManagerSpec &entityManager) {
 
     glfwPollEvents();
 
-    std::vector<InputState *> inputStates = entityManager.template getArchetype<InputState>();
-    for (auto inputState: inputStates) {
+    const auto inputStateEntities = entityManager.template getArchetype<InputState>();
+    for (const auto entity: inputStateEntities) {
+        const auto inputState = entity.components;
         inputState->closeWindow = this->closeWindow;
         inputState->toggleFullscreen = this->toggleFullscreen;
         inputState->moveForward = this->moveForward;
