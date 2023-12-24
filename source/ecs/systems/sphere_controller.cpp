@@ -15,8 +15,8 @@ void SphereController::update(double delta, EntityManagerSpec &entityManager) {
         auto spheres = entityManager.getArchetype<RotatingSphere, Transformer4>();
 
         for (auto &sphere: spheres) {
-            if (std::get<0>(sphere.components)->isRotatingSphere) { // Kinda redundant check
-                std::get<1>(sphere.components)->rotate(
+            if (sphere.get<RotatingSphere>()->isRotatingSphere) { // Kinda redundant check
+                sphere.get<Transformer4>()->rotate(
                         glm::radians(15.0f * static_cast<float >(delta)),
                         glm::vec3(0, 1, 0));
             }

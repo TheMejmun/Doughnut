@@ -76,16 +76,16 @@ void Renderer::updateUniformBuffer(const double &delta, EntityManagerSpec &ecs) 
 
     // TODO not just for one object
     UniformBufferObject ubo{};
-    const auto& transformer=std::get<1>(entities[0].components);
+    const auto &transformer = entities[0].get<Transformer4>();
     ubo.model = transformer->forward;
 
     const auto cameras = ecs.getArchetype<Projector, Transformer4>();
     Transformer4 *cameraTransform;
     Projector *cameraProjector;
     for (auto &camera: cameras) {
-        if (std::get<0>(camera.components)->isMainCamera) {
-            cameraTransform = std::get<1>(camera.components);
-            cameraProjector = std::get<0>(camera.components);
+        if (camera.get<Projector>()->isMainCamera) {
+            cameraTransform = camera.get<Transformer4>();
+            cameraProjector = camera.get<Projector>();
             break;
         }
     }

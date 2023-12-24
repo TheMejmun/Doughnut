@@ -27,6 +27,15 @@ namespace Doughnut::ECS {
     struct Reference {
         size_t entity;
         Doughnut::TupleOrSingle<COMPONENTS *...>::Type components;
+
+        template<class COMPONENT>
+        inline COMPONENT *get() const {
+            if constexpr (sizeof...(COMPONENTS)) {
+                return std::get<COMPONENT *>(components);
+            } else {
+                return components;
+            }
+        }
     };
 
     template<class... COMPONENTS>

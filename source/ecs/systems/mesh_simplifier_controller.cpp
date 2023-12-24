@@ -297,7 +297,7 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
         auto cameras = entityManager.getArchetype<Projector, Transformer4>();
         uint32_t mainCameraIndex;
         for (uint32_t i = 0; i < cameras.size(); ++i) {
-            if (std::get<0>(cameras[i].components)->isMainCamera) {
+            if (cameras[i].get<Projector>()->isMainCamera) {
                 mainCameraIndex = i;
                 break;
             }
@@ -310,14 +310,14 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
 
             auto function = [=](bool &done) {
                 for (const auto & entity : entities) {
-                    const auto renderMesh = std::get<0>(entity.components);
-                    const auto renderMeshSimplifiable = std::get<1>(entity.components);
-                    const auto transformer = std::get<2>(entity.components);
+                    const auto renderMesh = entity.get<RenderMesh>();
+                    const auto renderMeshSimplifiable =entity.get<RenderMeshSimplifiable>();
+                    const auto transformer = entity.get<Transformer4>();
                     if (renderMeshSimplifiable->simplifiedMeshMutex->try_lock()) {
                         PerformanceLogging::meshCalculationStarted();
                         simplify(
-                                *std::get<0>(cameras[mainCameraIndex].components),
-                                *std::get<1>(cameras[mainCameraIndex].components),
+                                *cameras[mainCameraIndex].get<Projector>(),
+                                *cameras[mainCameraIndex].get<Transformer4>(),
                                 *renderMesh,
                                 *renderMeshSimplifiable,
                                 *transformer

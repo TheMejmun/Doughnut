@@ -89,8 +89,8 @@ void Application::mainLoop() {
         // Update camera Z for UI
         auto cameras = mESM->mEntities.template getArchetype<Projector, Transformer4>();
         for (auto & camera : cameras) {
-            if (std::get<0>(camera.components)->isMainCamera) {
-                uiState->cameraZ = std::get<1>(camera.components)->getPosition().z;
+            if (camera.get<Projector>()->isMainCamera) {
+                uiState->cameraZ = camera.get<Transformer4>()->getPosition().z;
                 break;
             }
         }
