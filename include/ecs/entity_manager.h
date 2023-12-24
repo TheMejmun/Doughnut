@@ -26,7 +26,7 @@ namespace Doughnut::ECS {
     template<class... COMPONENTS>
     struct Reference {
         size_t entity;
-        Doughnut::TupleOrSingle<COMPONENTS *...>::Type components;
+        typename Doughnut::TupleOrSingle<COMPONENTS *...>::Type components;
 
         template<class COMPONENT>
         inline COMPONENT *get() const {
