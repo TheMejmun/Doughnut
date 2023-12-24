@@ -8,7 +8,7 @@
 #include "entity_manager.h"
 #include "system_manager.h"
 
-namespace ECS2 {
+namespace Doughnut::ECS {
     template<uint32_t SYSTEM_LAYERS, class ENTITY_MANAGER>
     class EntitySystemManager {
     public:

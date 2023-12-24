@@ -4,10 +4,10 @@
 
 #include "ecs/system_manager.h"
 
-using namespace ECS2;
+using namespace Doughnut::ECS;
 
 // TODO could fail due to race conditions in 'TestSystem::update'
-void ECS2::testSystemManager() {
+void Doughnut::ECS::testSystemManager() {
     EntityManager<int, long, std::mutex *> em{};
 
     em.makeEntity();
@@ -15,8 +15,8 @@ void ECS2::testSystemManager() {
     em.insertComponent<long>(0);
     std::mutex updateDataMutex{};
     em.insertComponent<std::mutex *>(&updateDataMutex, 0);
-    auto &executions = *em.requestAll<int>()[0];
-    auto &constructed = *em.requestAll<long>()[0];
+    auto &executions = *(em.getArchetype<int>()[0].components);
+    auto &constructed = *(em.getArchetype<long>()[0].components);
 
     SystemManager<decltype(em), 3> sm{&em};
 
@@ -25,9 +25,9 @@ void ECS2::testSystemManager() {
         ~TestSystem() override = default;
 
         void update(const double delta, decltype(em) &entityManager) override {
-            auto &executions = *entityManager.requestAll<int>()[0];
-            auto &constructed = *entityManager.requestAll<long>()[0];
-            auto &mutex = **entityManager.requestAll<std::mutex *>()[0];
+            auto &executions = *entityManager.getArchetype<int>()[0].components;
+            auto &constructed = *entityManager.getArchetype<long>()[0].components;
+            auto &mutex = **entityManager.getArchetype<std::mutex *>()[0].components;
             std::lock_guard<std::mutex> guard{mutex};
             if (firstUpdate) {
                 constructed += 1;

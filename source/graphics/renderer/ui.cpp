@@ -14,7 +14,7 @@ void Renderer::resetMesh() {
 }
 
 void Renderer::drawUi(EntityManagerSpec &ecs) {
-    auto &uiState = *ecs.template requestAll<UiState>()[0];
+    auto &uiState = *ecs.template getArchetype<UiState>()[0].components;
     uiState.currentMeshVertices = Vk::Buffers::vertexCount[Vk::Buffers::meshBufferToUse];
     uiState.currentMeshTriangles = Vk::Buffers::indexCount[Vk::Buffers::meshBufferToUse] / 3;
     Vk::Imgui::draw(this->state, uiState);

@@ -3,6 +3,8 @@
 //
 
 #include "io/logger.h"
+#include "util/os.h"
+#include "util/timer.h"
 
 #include <mutex>
 #include <sstream>
@@ -42,12 +44,21 @@ bool Log::traceEnabled() {
 }
 
 std::string getTimestamp() {
+#ifdef OS_WINDOWS
     time_t rawTime;
     time(&rawTime);
 
     struct tm timeInfo{};
     localtime_s(&timeInfo, &rawTime);
 
+#else
+    time_t rawTime;
+    time(&rawTime);
+
+    struct tm timeInfo{};
+    localtime_r(&rawTime, &timeInfo);
+
+#endif
     std::stringstream stream{};
     stream << "["
            << (char) ('0' + (timeInfo.tm_hour / 10)) << (char) ('0' + (timeInfo.tm_hour % 10)) << ":"
@@ -75,5 +86,20 @@ void Log::Internal::log(Log::Internal::Level level, const std::string &message) 
         case ERROR:
             std::cerr << time << " E: " << message << std::endl;
             break;
+    }
+}
+
+void Log::benchmarkLogger(size_t count) {
+    {
+        Doughnut::Timer::ScopeTracer tracer1{"Execute Logs"};
+        {
+            Doughnut::Timer::ScopeTracer tracer2{"Insert Logs"};
+
+            for (uint32_t i = 0; i < count; ++i) {
+                Doughnut::Log::i("TESTING", "LOGGER", "FOLDED", i);
+            }
+        }
+
+        Doughnut::Log::Internal::scheduler.await();
     }
 }

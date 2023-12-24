@@ -12,11 +12,16 @@ int main() {
     Doughnut::Log::init(true, false, false, true);
 #endif
 
+//    Doughnut::ECS::benchmarkEntityManager(10'000'000);
+//    return 0;
+
+//    Doughnut::Log::benchmarkLogger(1'000'000);
+//    return 0;
+
 #ifndef NDEBUG
     {
-        trace_scope("Unit Tests");
-        ECS2::testEntityManager();
-        ECS2::testSystemManager();
+        Doughnut::ECS::testEntityManager();
+        Doughnut::ECS::testSystemManager();
         Doughnut::testScheduler();
     }
 #endif

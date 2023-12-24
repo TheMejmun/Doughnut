@@ -4,6 +4,7 @@
 
 #include "core/scheduler.h"
 #include "io/logger.h"
+#include "util/timer.h"
 
 #include <iostream>
 #include <cassert>
@@ -15,11 +16,11 @@ static void threadBody(
         std::queue<std::function<void()>> *queue,
         std::mutex *queueMutex,
         std::atomic<uint32_t> *waitingJobCount,
-        std::atomic<bool> *exit,
+        const bool *exit,
         std::mutex *runMutex,
         std::condition_variable *runCondition
 ) {
-    while (!exit->load()) {
+    while (!(*exit)) {
         while (true) {
             std::function < void() > job;
 
@@ -37,20 +38,19 @@ static void threadBody(
             --(*waitingJobCount);
         }
 
+        // Will be unlocked when it goes out of scope
         std::unique_lock<std::mutex> runLock(*runMutex);
         runCondition->wait(runLock,
                            [=]() {
-                               std::lock_guard<std::mutex> queueLock(*queueMutex);
-                               return exit->load() || (!queue->empty());
+                               return (*exit) || (!queue->empty());
                            }
         );
-        runLock.unlock(); // TODO this unlock could theoretically throw an exception if not locked & the condition sporadically unlocks (I think)
     }
 }
 
 Scheduler::Scheduler() {
-    const auto processor_count = std::thread::hardware_concurrency();
-    mThreads.reserve(processor_count);
+    const auto processorCount = std::thread::hardware_concurrency();
+    mThreads.reserve(processorCount / 2);
     for (size_t i = 0; i < mThreads.capacity(); ++i) {
         mThreads.emplace_back(threadBody,
                               &mQueue, &mQueueMutex, &mWaitingJobCount, &mExitThreads, &mRunMutex, &mRunCondition);
@@ -78,7 +78,8 @@ bool Scheduler::done() {
 }
 
 void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
-    std::lock_guard<std::mutex> guard(mQueueMutex);
+    std::lock_guard<std::mutex> runGuard{mRunMutex};
+    std::lock_guard<std::mutex> queueGuard(mQueueMutex);
     for (auto &job: functions) {
         ++mWaitingJobCount;
         mQueue.emplace(job);
@@ -96,11 +97,15 @@ uint32_t Scheduler::workerCount() {
 }
 
 Scheduler::~Scheduler() {
-    // Variable has to be updated first, otherwise deadlocks occur.
-    mExitThreads = true;
+    trace_scope("~Scheduler")
     await();
-    // This may clear the scheduler before all jobs are completed.
-    mRunCondition.notify_all();
+    {
+        // https://www.modernescpp.com/index.php/c-core-guidelines-be-aware-of-the-traps-of-condition-variables/
+        // Must acquire lock before notifying in order to avoid deadlocks
+        std::lock_guard<std::mutex> runGuard{mRunMutex};
+        mExitThreads = true;
+        mRunCondition.notify_all();
+    }
     for (auto &thread: mThreads) {
         if (thread.joinable()) {
             thread.join();
@@ -184,5 +189,5 @@ void Doughnut::testScheduler() {
     assert(scheduler.done());
     assert(task4Done);
 
-    Doughnut::Log::i("Scheduler test successful.");
+    Log::i("Scheduler test successful.");
 }

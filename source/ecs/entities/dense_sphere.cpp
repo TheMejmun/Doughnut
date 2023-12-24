@@ -19,9 +19,7 @@ void DenseSphere::upload(EntityManagerSpec &em) {
     }
     em.insertComponent(renderMesh, id);
 
-    // Inplace creation, because mutexes can't be copied
-    auto renderMeshSimplifiable = em.template insertComponent<RenderMeshSimplifiable>(id);
-    renderMeshSimplifiable->simplifiedMeshMutex = std::make_unique<std::mutex>();
+    em.template insertComponent<RenderMeshSimplifiable>(id);
 
     Transformer4 transform{};
     em.insertComponent(transform, id);
