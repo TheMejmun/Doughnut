@@ -22,7 +22,6 @@
 #include <cassert>
 
 namespace Doughnut::ECS {
-    // TODO add this to components
     template<class... COMPONENTS>
     struct Reference {
         size_t entity;
