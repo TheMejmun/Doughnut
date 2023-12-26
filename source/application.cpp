@@ -18,12 +18,20 @@
 using namespace Doughnut;
 
 void Application::run() {
-    do {
-        mExitAfterMainLoop = true;
-        init();
-        mainLoop();
-        destroy();
-    } while (!mExitAfterMainLoop);
+    try {
+
+        do {
+            mExitAfterMainLoop = true;
+            init();
+            mainLoop();
+            destroy();
+        } while (!mExitAfterMainLoop);
+
+    } catch (const std::exception &e) {
+        Doughnut::Log::flush();
+        throw e;
+        std::cerr << e.what() << std::endl;
+    }
 }
 
 void Application::init() {
@@ -76,7 +84,7 @@ void Application::mainLoop() {
             mWindowManager->toggleFullscreen();
 
         // UI
-       const auto uiState = mESM->mEntities.template getArchetype<UiState>()[0].components;
+        const auto uiState = mESM->mEntities.template getArchetype<UiState>()[0].components;
         uiState->fps.update(mDeltaTime);
         uiState->cpuWaitTime = mCurrentCpuWaitTime;
 
@@ -88,7 +96,7 @@ void Application::mainLoop() {
 
         // Update camera Z for UI
         auto cameras = mESM->mEntities.template getArchetype<Projector, Transformer4>();
-        for (auto & camera : cameras) {
+        for (auto &camera: cameras) {
             if (camera.get<Projector>()->isMainCamera) {
                 uiState->cameraZ = camera.get<Transformer4>()->getPosition().z;
                 break;
