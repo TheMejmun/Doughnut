@@ -89,6 +89,10 @@ void Log::Internal::log(Log::Internal::Level level, const std::string &message) 
     }
 }
 
+void Log::flush() {
+    Log::Internal::scheduler.await();
+}
+
 void Log::benchmarkLogger(size_t count) {
     {
         Doughnut::Timer::ScopeTracer tracer1{"Execute Logs"};

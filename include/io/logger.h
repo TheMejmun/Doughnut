@@ -88,6 +88,8 @@ namespace Doughnut::Log {
         Internal::logFormattedAsync(Internal::ERROR, args...);
     }
 
+    void flush();
+
     void benchmarkLogger(size_t count);
 }
 
