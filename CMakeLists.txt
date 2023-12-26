@@ -39,7 +39,6 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/graphics/colors.h
         ${HEADER_FOLDER}/graphics/vertex.h
         ${HEADER_FOLDER}/graphics/uniform_buffer_object.h
-        ${HEADER_FOLDER}/graphics/pnext_chain_reader.h
         ${HEADER_FOLDER}/graphics/triangle.h
         ${HEADER_FOLDER}/graphics/render_state.h
 
@@ -53,6 +52,7 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/graphics/vulkan/vulkan_renderpasses.h
         ${HEADER_FOLDER}/graphics/vulkan/vulkan_imgui.h
         ${HEADER_FOLDER}/graphics/vulkan/vulkan_state.h
+        ${HEADER_FOLDER}/graphics/vulkan/pnext_chain_reader.h
 
         ${HEADER_FOLDER}/io/input_manager.h
         ${HEADER_FOLDER}/io/window_manager.h
@@ -86,6 +86,8 @@ set(HEADER_FILES
         include/io/logger.h
         include/util/templates.h
         source/core/types.h
+        include/graphics/texture.h
+        include/io/resource_pool.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
@@ -132,6 +134,7 @@ set(SOURCE_FILES
         source/core/scheduler.cpp
         source/io/logger.cpp
         source/core/thread_safe.h
+        source/graphics/texture.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable
