@@ -17,6 +17,8 @@ namespace Doughnut::Graphics {
 
         ~Texture();
 
+        size_t size();
+
     private:
         int mWidth = 0, mHeight = 0, mChannels = 0;
         bool mHasAlpha = false;

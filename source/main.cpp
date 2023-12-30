@@ -13,24 +13,19 @@ int main() {
     Doughnut::Log::init(true, false, false, true);
 #endif
 
+#ifndef NDEBUG
+    {
+        Doughnut::ECS::testEntityManager();
+        Doughnut::ECS::testSystemManager();
+        Doughnut::testScheduler();
+    }
+#endif
+
     try {
         Doughnut::ResourcePool<Doughnut::Graphics::Texture> texturePool{};
         texturePool.preload("resources/textures/planet-albedo.png");
+        Doughnut::Log::i("Size of resource pool:", static_cast<double>(texturePool.size()) / (1024.0 * 1024.0), "MB");
         return EXIT_SUCCESS;
-
-//    Doughnut::ECS::benchmarkEntityManager(10'000'000);
-//    return 0;
-
-//    Doughnut::Log::benchmarkLogger(1'000'000);
-//    return 0;
-
-#ifndef NDEBUG
-        {
-            Doughnut::ECS::testEntityManager();
-            Doughnut::ECS::testSystemManager();
-            Doughnut::testScheduler();
-        }
-#endif
 
         Doughnut::Application app{"Hello World!"};
 

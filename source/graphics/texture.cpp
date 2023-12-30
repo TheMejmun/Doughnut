@@ -26,6 +26,11 @@ Texture::Texture(const std::string &filename) {
     }
 }
 
+size_t Texture::size() {
+    // stbi_load loads 8 bit always, hence 1 byte per channel
+    return mWidth * mHeight * mChannels;
+}
+
 Texture::~Texture() {
     Doughnut::Log::i("Freed texture");
     stbi_image_free(mData);
