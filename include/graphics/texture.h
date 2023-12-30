@@ -13,7 +13,7 @@
 namespace Doughnut::Graphics {
     class Texture {
     public:
-        Texture(const std::string &filename);
+        explicit Texture(const std::string &filename);
 
         ~Texture();
 

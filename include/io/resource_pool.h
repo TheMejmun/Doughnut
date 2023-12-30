@@ -10,18 +10,29 @@
 
 #include <unordered_map>
 #include <string>
+#include <type_traits>
 
 namespace Doughnut {
     template<class T>
     class ResourcePool {
     public:
         void preload(const std::string &fileHandle) {
-            loadHelper<T>(fileHandle);
+            static_assert(std::is_constructible<T, const std::string &>::value
+                          || std::is_constructible<T, const char *>::value,
+                          "The chosen type is not constructible using a string!");
+
+            if constexpr (std::is_constructible<T, const std::string &>::value) {
+                Doughnut::Log::v("Loading", typeid(T).name(), "with string", fileHandle);
+                mResources[fileHandle] = new T{fileHandle};
+            } else {
+                Doughnut::Log::v("Loading", typeid(T).name(), "with char pointer", fileHandle);
+                mResources[fileHandle] = new T{fileHandle.c_str()};
+            }
         }
 
         T *get(const std::string &fileHandle) {
             if (mResources[fileHandle] == nullptr) {
-                loadHelper<T>(fileHandle);
+                preload(fileHandle);
             }
 
             return mResources[fileHandle];
@@ -45,22 +56,6 @@ namespace Doughnut {
         std::unordered_map<std::string, T *> mResources{};
 
         // TODO last accessed map?
-
-        template<class S>
-        inline void loadHelper(const std::string &fileHandle) {
-            std::stringstream stream{};
-            stream << "Tried to load unknown type" << typeid(T).name();
-            std::string out = stream.str();
-            Doughnut::Log::e(out);
-            throw std::runtime_error(out);
-        }
-
-        template<>
-        inline void loadHelper<Doughnut::Graphics::Texture>(const std::string &fileHandle) {
-            Doughnut::Log::i("Template specialization for Texture hit!");
-            mResources[fileHandle] = new Doughnut::Graphics::Texture{fileHandle};
-            Doughnut::Log::i("Initialized Texture with", fileHandle);
-        };
     };
 }
 
