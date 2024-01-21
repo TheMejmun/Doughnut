@@ -90,6 +90,7 @@ void Imgui::create(RenderState &state) {
     beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     checkVkResult(vkBeginCommandBuffer(command_buffer, &beginInfo));
 
+    // TODO find out why this function needs VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT and provide the appropriate queue
     ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
 
     VkSubmitInfo endInfo = {};
@@ -126,7 +127,7 @@ void Imgui::draw(RenderState &renderState, UiState &uiState) {
                                   static_cast<float>(height)};
     ImGui::GetIO().DisplayFramebufferScale = scaleVec2;
 
-    ImGui_ImplVulkan_NewFrame();
+//    ImGui_ImplVulkan_NewFrame(); Why was this here twice?
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
 

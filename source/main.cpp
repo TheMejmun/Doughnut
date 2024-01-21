@@ -22,10 +22,10 @@ int main() {
 #endif
 
     try {
-        Doughnut::ResourcePool<Doughnut::Graphics::Texture> texturePool{};
-        texturePool.preload("resources/textures/planet-albedo.png");
-        Doughnut::Log::i("Size of resource pool:", static_cast<double>(texturePool.size()) / (1024.0 * 1024.0), "MB");
-        return EXIT_SUCCESS;
+//        Doughnut::ResourcePool<Doughnut::Graphics::Texture> texturePool{};
+//        texturePool.preload("resources/textures/planet-albedo.png");
+//        Doughnut::Log::i("Size of resource pool:", static_cast<double>(texturePool.size()) / (1024.0 * 1024.0), "MB");
+//        return EXIT_SUCCESS;
 
         Doughnut::Application app{"Hello World!"};
 
