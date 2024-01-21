@@ -69,6 +69,11 @@ namespace Doughnut {
             return mSizes[fileHandle];
         }
 
+        bool isLoaded(const std::string &fileHandle) {
+            // Don't care about the fileHandle being inserted into the map, as it is likely to be used soon anyway if isLoaded is called.
+            return mResources[fileHandle] != nullptr;
+        }
+
         ~ResourcePool() {
             for (auto &[key, value]: mResources) {
                 free(key);
