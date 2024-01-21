@@ -26,6 +26,9 @@ namespace Doughnut {
                           || std::is_constructible<T, const char *>::value,
                           "The chosen type is not constructible using a string!");
 
+            std::lock_guard<std::mutex> guard(mPreloadMutex);
+            if(isLoaded(fileHandle)) return;
+
             // Instantiate
             if constexpr (std::is_constructible<T, const std::string &>::value) {
                 Doughnut::Log::v("Loading", typeid(T).name(), "with string", fileHandle);
@@ -75,6 +78,7 @@ namespace Doughnut {
         }
 
         ~ResourcePool() {
+            std::lock_guard<std::mutex> guard(mPreloadMutex);
             for (auto &[key, value]: mResources) {
                 free(key);
             }
@@ -83,6 +87,8 @@ namespace Doughnut {
     private:
         std::unordered_map<std::string, T *> mResources{};
         std::unordered_map<std::string, size_t> mSizes{};
+
+        std::mutex mPreloadMutex{};
 
         // TODO last accessed map?
     };
