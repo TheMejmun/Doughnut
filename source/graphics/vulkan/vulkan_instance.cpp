@@ -10,7 +10,7 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-using namespace Doughnut::GFX::Vk;
+using namespace Doughnut::GRAPHICS::Vk;
 using namespace Doughnut;
 
 // Global

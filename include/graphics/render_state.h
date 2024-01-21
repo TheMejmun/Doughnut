@@ -12,7 +12,7 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
-namespace Doughnut::GFX {
+namespace Doughnut::GRAPHICS {
     struct RenderState {
         std::string title{};
 

@@ -9,6 +9,7 @@
 #include "typedefs.h"
 #include "ecs/components/ui_state.h"
 #include "render_state.h"
+#include "io/resource_pool.h"
 
 #include <thread>
 
@@ -17,7 +18,7 @@
 
 // TODO https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Frames_in_flight
 
-namespace Doughnut::GFX {
+namespace Doughnut::GRAPHICS {
     class Renderer {
     public:
         Renderer(const std::string &title, GLFWwindow *window);
@@ -79,6 +80,8 @@ namespace Doughnut::GFX {
         VkSemaphore imageAvailableSemaphore = nullptr;
         VkSemaphore renderFinishedSemaphore = nullptr;
         VkFence inFlightFence = nullptr;
+
+        Doughnut::ResourcePool<Doughnut::Graphics::Texture> mTexturePool{};
     };
 };
 

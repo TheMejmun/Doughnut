@@ -11,7 +11,7 @@
 #include "io/logger.h"
 
 using namespace Doughnut;
-using namespace Doughnut::GFX;
+using namespace Doughnut::GRAPHICS;
 
 Renderer::Renderer(const std::string &title, GLFWwindow *window) {
     Log::i("Creating Renderer");

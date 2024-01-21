@@ -11,7 +11,7 @@
 #include <set>
 #include <cstdint>
 
-using namespace Doughnut::GFX::Vk;
+using namespace Doughnut::GRAPHICS::Vk;
 using namespace Doughnut;
 
 // Constant

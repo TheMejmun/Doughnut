@@ -46,7 +46,7 @@ void Application::init() {
     mESM = std::make_unique<EntitySystemManagerSpec>();
     mWindowManager = std::make_unique<WindowManager>(this->mTitle);
     mInputManager = std::make_unique<InputController>(mWindowManager->window);
-    mRenderer = std::make_unique<GFX::Renderer>(this->mTitle, mWindowManager->window);
+    mRenderer = std::make_unique<GRAPHICS::Renderer>(this->mTitle, mWindowManager->window);
 
     // Entities
     Camera::upload(mESM->mEntities);

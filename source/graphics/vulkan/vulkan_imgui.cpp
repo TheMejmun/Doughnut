@@ -17,7 +17,7 @@
 #include <sstream>
 
 using namespace Doughnut;
-using namespace Doughnut::GFX::Vk;
+using namespace Doughnut::GRAPHICS::Vk;
 
 VkDescriptorPool uiDescriptorPool;
 float scale = 1.0f;

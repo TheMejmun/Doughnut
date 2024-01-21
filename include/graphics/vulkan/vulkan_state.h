@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Doughnut::GFX::Vk {
+namespace Doughnut::GRAPHICS::Vk {
     struct State {
         VkCommandPool commandPool = nullptr;
     };

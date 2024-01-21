@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 
-namespace Doughnut::GFX::Vk::Devices {
+namespace Doughnut::GRAPHICS::Vk::Devices {
     struct OptionalFeatures {
         bool supportsWireframeMode = false;
         bool physicalDeviceFeatures2 = false;

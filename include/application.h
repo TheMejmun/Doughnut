@@ -31,7 +31,7 @@ namespace Doughnut {
         void destroy();
 
         std::unique_ptr<EntitySystemManagerSpec> mESM;
-        std::unique_ptr<GFX::Renderer> mRenderer;
+        std::unique_ptr<GRAPHICS::Renderer> mRenderer;
         std::unique_ptr<WindowManager> mWindowManager;
         std::unique_ptr<InputController> mInputManager;
 

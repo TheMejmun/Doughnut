@@ -7,7 +7,7 @@
 #include "graphics/vulkan/vulkan_imgui.h"
 #include "graphics/vulkan/vulkan_buffers.h"
 
-using namespace Doughnut::GFX;
+using namespace Doughnut::GRAPHICS;
 
 void Renderer::resetMesh() {
     Vk::Buffers::resetMeshBufferToUse();

@@ -10,7 +10,7 @@
 #include "io/logger.h"
 
 using namespace Doughnut;
-using namespace Doughnut::GFX::Vk;
+using namespace Doughnut::GRAPHICS::Vk;
 
 uint32_t Buffers::maxAllocations = 0, Buffers::currentAllocations = 0;
 
