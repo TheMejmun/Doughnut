@@ -12,7 +12,7 @@
 // SYSTEMS THAT PLUG INTO THE ECS
 
 using namespace Doughnut;
-using namespace Doughnut::GRAPHICS;
+using namespace Doughnut::Graphics;
 
 void Renderer::uploadRenderables(EntityManagerSpec &ecs) {
     const auto entities = ecs.getArchetype<RenderMesh>();

@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Doughnut::GRAPHICS::Vk::Images {
+namespace Doughnut::Graphics::Vk::Images {
     void createTextureImage();
 
     void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,

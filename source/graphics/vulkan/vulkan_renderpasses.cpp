@@ -10,7 +10,7 @@
 #include <array>
 
 using namespace Doughnut;
-using namespace Doughnut::GRAPHICS::Vk;
+using namespace Doughnut::Graphics::Vk;
 
 VkRenderPass RenderPasses::renderPass = nullptr;
 

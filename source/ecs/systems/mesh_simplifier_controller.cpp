@@ -156,14 +156,14 @@ void simplify(const Projector &cameraProjector,
     const auto normalModel = glm::transpose(transform.inverse);
     const auto cameraPos = cameraTransform.getPosition();
     const auto view = cameraProjector.getView(cameraTransform);
-    const auto proj = cameraProjector.getProjection(Doughnut::GRAPHICS::Vk::Swapchain::aspectRatio);
+    const auto proj = cameraProjector.getProjection(Doughnut::Graphics::Vk::Swapchain::aspectRatio);
     const auto viewProj = proj * view;
 
     to.vertices.clear();
     to.indices.clear();
 
-    const uint32_t rasterWidth = Doughnut::GRAPHICS::Vk::Swapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
-    const uint32_t rasterHeight = Doughnut::GRAPHICS::Vk::Swapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterWidth = Doughnut::Graphics::Vk::Swapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterHeight = Doughnut::Graphics::Vk::Swapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
 
     std::vector<SVO> svos{};
     svos.resize(from.vertices.size());

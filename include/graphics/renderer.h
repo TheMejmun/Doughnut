@@ -18,7 +18,7 @@
 
 // TODO https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Frames_in_flight
 
-namespace Doughnut::GRAPHICS {
+namespace Doughnut::Graphics {
     class Renderer {
     public:
         Renderer(const std::string &title, GLFWwindow *window);

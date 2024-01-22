@@ -12,7 +12,7 @@
 #include "io/logger.h"
 
 using namespace Doughnut;
-using namespace Doughnut::GRAPHICS;
+using namespace Doughnut::Graphics;
 
 void Renderer::createGraphicsPipeline() {
     // TODO pull these out of here

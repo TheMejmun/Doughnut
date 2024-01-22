@@ -10,7 +10,7 @@
 #include <string>
 #include <vulkan/vulkan.h>
 
-namespace Doughnut::GRAPHICS::Vk::Instance {
+namespace Doughnut::Graphics::Vk::Instance {
     extern VkInstance instance;
 
     void create(const std::string &title);

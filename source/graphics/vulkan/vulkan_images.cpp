@@ -12,7 +12,7 @@
 #include <stb_image.h>
 #include <stdexcept>
 
-using namespace Doughnut::GRAPHICS::Vk;
+using namespace Doughnut::Graphics::Vk;
 
 void Images::createTextureImage() {
     int texWidth, texHeight, texChannels;

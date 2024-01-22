@@ -5,7 +5,7 @@
 #include "graphics/renderer.h"
 #include "graphics/vulkan/vulkan_devices.h"
 
-using namespace Doughnut::GRAPHICS;
+using namespace Doughnut::Graphics;
 
 VkShaderModule Renderer::createShaderModule(const std::vector<char> &code) {
     VkShaderModuleCreateInfo createInfo{};

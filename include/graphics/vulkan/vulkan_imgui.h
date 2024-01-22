@@ -9,7 +9,7 @@
 #include "ecs/components/ui_state.h"
 #include "graphics/render_state.h"
 
-namespace Doughnut::GRAPHICS::Vk::Imgui {
+namespace Doughnut::Graphics::Vk::Imgui {
     void create(RenderState &state);
 
     void draw(RenderState &renderState, UiState &uiState);

@@ -16,7 +16,7 @@
 #include <algorithm>
 
 using namespace Doughnut;
-using namespace Doughnut::GRAPHICS::Vk;
+using namespace Doughnut::Graphics::Vk;
 
 // Global
 VkSurfaceKHR Swapchain::surface = nullptr;

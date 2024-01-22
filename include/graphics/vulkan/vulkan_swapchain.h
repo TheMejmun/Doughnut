@@ -14,7 +14,7 @@
 
 //const int MAX_FRAMES_IN_FLIGHT = 2;
 
-namespace Doughnut::GRAPHICS::Vk::Swapchain {
+namespace Doughnut::Graphics::Vk::Swapchain {
     struct SwapchainSupportDetails {
         VkSurfaceCapabilitiesKHR capabilities;
         std::vector<VkSurfaceFormatKHR> formats;
