@@ -3,17 +3,17 @@
 //
 
 
-#include "graphics/vulkan/vulkan_imgui.h"
-#include "graphics/vulkan/vulkan_instance.h"
-#include "graphics/vulkan/vulkan_devices.h"
-#include "graphics/vulkan/vulkan_swapchain.h"
-#include "graphics/vulkan/vulkan_renderpasses.h"
-#include "graphics/vulkan/vulkan_buffers.h"
-#include "graphics/ui.h"
+#include "graphics/v1/vulkan/vulkan_imgui.h"
+#include "graphics/v1/vulkan/vulkan_instance.h"
+#include "graphics/v1/vulkan/vulkan_devices.h"
+#include "graphics/v1/vulkan/vulkan_swapchain.h"
+#include "graphics/v1/vulkan/vulkan_renderpasses.h"
+#include "graphics/v1/vulkan/vulkan_buffers.h"
+#include "graphics/v1/ui.h"
 #include "io/logger.h"
 
-#include <imgui_impl_vulkan.h>
-#include <imgui_impl_glfw.h>
+#include "imgui_impl_vulkan.h"
+#include "imgui_impl_glfw.h"
 #include <sstream>
 
 using namespace Doughnut;

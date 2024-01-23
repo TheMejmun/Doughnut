@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-11.
 //
 
-#include "graphics/renderer.h"
-#include "graphics/vulkan/vulkan_devices.h"
+#include "graphics/v1/renderer.h"
+#include "graphics/v1/vulkan/vulkan_devices.h"
 
 using namespace Doughnut::Graphics;
 

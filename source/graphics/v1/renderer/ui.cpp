@@ -3,9 +3,9 @@
 //
 
 
-#include "graphics/renderer.h"
-#include "graphics/vulkan/vulkan_imgui.h"
-#include "graphics/vulkan/vulkan_buffers.h"
+#include "graphics/v1/renderer.h"
+#include "graphics/v1/vulkan/vulkan_imgui.h"
+#include "graphics/v1/vulkan/vulkan_buffers.h"
 
 using namespace Doughnut::Graphics;
 

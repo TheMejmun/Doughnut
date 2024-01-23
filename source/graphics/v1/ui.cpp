@@ -2,10 +2,10 @@
 // Created by Saman on 26.08.23.
 //
 
-#include "graphics/ui.h"
+#include "graphics/v1/ui.h"
 #include "util/performance_logging.h"
 
-#include <imgui.h>
+#include "imgui.h"
 
 void UI::update(UiState &state) {
     if (state.returnToOriginalMeshBuffer) {

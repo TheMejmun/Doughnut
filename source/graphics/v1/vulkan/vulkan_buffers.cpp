@@ -2,10 +2,10 @@
 // Created by Sam on 2023-04-12.
 //
 
-#include "graphics/vulkan/vulkan_buffers.h"
-#include "graphics/uniform_buffer_object.h"
-#include "graphics/vulkan/vulkan_memory.h"
-#include "graphics/vulkan/vulkan_devices.h"
+#include "graphics/v1/vulkan/vulkan_buffers.h"
+#include "graphics/v1/uniform_buffer_object.h"
+#include "graphics/v1/vulkan/vulkan_memory.h"
+#include "graphics/v1/vulkan/vulkan_devices.h"
 #include "util/timer.h"
 #include "io/logger.h"
 

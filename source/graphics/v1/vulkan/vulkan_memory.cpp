@@ -2,8 +2,8 @@
 // Created by Saman on 24.08.23.
 //
 
-#include "graphics/vulkan/vulkan_memory.h"
-#include "graphics/vulkan/vulkan_devices.h"
+#include "graphics/v1/vulkan/vulkan_memory.h"
+#include "graphics/v1/vulkan/vulkan_devices.h"
 
 #include <stdexcept>
 

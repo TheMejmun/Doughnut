@@ -2,11 +2,11 @@
 // Created by Saman on 18.04.23.
 //
 
-#include "graphics/renderer.h"
-#include "graphics/uniform_buffer_object.h"
-#include "graphics/vulkan/vulkan_swapchain.h"
+#include "graphics/v1/renderer.h"
+#include "graphics/v1/uniform_buffer_object.h"
+#include "graphics/v1/vulkan/vulkan_swapchain.h"
 #include "util/performance_logging.h"
-#include "graphics/vulkan/vulkan_buffers.h"
+#include "graphics/v1/vulkan/vulkan_buffers.h"
 #include "io/logger.h"
 
 // SYSTEMS THAT PLUG INTO THE ECS

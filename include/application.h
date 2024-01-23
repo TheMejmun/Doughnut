@@ -9,7 +9,7 @@
 #include "typedefs.h"
 #include "io/window_manager.h"
 #include "io/input_manager.h"
-#include "graphics/renderer.h"
+#include "graphics/v1/renderer.h"
 
 #include <memory>
 #include <string>

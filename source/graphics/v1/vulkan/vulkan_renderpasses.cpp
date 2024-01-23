@@ -2,9 +2,9 @@
 // Created by Saman on 24.08.23.
 //
 
-#include "graphics/vulkan/vulkan_renderpasses.h"
-#include "graphics/vulkan/vulkan_devices.h"
-#include "graphics/vulkan/vulkan_swapchain.h"
+#include "graphics/v1/vulkan/vulkan_renderpasses.h"
+#include "graphics/v1/vulkan/vulkan_devices.h"
+#include "graphics/v1/vulkan/vulkan_swapchain.h"
 #include "io/logger.h"
 
 #include <array>

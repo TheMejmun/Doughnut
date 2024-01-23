@@ -2,12 +2,12 @@
 // Created by Sam on 2023-04-11.
 //
 
-#include "graphics/renderer.h"
-#include "graphics/vulkan/vulkan_instance.h"
-#include "graphics/vulkan/vulkan_swapchain.h"
-#include "graphics/vulkan/vulkan_images.h"
-#include "graphics/vulkan/vulkan_imgui.h"
-#include "graphics/vulkan/vulkan_buffers.h"
+#include "graphics/v1/renderer.h"
+#include "graphics/v1/vulkan/vulkan_instance.h"
+#include "graphics/v1/vulkan/vulkan_swapchain.h"
+#include "graphics/v1/vulkan/vulkan_images.h"
+#include "graphics/v1/vulkan/vulkan_imgui.h"
+#include "graphics/v1/vulkan/vulkan_buffers.h"
 #include "io/logger.h"
 
 using namespace Doughnut;

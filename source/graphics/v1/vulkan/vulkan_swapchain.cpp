@@ -2,16 +2,16 @@
 // Created by Saman on 24.08.23.
 //
 
-#include "graphics/vulkan/vulkan_swapchain.h"
-#include "graphics/vulkan/vulkan_instance.h"
-#include "graphics/vulkan/vulkan_devices.h"
-#include "graphics/vulkan/vulkan_renderpasses.h"
-#include "graphics/vulkan/vulkan_memory.h"
-#include "graphics/vulkan/vulkan_imgui.h"
-#include "graphics/vulkan/vulkan_images.h"
+#include "graphics/v1/vulkan/vulkan_swapchain.h"
+#include "graphics/v1/vulkan/vulkan_instance.h"
+#include "graphics/v1/vulkan/vulkan_devices.h"
+#include "graphics/v1/vulkan/vulkan_renderpasses.h"
+#include "graphics/v1/vulkan/vulkan_memory.h"
+#include "graphics/v1/vulkan/vulkan_imgui.h"
+#include "graphics/v1/vulkan/vulkan_images.h"
 #include "io/logger.h"
 
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 #include <array>
 #include <algorithm>
 

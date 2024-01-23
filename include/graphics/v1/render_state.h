@@ -6,10 +6,10 @@
 #define DOUGHNUT_RENDER_STATE_H
 
 #include "preprocessor.h"
-#include "graphics/vulkan/vulkan_state.h"
+#include "graphics/v1/vulkan/vulkan_state.h"
 #include "util/timer.h"
 
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 #include <string>
 
 namespace Doughnut::Graphics {

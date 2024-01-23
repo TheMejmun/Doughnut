@@ -2,12 +2,12 @@
 // Created by Sam on 2023-03-28.
 //
 
-#include "graphics/renderer.h"
-#include "graphics/uniform_buffer_object.h"
-#include "graphics/vulkan/vulkan_renderpasses.h"
-#include "graphics/vulkan/vulkan_swapchain.h"
-#include "graphics/vulkan/vulkan_devices.h"
-#include "graphics/vulkan/vulkan_buffers.h"
+#include "graphics/v1/renderer.h"
+#include "graphics/v1/uniform_buffer_object.h"
+#include "graphics/v1/vulkan/vulkan_renderpasses.h"
+#include "graphics/v1/vulkan/vulkan_swapchain.h"
+#include "graphics/v1/vulkan/vulkan_devices.h"
+#include "graphics/v1/vulkan/vulkan_buffers.h"
 #include "util/importer.h"
 #include "io/logger.h"
 

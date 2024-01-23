@@ -2,11 +2,11 @@
 // Created by Saman on 24.08.23.
 //
 
-#include "graphics/vulkan/vulkan_instance.h"
-#include "graphics/vulkan/vulkan_validation.h"
+#include "graphics/v1/vulkan/vulkan_instance.h"
+#include "graphics/v1/vulkan/vulkan_validation.h"
 #include "io/logger.h"
 
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 #include <vulkan/vulkan.h>
 #include <vector>
 

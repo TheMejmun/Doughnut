@@ -6,9 +6,9 @@
 #define DOUGHNUT_VULKAN_SWAPCHAIN_H
 
 #include "preprocessor.h"
-#include "graphics/render_state.h"
+#include "graphics/v1/render_state.h"
 
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 #include <vulkan/vulkan.h>
 #include <vector>
 
