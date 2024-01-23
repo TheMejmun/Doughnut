@@ -16,9 +16,9 @@ using namespace Doughnut::Graphics;
 
 void Renderer::createGraphicsPipeline() {
     // TODO pull these out of here
-    auto vertShaderCode = Importinator::readFile("resources/shaders/sphere.vert.spv");
+    auto vertShaderCode = Doughnut::readFile("resources/shaders/sphere.vert.spv");
     Log::v("Loaded vertex shader with byte size:", vertShaderCode.size());
-    auto fragShaderCode = Importinator::readFile("resources/shaders/sphere.frag.spv");
+    auto fragShaderCode = Doughnut::readFile("resources/shaders/sphere.frag.spv");
     Log::v("Loaded fragment shader with byte size:", fragShaderCode.size());
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);

@@ -8,7 +8,7 @@
 
 #include <stb_image.h>
 
-using namespace Doughnut::Graphics;
+using namespace Doughnut;
 
 Texture::Texture(const std::string &filename) {
     // STBI_rgb_alpha for alpha in the future

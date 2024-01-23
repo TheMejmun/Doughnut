@@ -81,7 +81,7 @@ namespace Doughnut::Graphics {
         VkSemaphore renderFinishedSemaphore = nullptr;
         VkFence inFlightFence = nullptr;
 
-        Doughnut::ResourcePool<Doughnut::Graphics::Texture> mTexturePool{};
+        Doughnut::ResourcePool<Doughnut::Texture> mTexturePool{};
     };
 };
 

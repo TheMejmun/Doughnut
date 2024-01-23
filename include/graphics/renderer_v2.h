@@ -8,6 +8,8 @@
 #include "preprocessor.h"
 #include "render_api.h"
 #include "io/window.h"
+#include "io/resource_pool.h"
+#include "shader.h"
 
 #include <GLFW/glfw3.h>
 #include <string>
@@ -21,6 +23,9 @@ namespace Doughnut {
 
     private:
         VulkanAPI mAPI;
+
+        ResourcePool<Texture> texturePool{};
+        ResourcePool<Shader> shaderPool{};
     };
 }
 

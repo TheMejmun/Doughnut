@@ -10,7 +10,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-std::vector<char> Importinator::readFile(const std::string &filename) {
+std::vector<char> Doughnut::readFile(const std::string &filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
@@ -27,8 +27,8 @@ std::vector<char> Importinator::readFile(const std::string &filename) {
     return buffer;
 }
 
-Importinator::Mesh Importinator::importMesh(const std::string &filename) {
-    Importinator::Mesh out{};
+Doughnut::Mesh Doughnut::importMesh(const std::string &filename) {
+    Doughnut::Mesh out{};
     Assimp::Importer importer{};
 
     const aiScene *scene = importer.ReadFile(filename,

@@ -10,7 +10,7 @@
 #include <stb_image.h>
 #include "io/logger.h"
 
-namespace Doughnut::Graphics {
+namespace Doughnut {
     class Texture {
     public:
         explicit Texture(const std::string &filename);
@@ -22,7 +22,7 @@ namespace Doughnut::Graphics {
     private:
         int mWidth = 0, mHeight = 0, mChannels = 0;
         bool mHasAlpha = false;
-        stbi_uc * mData= nullptr;
+        stbi_uc *mData = nullptr;
     };
 }
 

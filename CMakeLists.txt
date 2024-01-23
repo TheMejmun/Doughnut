@@ -96,6 +96,7 @@ set(HEADER_FILES
         include/graphics/queue_family_indices.h
         include/graphics/optional_features.h
         include/io/window.h
+        include/graphics/shader.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
@@ -147,6 +148,7 @@ set(SOURCE_FILES
         source/graphics/render_api.cpp
         source/graphics/renderer_v2.cpp
         source/graphics/queue_family_indices.cpp
+        source/graphics/shader.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable
