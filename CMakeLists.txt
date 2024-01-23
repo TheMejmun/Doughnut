@@ -93,6 +93,8 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/graphics/render_api.h
         ${HEADER_FOLDER}/graphics/renderer_v2.h
         include/util/require.h
+        include/graphics/queue_family_indices.h
+        include/graphics/optional_features.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
@@ -143,6 +145,7 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/graphics/texture.cpp
         source/graphics/render_api.cpp
         source/graphics/renderer_v2.cpp
+        source/graphics/queue_family_indices.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

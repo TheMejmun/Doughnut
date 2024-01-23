@@ -6,6 +6,8 @@
 #define DOUGHNUT_RENDER_API_H
 
 #include "preprocessor.h"
+#include "queue_family_indices.h"
+#include "optional_features.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -21,11 +23,20 @@ namespace Doughnut {
     private:
         void createInstance(const std::string &title);
 
+        void createDevice();
+
+        void destroyDevice();
+
         void destroyInstance();
 
         GLFWwindow *mWindow;
         vk::Instance mInstance = nullptr;
         vk::SurfaceKHR mSurface = nullptr;
+
+        vk::PhysicalDevice mPhysicalDevice = nullptr;
+        vk::Device mDevice = nullptr;
+        QueueFamilyIndices mQueueFamilyIndices{};
+        OptionalFeatures mOptionalFeatures{};
     };
 }
 

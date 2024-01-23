@@ -8,10 +8,15 @@
 
 #include <stdexcept>
 #include <vector>
+#include <set>
 
 using namespace Doughnut;
 
 // Constants
+const std::vector<const char *> REQUIRED_DEVICE_EXTENSIONS = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+};
+const std::string PORTABILITY_EXTENSION = "VK_KHR_portability_subset";
 #ifdef NDEBUG
 #define ENABLE_VALIDATION_LAYERS false
 #else
@@ -24,10 +29,12 @@ const std::vector<const char *> VALIDATION_LAYERS = {
 VulkanAPI::VulkanAPI(GLFWwindow *window, const std::string &title) : mWindow(window) {
     Log::d("Creating VulkanAPI");
     createInstance(title);
+    createDevice();
 }
 
 VulkanAPI::~VulkanAPI() {
     Log::d("Destroying VulkanAPI");
+    destroyDevice();
     destroyInstance();
 }
 
@@ -95,6 +102,129 @@ void VulkanAPI::createInstance(const std::string &title) {
             glfwCreateWindowSurface(mInstance, mWindow, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
             "Failed to create window surface!"
     );
+}
+
+QueueFamilyIndices findQueueFamilies(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface) {
+    QueueFamilyIndices indices;
+    std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
+
+    int i = 0;
+    for (const vk::QueueFamilyProperties &queueFamily: queueFamilies) {
+        vk::Bool32 presentSupport = device.getSurfaceSupportKHR(i, surface);
+
+        // Look for transfer queue that is not a graphics queue
+        if (queueFamily.queueFlags & vk::QueueFlagBits::eTransfer &&
+            (!(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) || !indices.transferFamily.has_value())) {
+            indices.transferFamily = i;
+        }
+
+        // Better performance if a queue supports all features together
+        // Do not execute if a unified family has already been found
+        if (!indices.isUnifiedGraphicsPresentQueue()) {
+            if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) {
+                indices.graphicsFamily = i;
+            }
+
+            if (presentSupport) {
+                indices.presentFamily = i;
+            }
+        }
+
+        ++i;
+    }
+
+    return indices;
+}
+
+bool checkExtensionSupport(const vk::PhysicalDevice &device) {
+    std::vector<vk::ExtensionProperties> extensionProperties = device.enumerateDeviceExtensionProperties();
+
+    std::set<std::string> requiredExtensions(REQUIRED_DEVICE_EXTENSIONS.begin(),
+                                             REQUIRED_DEVICE_EXTENSIONS.end());
+
+    for (const vk::ExtensionProperties &extension: extensionProperties) {
+        requiredExtensions.erase(extension.extensionName);
+    }
+
+    return requiredExtensions.empty();
+}
+
+struct SwapchainSupportDetails {
+    vk::SurfaceCapabilitiesKHR capabilities{};
+    std::vector<vk::SurfaceFormatKHR> formats{};
+    std::vector<vk::PresentModeKHR> presentModes{};
+};
+
+SwapchainSupportDetails querySwapchainSupport(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface) {
+    SwapchainSupportDetails details;
+
+    details.capabilities = device.getSurfaceCapabilitiesKHR(surface);
+    details.formats = device.getSurfaceFormatsKHR(surface);
+    details.presentModes = device.getSurfacePresentModesKHR(surface);
+
+    return details;
+}
+
+bool isPhysicalDeviceSuitable(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface, bool strictMode) {
+    vk::PhysicalDeviceProperties properties = device.getProperties();
+    bool suitable = true;
+
+    // Is discrete GPU
+    suitable &= !strictMode || properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
+
+    // Supports required queues
+    QueueFamilyIndices indices = findQueueFamilies(device, surface);
+    suitable &= indices.isComplete();
+
+    // Supports required extensions
+    suitable &= checkExtensionSupport(device);
+
+    // Supports required swapchain features
+    auto swapchainSupport = querySwapchainSupport(device, surface);
+    bool swapchainAdequate = !swapchainSupport.formats.empty() && !swapchainSupport.presentModes.empty();
+    suitable &= swapchainAdequate;
+
+    return suitable;
+}
+
+void VulkanAPI::createDevice() {
+    std::vector<vk::PhysicalDevice> availableDevices = mInstance.enumeratePhysicalDevices();
+    require(!availableDevices.empty(), "Failed to find GPUs with  support!");
+
+    std::stringstream stream{};
+    stream << "Available physical devices:\n";
+    for (const vk::PhysicalDevice &device: availableDevices) {
+        stream << "\t" << device.getProperties().deviceName << "\n";
+    }
+    Log::d(stream.str());
+
+    for (const auto &device: availableDevices) {
+        if (isPhysicalDeviceSuitable(device, mSurface, true)) {
+            mPhysicalDevice = device;
+            break;
+        } else if (isPhysicalDeviceSuitable(device, mSurface, false)) {
+            mPhysicalDevice = device;
+            // Keep looking for a better one
+        }
+    }
+
+    require(mPhysicalDevice, "Failed to find a suitable GPU!");
+    Log::i("Picked physical device: ", mPhysicalDevice.getProperties().deviceName);
+
+    vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
+
+    mQueueFamilyIndices = findQueueFamilies(mPhysicalDevice, mSurface);
+    mQueueFamilyIndices.print();
+
+    vk::PhysicalDeviceFeatures features = mPhysicalDevice.getFeatures();
+    mOptionalFeatures.supportsWireframeMode = features.fillModeNonSolid;
+
+    // TODO LOGICAL DEVICE
+}
+
+void VulkanAPI::destroyDevice() {
+// TODO enable when we have a logical device
+// mDevice.destroy();
 }
 
 void VulkanAPI::destroyInstance() {
