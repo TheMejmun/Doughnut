@@ -2,8 +2,8 @@
 // Created by Saman on 24.08.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_VULKAN_SWAPCHAIN_H
-#define REALTIME_CELL_COLLAPSE_VULKAN_SWAPCHAIN_H
+#ifndef DOUGHNUT_VULKAN_SWAPCHAIN_H
+#define DOUGHNUT_VULKAN_SWAPCHAIN_H
 
 #include "preprocessor.h"
 #include "graphics/render_state.h"
@@ -74,4 +74,4 @@ namespace Doughnut::Graphics::Vk::Swapchain {
                      VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
 }
 
-#endif //REALTIME_CELL_COLLAPSE_VULKAN_SWAPCHAIN_H
+#endif //DOUGHNUT_VULKAN_SWAPCHAIN_H

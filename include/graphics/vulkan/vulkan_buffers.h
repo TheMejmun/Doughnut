@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-12.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_VULKAN_BUFFERS_H
-#define REALTIME_CELL_COLLAPSE_VULKAN_BUFFERS_H
+#ifndef DOUGHNUT_VULKAN_BUFFERS_H
+#define DOUGHNUT_VULKAN_BUFFERS_H
 
 #include "preprocessor.h"
 #include "graphics/triangle.h"
@@ -86,4 +86,4 @@ namespace Doughnut::Graphics::Vk::Buffers {
     void resetMeshBufferToUse();
 }
 
-#endif //REALTIME_CELL_COLLAPSE_VULKAN_BUFFERS_H
+#endif //DOUGHNUT_VULKAN_BUFFERS_H

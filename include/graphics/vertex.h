@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-09.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_VERTEX_H
-#define REALTIME_CELL_COLLAPSE_VERTEX_H
+#ifndef DOUGHNUT_VERTEX_H
+#define DOUGHNUT_VERTEX_H
 
 #include "preprocessor.h"
 #include "graphics/colors.h"
@@ -67,4 +67,4 @@ struct Vertex {
     }
 };
 
-#endif //REALTIME_CELL_COLLAPSE_VERTEX_H
+#endif //DOUGHNUT_VERTEX_H

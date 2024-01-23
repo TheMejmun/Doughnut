@@ -2,8 +2,8 @@
 // Created by Saman on 24.08.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_VULKAN_DEVICES_H
-#define REALTIME_CELL_COLLAPSE_VULKAN_DEVICES_H
+#ifndef DOUGHNUT_VULKAN_DEVICES_H
+#define DOUGHNUT_VULKAN_DEVICES_H
 
 #include "preprocessor.h"
 
@@ -60,4 +60,4 @@ namespace Doughnut::Graphics::Vk::Devices {
     void destroy();
 }
 
-#endif //REALTIME_CELL_COLLAPSE_VULKAN_DEVICES_H
+#endif //DOUGHNUT_VULKAN_DEVICES_H

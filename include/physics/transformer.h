@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-15.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_TRANSFORMER_H
-#define REALTIME_CELL_COLLAPSE_TRANSFORMER_H
+#ifndef DOUGHNUT_TRANSFORMER_H
+#define DOUGHNUT_TRANSFORMER_H
 
 #include "preprocessor.h"
 
@@ -24,4 +24,4 @@ public:
     [[nodiscard]] glm::vec3 getPosition() const;
 };
 
-#endif //REALTIME_CELL_COLLAPSE_TRANSFORMER_H
+#endif //DOUGHNUT_TRANSFORMER_H

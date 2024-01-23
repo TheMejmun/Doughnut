@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-08.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_TIMER_H
-#define REALTIME_CELL_COLLAPSE_TIMER_H
+#ifndef DOUGHNUT_TIMER_H
+#define DOUGHNUT_TIMER_H
 
 #include "preprocessor.h"
 
@@ -63,4 +63,4 @@ namespace Doughnut::Timer {
 };
 
 
-#endif //REALTIME_CELL_COLLAPSE_TIMER_H
+#endif //DOUGHNUT_TIMER_H

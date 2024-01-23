@@ -2,8 +2,8 @@
 // Created by Saman on 17.04.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_PNEXT_CHAIN_READER_H
-#define REALTIME_CELL_COLLAPSE_PNEXT_CHAIN_READER_H
+#ifndef DOUGHNUT_PNEXT_CHAIN_READER_H
+#define DOUGHNUT_PNEXT_CHAIN_READER_H
 
 #include "preprocessor.h"
 
@@ -27,4 +27,4 @@ namespace PointerChains {
 }
 
 
-#endif //REALTIME_CELL_COLLAPSE_PNEXT_CHAIN_READER_H
+#endif //DOUGHNUT_PNEXT_CHAIN_READER_H

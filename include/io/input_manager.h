@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-08.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_INPUT_MANAGER_H
-#define REALTIME_CELL_COLLAPSE_INPUT_MANAGER_H
+#ifndef DOUGHNUT_INPUT_MANAGER_H
+#define DOUGHNUT_INPUT_MANAGER_H
 
 #include "preprocessor.h"
 #include "typedefs.h"
@@ -39,4 +39,4 @@ private:
     KeyState toggleRotation = IM_RELEASED;
 };
 
-#endif //REALTIME_CELL_COLLAPSE_INPUT_MANAGER_H
+#endif //DOUGHNUT_INPUT_MANAGER_H

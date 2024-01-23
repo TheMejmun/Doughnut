@@ -2,8 +2,8 @@
 // Created by Saman on 26.08.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_VULKAN_IMGUI_H
-#define REALTIME_CELL_COLLAPSE_VULKAN_IMGUI_H
+#ifndef DOUGHNUT_VULKAN_IMGUI_H
+#define DOUGHNUT_VULKAN_IMGUI_H
 
 #include "preprocessor.h"
 #include "ecs/components/ui_state.h"
@@ -19,4 +19,4 @@ namespace Doughnut::Graphics::Vk::Imgui {
     void destroy();
 }
 
-#endif //REALTIME_CELL_COLLAPSE_VULKAN_IMGUI_H
+#endif //DOUGHNUT_VULKAN_IMGUI_H

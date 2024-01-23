@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-08.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_WINDOW_MANAGER_H
-#define REALTIME_CELL_COLLAPSE_WINDOW_MANAGER_H
+#ifndef DOUGHNUT_WINDOW_MANAGER_H
+#define DOUGHNUT_WINDOW_MANAGER_H
 
 #include "preprocessor.h"
 
@@ -44,4 +44,4 @@ private:
     std::string title;
 };
 
-#endif //REALTIME_CELL_COLLAPSE_WINDOW_MANAGER_H
+#endif //DOUGHNUT_WINDOW_MANAGER_H

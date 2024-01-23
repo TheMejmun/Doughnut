@@ -2,8 +2,8 @@
 // Created by Saman on 24.08.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_VULKAN_IMAGES_H
-#define REALTIME_CELL_COLLAPSE_VULKAN_IMAGES_H
+#ifndef DOUGHNUT_VULKAN_IMAGES_H
+#define DOUGHNUT_VULKAN_IMAGES_H
 
 #include "preprocessor.h"
 
@@ -19,4 +19,4 @@ namespace Doughnut::Graphics::Vk::Images {
     createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
-#endif //REALTIME_CELL_COLLAPSE_VULKAN_IMAGES_H
+#endif //DOUGHNUT_VULKAN_IMAGES_H

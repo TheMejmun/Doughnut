@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-08.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_APPLICATION_H
-#define REALTIME_CELL_COLLAPSE_APPLICATION_H
+#ifndef DOUGHNUT_APPLICATION_H
+#define DOUGHNUT_APPLICATION_H
 
 #include "preprocessor.h"
 #include "typedefs.h"
@@ -44,4 +44,4 @@ namespace Doughnut {
     };
 };
 
-#endif //REALTIME_CELL_COLLAPSE_APPLICATION_H
+#endif //DOUGHNUT_APPLICATION_H

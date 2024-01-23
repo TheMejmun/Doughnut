@@ -2,8 +2,8 @@
 // Created by Sam on 2023-03-28.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_RENDERER_H
-#define REALTIME_CELL_COLLAPSE_RENDERER_H
+#ifndef DOUGHNUT_RENDERER_H
+#define DOUGHNUT_RENDERER_H
 
 #include "preprocessor.h"
 #include "typedefs.h"
@@ -85,4 +85,4 @@ namespace Doughnut::Graphics {
     };
 };
 
-#endif //REALTIME_CELL_COLLAPSE_RENDERER_H
+#endif //DOUGHNUT_RENDERER_H

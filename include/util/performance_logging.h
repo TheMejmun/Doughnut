@@ -2,8 +2,8 @@
 // Created by Saman on 02.09.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_PERFORMANCE_LOGGING_H
-#define REALTIME_CELL_COLLAPSE_PERFORMANCE_LOGGING_H
+#ifndef DOUGHNUT_PERFORMANCE_LOGGING_H
+#define DOUGHNUT_PERFORMANCE_LOGGING_H
 
 #include "util/timer.h"
 #include "ecs/components/ui_state.h"
@@ -34,4 +34,4 @@ namespace PerformanceLogging {
     void update(UiState *uiState);
 }
 
-#endif //REALTIME_CELL_COLLAPSE_PERFORMANCE_LOGGING_H
+#endif //DOUGHNUT_PERFORMANCE_LOGGING_H

@@ -2,8 +2,8 @@
 // Created by Saman on 31.08.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_INPUT_STATE_H
-#define REALTIME_CELL_COLLAPSE_INPUT_STATE_H
+#ifndef DOUGHNUT_INPUT_STATE_H
+#define DOUGHNUT_INPUT_STATE_H
 
 #include <cstdint>
 
@@ -30,4 +30,4 @@ struct InputState {
     KeyState toggleRotation = IM_RELEASED;
 };
 
-#endif //REALTIME_CELL_COLLAPSE_INPUT_STATE_H
+#endif //DOUGHNUT_INPUT_STATE_H

@@ -2,8 +2,8 @@
 // Created by Saman on 24.08.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_VULKAN_VALIDATION_H
-#define REALTIME_CELL_COLLAPSE_VULKAN_VALIDATION_H
+#ifndef DOUGHNUT_VULKAN_VALIDATION_H
+#define DOUGHNUT_VULKAN_VALIDATION_H
 
 #include "preprocessor.h"
 
@@ -17,4 +17,4 @@ namespace Doughnut::Graphics::Vk::Validation {
     bool checkValidationLayerSupport();
 }
 
-#endif //REALTIME_CELL_COLLAPSE_VULKAN_VALIDATION_H
+#endif //DOUGHNUT_VULKAN_VALIDATION_H

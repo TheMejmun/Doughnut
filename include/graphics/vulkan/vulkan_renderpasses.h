@@ -2,8 +2,8 @@
 // Created by Saman on 24.08.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_VULKAN_RENDERPASSES_H
-#define REALTIME_CELL_COLLAPSE_VULKAN_RENDERPASSES_H
+#ifndef DOUGHNUT_VULKAN_RENDERPASSES_H
+#define DOUGHNUT_VULKAN_RENDERPASSES_H
 
 #include "preprocessor.h"
 
@@ -16,4 +16,4 @@ namespace Doughnut::Graphics::Vk::RenderPasses{
     void destroy();
 }
 
-#endif //REALTIME_CELL_COLLAPSE_VULKAN_RENDERPASSES_H
+#endif //DOUGHNUT_VULKAN_RENDERPASSES_H

@@ -2,8 +2,8 @@
 // Created by Saman on 26.08.23.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_RENDER_STATE_H
-#define REALTIME_CELL_COLLAPSE_RENDER_STATE_H
+#ifndef DOUGHNUT_RENDER_STATE_H
+#define DOUGHNUT_RENDER_STATE_H
 
 #include "preprocessor.h"
 #include "graphics/vulkan/vulkan_state.h"
@@ -21,4 +21,4 @@ namespace Doughnut::Graphics {
         Vk::State vulkanState{};
     };
 };
-#endif //REALTIME_CELL_COLLAPSE_RENDER_STATE_H
+#endif //DOUGHNUT_RENDER_STATE_H
