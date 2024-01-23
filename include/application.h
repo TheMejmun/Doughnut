@@ -7,7 +7,7 @@
 
 #include "preprocessor.h"
 #include "typedefs.h"
-#include "io/window_manager.h"
+#include "io/window.h"
 #include "io/input_manager.h"
 #include "graphics/v1/renderer.h"
 
@@ -32,7 +32,7 @@ namespace Doughnut {
 
         std::unique_ptr<EntitySystemManagerSpec> mESM;
         std::unique_ptr<Graphics::Renderer> mRenderer;
-        std::unique_ptr<WindowManager> mWindowManager;
+        std::unique_ptr<Window> mWindowManager;
         std::unique_ptr<InputController> mInputManager;
 
         Timer::Point mLastTimestamp = Timer::now();

@@ -8,6 +8,7 @@
 #include "preprocessor.h"
 #include "queue_family_indices.h"
 #include "optional_features.h"
+#include "io/window.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -16,7 +17,7 @@
 namespace Doughnut {
     class VulkanAPI {
     public:
-        VulkanAPI(GLFWwindow *window, const std::string &title);
+        VulkanAPI(Window *window, const std::string &title);
 
         ~VulkanAPI();
 
@@ -29,7 +30,7 @@ namespace Doughnut {
 
         void destroyInstance();
 
-        GLFWwindow *mWindow;
+        Window *mWindow;
         vk::Instance mInstance = nullptr;
         vk::SurfaceKHR mSurface = nullptr;
 
@@ -37,6 +38,8 @@ namespace Doughnut {
         vk::Device mDevice = nullptr;
         QueueFamilyIndices mQueueFamilyIndices{};
         OptionalFeatures mOptionalFeatures{};
+        vk::Queue mGraphicsQueue = nullptr;
+        vk::Queue mPresentQueue = nullptr;
     };
 }
 

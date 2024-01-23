@@ -7,6 +7,7 @@
 
 #include "preprocessor.h"
 #include "render_api.h"
+#include "io/window.h"
 
 #include <GLFW/glfw3.h>
 #include <string>
@@ -14,7 +15,7 @@
 namespace Doughnut {
     class RendererV2 {
     public:
-        RendererV2(GLFWwindow *window, const std::string &title);
+        RendererV2(Window* window, const std::string &title);
 
         ~RendererV2();
 

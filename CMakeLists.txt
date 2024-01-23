@@ -55,7 +55,7 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/graphics/v1/vulkan/pnext_chain_reader.h
 
         ${HEADER_FOLDER}/io/input_manager.h
-        ${HEADER_FOLDER}/io/window_manager.h
+        ${HEADER_FOLDER}/io/window.h
 
         ${HEADER_FOLDER}/ecs/entity_manager.h
         ${HEADER_FOLDER}/ecs/system_manager.h
@@ -95,6 +95,7 @@ set(HEADER_FILES
         include/util/require.h
         include/graphics/queue_family_indices.h
         include/graphics/optional_features.h
+        include/io/window.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
@@ -119,7 +120,7 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_imgui.cpp
 
         ${SOURCE_FOLDER}/io/input_manager.cpp
-        ${SOURCE_FOLDER}/io/window_manager.cpp
+        ${SOURCE_FOLDER}/io/window.cpp
 
         ${SOURCE_FOLDER}/ecs/components/projector.cpp
         ${SOURCE_FOLDER}/ecs/systems/camera_controller.cpp

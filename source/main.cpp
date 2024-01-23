@@ -28,8 +28,8 @@ int main() {
 //        Doughnut::Log::i("Size of resource pool:", static_cast<double>(texturePool.size()) / (1024.0 * 1024.0), "MB");
 //        return EXIT_SUCCESS;
 
-        WindowManager windowManager{"TEST"};
-        Doughnut::RendererV2 renderer{windowManager.window, "TEST"};
+        Doughnut::Window window{"TEST"};
+        Doughnut::RendererV2 renderer{&window, "TEST"};
         return EXIT_SUCCESS;
 
         Doughnut::Application app{"Hello World!"};

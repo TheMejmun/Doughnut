@@ -26,7 +26,7 @@ const std::vector<const char *> VALIDATION_LAYERS = {
         "VK_LAYER_KHRONOS_validation"
 };
 
-VulkanAPI::VulkanAPI(GLFWwindow *window, const std::string &title) : mWindow(window) {
+VulkanAPI::VulkanAPI(Window *window, const std::string &title) : mWindow(window) {
     Log::d("Creating VulkanAPI");
     createInstance(title);
     createDevice();
@@ -99,7 +99,7 @@ void VulkanAPI::createInstance(const std::string &title) {
     mInstance = vk::createInstance(instanceCreateInfo);
 
     require(
-            glfwCreateWindowSurface(mInstance, mWindow, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
+            glfwCreateWindowSurface(mInstance, mWindow->glfwWindow, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
             "Failed to create window surface!"
     );
 }
@@ -187,7 +187,16 @@ bool isPhysicalDeviceSuitable(const vk::PhysicalDevice &device, const vk::Surfac
     return suitable;
 }
 
+bool checkPortabilityMode(const vk::PhysicalDevice &device) {
+    std::vector<vk::ExtensionProperties> availableExtensions = device.enumerateDeviceExtensionProperties();
+
+    return std::ranges::any_of(availableExtensions, [](const vk::ExtensionProperties &extension) {
+        return PORTABILITY_EXTENSION == extension.extensionName;
+    });
+}
+
 void VulkanAPI::createDevice() {
+    // PHYSICAL
     std::vector<vk::PhysicalDevice> availableDevices = mInstance.enumeratePhysicalDevices();
     require(!availableDevices.empty(), "Failed to find GPUs with  support!");
 
@@ -219,12 +228,50 @@ void VulkanAPI::createDevice() {
     vk::PhysicalDeviceFeatures features = mPhysicalDevice.getFeatures();
     mOptionalFeatures.supportsWireframeMode = features.fillModeNonSolid;
 
-    // TODO LOGICAL DEVICE
+    // LOGICAL
+
+    std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
+    // If the indices are the same, the set will merge them -> Only one single queue creation.
+    std::set<uint32_t> uniqueQueueFamilies = {mQueueFamilyIndices.graphicsFamily.value(), mQueueFamilyIndices.presentFamily.value(),
+                                              mQueueFamilyIndices.transferFamily.value()};
+
+    // TODO more flexible queue creation
+    float queuePriority = 1.0f;
+    for (uint32_t queueFamily: uniqueQueueFamilies) {
+        queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), queueFamily, 1, &queuePriority);
+    }
+
+    // Define the features we will use as queried in isPhysicalDeviceSuitable
+    vk::PhysicalDeviceFeatures deviceFeatures{};
+    deviceFeatures.fillModeNonSolid = mOptionalFeatures.supportsWireframeMode;
+
+    std::vector<const char *> requiredExtensions = REQUIRED_DEVICE_EXTENSIONS;
+    if (checkPortabilityMode(mPhysicalDevice)) {
+        requiredExtensions.push_back(PORTABILITY_EXTENSION.c_str());
+    }
+
+    vk::DeviceCreateInfo createInfo(
+            {},
+            queueCreateInfos.size(), queueCreateInfos.data(),
+            0, {},
+            requiredExtensions.size(), requiredExtensions.data(),
+            &deviceFeatures
+    );
+
+    if (ENABLE_VALIDATION_LAYERS) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
+        createInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
+    }
+
+    mDevice = mPhysicalDevice.createDevice(createInfo);
+
+    // TODO multiple queues per family?
+    mGraphicsQueue = mDevice.getQueue(mQueueFamilyIndices.graphicsFamily.value(), 0);
+    mPresentQueue = mDevice.getQueue(mQueueFamilyIndices.presentFamily.value(), 0);
 }
 
 void VulkanAPI::destroyDevice() {
-// TODO enable when we have a logical device
-// mDevice.destroy();
+    mDevice.destroy();
 }
 
 void VulkanAPI::destroyInstance() {
