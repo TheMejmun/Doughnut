@@ -92,6 +92,7 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/io/resource_pool.h
         ${HEADER_FOLDER}/graphics/render_api.h
         ${HEADER_FOLDER}/graphics/renderer_v2.h
+        include/util/require.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES

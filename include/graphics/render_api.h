@@ -14,14 +14,18 @@
 namespace Doughnut {
     class VulkanAPI {
     public:
-        VulkanAPI(const std::string &title);
+        VulkanAPI(GLFWwindow *window, const std::string &title);
 
         ~VulkanAPI();
 
     private:
         void createInstance(const std::string &title);
 
+        void destroyInstance();
+
+        GLFWwindow *mWindow;
         vk::Instance mInstance = nullptr;
+        vk::SurfaceKHR mSurface = nullptr;
     };
 }
 

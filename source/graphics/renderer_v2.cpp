@@ -7,7 +7,7 @@
 
 using namespace Doughnut;
 
-RendererV2::RendererV2(GLFWwindow *window, const std::string &title) : mAPI(title) {
+RendererV2::RendererV2(GLFWwindow *window, const std::string &title) : mAPI(window, title) {
     Log::i("Creating RendererV2");
 }
 

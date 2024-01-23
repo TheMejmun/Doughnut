@@ -4,6 +4,7 @@
 
 #include "graphics/render_api.h"
 #include "io/logger.h"
+#include "util/require.h"
 
 #include <stdexcept>
 #include <vector>
@@ -20,14 +21,14 @@ const std::vector<const char *> VALIDATION_LAYERS = {
         "VK_LAYER_KHRONOS_validation"
 };
 
-VulkanAPI::VulkanAPI(const std::string &title) {
+VulkanAPI::VulkanAPI(GLFWwindow *window, const std::string &title) : mWindow(window) {
     Log::d("Creating VulkanAPI");
     createInstance(title);
 }
 
 VulkanAPI::~VulkanAPI() {
     Log::d("Destroying VulkanAPI");
-    mInstance.destroy();
+    destroyInstance();
 }
 
 bool checkValidationLayerSupport() {
@@ -63,8 +64,7 @@ void VulkanAPI::createInstance(const std::string &title) {
 
     // GLFW extensions
     uint32_t glfwExtensionCount = 0;
-    const char **glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
     for (uint32_t i = 0; i < glfwExtensionCount; i++) {
         requiredExtensions.emplace_back(glfwExtensions[i]);
     }
@@ -82,12 +82,22 @@ void VulkanAPI::createInstance(const std::string &title) {
 
     // Validation layers
     if (ENABLE_VALIDATION_LAYERS) {
-        if (!checkValidationLayerSupport())throw std::runtime_error("Validation layers not available!");
+        if (!checkValidationLayerSupport())
+            throw std::runtime_error("Validation layers not available!");
 
-        instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
+        instanceCreateInfo.enabledLayerCount = VALIDATION_LAYERS.size();
         instanceCreateInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
     }
 
-    // Done
     mInstance = vk::createInstance(instanceCreateInfo);
+
+    require(
+            glfwCreateWindowSurface(mInstance, mWindow, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
+            "Failed to create window surface!"
+    );
+}
+
+void VulkanAPI::destroyInstance() {
+    mInstance.destroySurfaceKHR(mSurface);
+    mInstance.destroy();
 }
