@@ -12,15 +12,15 @@
 #include <string>
 
 namespace Doughnut {
-        class RendererV2 {
-        public:
-            RendererV2(const std::string &title, GLFWwindow *window);
+    class RendererV2 {
+    public:
+        RendererV2(GLFWwindow *window, const std::string &title);
 
-            ~RendererV2();
+        ~RendererV2();
 
-        private:
-            VulkanAPI api{};
-        };
-    }
+    private:
+        VulkanAPI mAPI;
+    };
+}
 
 #endif //DOUGHNUT_RENDERER_V2_H

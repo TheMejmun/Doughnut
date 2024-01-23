@@ -3,6 +3,7 @@
 #include "application.h"
 #include "core/scheduler.h"
 #include "io/resource_pool.h"
+#include "graphics/renderer_v2.h"
 
 #include <iostream>
 
@@ -26,6 +27,10 @@ int main() {
 //        texturePool.preload("resources/textures/planet-albedo.png");
 //        Doughnut::Log::i("Size of resource pool:", static_cast<double>(texturePool.size()) / (1024.0 * 1024.0), "MB");
 //        return EXIT_SUCCESS;
+
+        WindowManager windowManager{"TEST"};
+        Doughnut::RendererV2 renderer{windowManager.window, "TEST"};
+        return EXIT_SUCCESS;
 
         Doughnut::Application app{"Hello World!"};
 

@@ -140,6 +140,8 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/core/scheduler.cpp
         ${SOURCE_FOLDER}/io/logger.cpp
         ${SOURCE_FOLDER}/graphics/texture.cpp
+        source/graphics/render_api.cpp
+        source/graphics/renderer_v2.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable

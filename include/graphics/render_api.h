@@ -5,15 +5,23 @@
 #ifndef DOUGHNUT_RENDER_API_H
 #define DOUGHNUT_RENDER_API_H
 
+#include "preprocessor.h"
+
+#include <GLFW/glfw3.h>
+#include <vulkan/vulkan.hpp>
+#include <string>
+
 namespace Doughnut {
     class VulkanAPI {
     public:
-        VulkanAPI();
+        VulkanAPI(const std::string &title);
 
-        ~VulkanAPI() = default;
+        ~VulkanAPI();
 
     private:
+        void createInstance(const std::string &title);
 
+        vk::Instance mInstance = nullptr;
     };
 }
 
