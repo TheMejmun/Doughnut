@@ -36,8 +36,9 @@ namespace Doughnut {
 
         vk::PhysicalDevice mPhysicalDevice = nullptr;
         vk::Device mDevice = nullptr;
-        QueueFamilyIndices mQueueFamilyIndices{};
         OptionalFeatures mOptionalFeatures{};
+        QueueFamilyIndices mQueueFamilyIndices{};
+
         vk::Queue mGraphicsQueue = nullptr;
         vk::Queue mPresentQueue = nullptr;
     };
