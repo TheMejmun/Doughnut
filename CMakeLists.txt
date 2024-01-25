@@ -152,7 +152,7 @@ set(SOURCE_FILES
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable
-add_executable(Doughnut ${SOURCE_FOLDER}/main.cpp ${HEADER_FILES} ${SOURCE_FILES})
+add_library(Doughnut ${SOURCE_FOLDER}/main.cpp ${HEADER_FILES} ${SOURCE_FILES})
 
 # Add folders
 target_include_directories(Doughnut PUBLIC ${HEADER_FOLDER})
