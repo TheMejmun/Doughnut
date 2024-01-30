@@ -10,16 +10,26 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 if (WIN32)
     message(STATUS "Windows mode")
+
     set(VK_FOLDER "C:/VulkanSDK/1.3.239.0")
     message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
+
+    execute_process(COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/external/vcpkg/bootstrap-vcpkg.bat" OUTPUT_VARIABLE VCPKG_OUT)
+    string(STRIP ${VCPKG_OUT} VCPKG_OUT)
+    message(STATUS "VCPKG_OUT: ${VCPKG_OUT}")
+
 elseif (LINUX)
     message(STATUS "Linux mode")
+
     set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0")
     message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
+
 elseif (UNIX)
     message(STATUS "Unix mode")
+
     set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0/macOS")
     message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
+
 endif ()
 
 set(HEADER_FOLDER include)
@@ -34,28 +44,28 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/preprocessor.h
         ${HEADER_FOLDER}/typedefs.h
 
-        ${HEADER_FOLDER}/graphics/v1/ui.h
-        ${HEADER_FOLDER}/graphics/v1/renderer.h
+        ${HEADER_FOLDER}/graphics/ui.h
+        ${HEADER_FOLDER}/graphics/renderer.h
         ${HEADER_FOLDER}/graphics/colors.h
         ${HEADER_FOLDER}/graphics/vertex.h
-        ${HEADER_FOLDER}/graphics/v1/uniform_buffer_object.h
+        ${HEADER_FOLDER}/graphics/uniform_buffer_object.h
+        ${HEADER_FOLDER}/graphics/pnext_chain_reader.h
         ${HEADER_FOLDER}/graphics/triangle.h
-        ${HEADER_FOLDER}/graphics/v1/render_state.h
+        ${HEADER_FOLDER}/graphics/render_state.h
 
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_images.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_memory.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_buffers.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_devices.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_instance.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_validation.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_swapchain.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_renderpasses.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_imgui.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/vulkan_state.h
-        ${HEADER_FOLDER}/graphics/v1/vulkan/pnext_chain_reader.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_images.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_memory.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_buffers.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_devices.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_instance.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_validation.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_swapchain.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_renderpasses.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_imgui.h
+        ${HEADER_FOLDER}/graphics/vulkan/vulkan_state.h
 
         ${HEADER_FOLDER}/io/input_manager.h
-        ${HEADER_FOLDER}/io/window.h
+        ${HEADER_FOLDER}/io/window_manager.h
 
         ${HEADER_FOLDER}/ecs/entity_manager.h
         ${HEADER_FOLDER}/ecs/system_manager.h
@@ -80,48 +90,36 @@ set(HEADER_FILES
         ${HEADER_FOLDER}/util/importer.h
         ${HEADER_FOLDER}/util/byte_size.h
         ${HEADER_FOLDER}/util/performance_logging.h
-
-
-        ${HEADER_FOLDER}/ecs/entities/ui_state_entity.h
-        ${HEADER_FOLDER}/util/os.h
-        ${HEADER_FOLDER}/core/scheduler.h
-        ${HEADER_FOLDER}/io/logger.h
-        ${HEADER_FOLDER}/util/templates.h
-        ${HEADER_FOLDER}/core/types.h
-        ${HEADER_FOLDER}/graphics/texture.h
-        ${HEADER_FOLDER}/io/resource_pool.h
-        ${HEADER_FOLDER}/graphics/render_api.h
-        ${HEADER_FOLDER}/graphics/renderer_v2.h
-        include/util/require.h
-        include/graphics/queue_family_indices.h
-        include/graphics/optional_features.h
-        include/io/window.h
-        include/graphics/shader.h
+        include/ecs/entities/ui_state_entity.h
+        include/util/os.h
+        include/core/scheduler.h
+        include/io/logger.h
+        source/core/thread_safe.h
 )
 message(STATUS "HEADER_FILES: ${HEADER_FILES}")
 set(SOURCE_FILES
         ${SOURCE_FOLDER}/application.cpp
 
-        ${SOURCE_FOLDER}/graphics/v1/ui.cpp
-        ${SOURCE_FOLDER}/graphics/v1/renderer/drawing.cpp
-        ${SOURCE_FOLDER}/graphics/v1/renderer/common.cpp
-        ${SOURCE_FOLDER}/graphics/v1/renderer/shaders.cpp
-        ${SOURCE_FOLDER}/graphics/v1/renderer/systems.cpp
-        ${SOURCE_FOLDER}/graphics/v1/renderer/ui.cpp
+        ${SOURCE_FOLDER}/graphics/ui.cpp
+        ${SOURCE_FOLDER}/graphics/renderer/drawing.cpp
+        ${SOURCE_FOLDER}/graphics/renderer/common.cpp
+        ${SOURCE_FOLDER}/graphics/renderer/shaders.cpp
+        ${SOURCE_FOLDER}/graphics/renderer/systems.cpp
+        ${SOURCE_FOLDER}/graphics/renderer/ui.cpp
         ${SOURCE_FOLDER}/graphics/colors.cpp
 
-        ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_buffers.cpp
-        ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_images.cpp
-        ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_memory.cpp
-        ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_devices.cpp
-        ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_instance.cpp
-        ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_validation.cpp
-        ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_swapchain.cpp
-        ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_renderpasses.cpp
-        ${SOURCE_FOLDER}/graphics/v1/vulkan/vulkan_imgui.cpp
+        ${SOURCE_FOLDER}/graphics/vulkan/vulkan_buffers.cpp
+        ${SOURCE_FOLDER}/graphics/vulkan/vulkan_images.cpp
+        ${SOURCE_FOLDER}/graphics/vulkan/vulkan_memory.cpp
+        ${SOURCE_FOLDER}/graphics/vulkan/vulkan_devices.cpp
+        ${SOURCE_FOLDER}/graphics/vulkan/vulkan_instance.cpp
+        ${SOURCE_FOLDER}/graphics/vulkan/vulkan_validation.cpp
+        ${SOURCE_FOLDER}/graphics/vulkan/vulkan_swapchain.cpp
+        ${SOURCE_FOLDER}/graphics/vulkan/vulkan_renderpasses.cpp
+        ${SOURCE_FOLDER}/graphics/vulkan/vulkan_imgui.cpp
 
         ${SOURCE_FOLDER}/io/input_manager.cpp
-        ${SOURCE_FOLDER}/io/window.cpp
+        ${SOURCE_FOLDER}/io/window_manager.cpp
 
         ${SOURCE_FOLDER}/ecs/components/projector.cpp
         ${SOURCE_FOLDER}/ecs/systems/camera_controller.cpp
@@ -133,26 +131,19 @@ set(SOURCE_FILES
         ${SOURCE_FOLDER}/util/importer.cpp
         ${SOURCE_FOLDER}/util/timer.cpp
         ${SOURCE_FOLDER}/util/performance_logging.cpp
-
-
-        ${SOURCE_FOLDER}/ecs/entity_manager.cpp
-        ${SOURCE_FOLDER}/ecs/system_manager.cpp
-        ${SOURCE_FOLDER}/ecs/entities/camera.cpp
-        ${SOURCE_FOLDER}/ecs/entities/dense_sphere.cpp
-        ${SOURCE_FOLDER}/ecs/entities/input_state_entity.cpp
-        ${SOURCE_FOLDER}/ecs/entities/monkey.cpp
-        ${SOURCE_FOLDER}/ecs/entities/ui_state_entity.cpp
-        ${SOURCE_FOLDER}/core/scheduler.cpp
-        ${SOURCE_FOLDER}/io/logger.cpp
-        ${SOURCE_FOLDER}/graphics/texture.cpp
-        source/graphics/render_api.cpp
-        source/graphics/renderer_v2.cpp
-        source/graphics/queue_family_indices.cpp
-        source/graphics/shader.cpp
+        source/ecs/entity_manager.cpp
+        source/ecs/system_manager.cpp
+        source/ecs/entities/camera.cpp
+        source/ecs/entities/dense_sphere.cpp
+        source/ecs/entities/input_state_entity.cpp
+        source/ecs/entities/monkey.cpp
+        source/ecs/entities/ui_state_entity.cpp
+        source/core/scheduler.cpp
+        source/io/logger.cpp
 )
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 # Main executable
-add_library(Doughnut ${SOURCE_FOLDER}/main.cpp ${HEADER_FILES} ${SOURCE_FILES})
+add_executable(Doughnut ${SOURCE_FOLDER}/main.cpp ${HEADER_FILES} ${SOURCE_FILES})
 
 # Add folders
 target_include_directories(Doughnut PUBLIC ${HEADER_FOLDER})
