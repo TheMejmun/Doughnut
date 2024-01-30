@@ -10,16 +10,26 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 if (WIN32)
     message(STATUS "Windows mode")
+
     set(VK_FOLDER "C:/VulkanSDK/1.3.239.0")
     message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
+
+    execute_process(COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/external/vcpkg/bootstrap-vcpkg.bat" OUTPUT_VARIABLE VCPKG_OUT)
+    string(STRIP ${VCPKG_OUT} VCPKG_OUT)
+    message(STATUS "VCPKG_OUT: ${VCPKG_OUT}")
+
 elseif (LINUX)
     message(STATUS "Linux mode")
+
     set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0")
     message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
+
 elseif (UNIX)
     message(STATUS "Unix mode")
+
     set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0/macOS")
     message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
+
 endif ()
 
 set(HEADER_FOLDER include)
