@@ -3,22 +3,26 @@ project(Doughnut)
 
 set(CMAKE_CXX_STANDARD 20)
 
+# ----------------------------------- SETTINGS -----------------------------------
+
 if (WIN32)
     message(STATUS "Windows mode")
-#    set(VK_FOLDER "C:/VulkanSDK/1.3.239.0")
+    #    set(VK_FOLDER "C:/VulkanSDK/1.3.239.0")
     message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
 
 elseif (LINUX)
     message(STATUS "Linux mode")
-#    set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0")
+    #    set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0")
     message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
 
 elseif (UNIX)
     message(STATUS "Unix mode")
-#    set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0/macOS")
+    #    set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0/macOS")
     message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
 
 endif ()
+
+# ----------------------------------- ADD LIBRARY -----------------------------------
 
 # Add files
 # Add any added source/header files here
@@ -134,27 +138,31 @@ add_library(Doughnut STATIC source/main.cpp ${HEADER_FILES} ${SOURCE_FILES})
 # Add folders
 target_include_directories(Doughnut PUBLIC include)
 
+# ----------------------------------- ADD DEPENDENCIES -----------------------------------
+
 # assimp
 add_subdirectory(external/assimp)
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
 # glfw
 add_subdirectory(external/glfw)
 target_link_libraries(Doughnut PRIVATE glfw)
-# imgui
-file(GLOB_RECURSE IMGUI_SOURCES CONFIGURE_DEPENDS external/imgui/*.cpp external/imgui/*.h)
-target_sources(Doughnut PRIVATE ${IMGUI_SOURCES})
-target_sources(Doughnut PRIVATE external/imgui/backends/imgui_impl_vulkan.cpp external/imgui/backends/imgui_impl_vulkan.h)
-target_sources(Doughnut PRIVATE external/imgui/backends/imgui_impl_glfw.cpp external/imgui/backends/imgui_impl_glfw.h)
-target_sources(Doughnut PRIVATE external/imgui/misc/cpp/imgui_stdlib.cpp external/imgui/misc/cpp/imgui_stdlib.h)
-# stb
-target_include_directories(Doughnut PRIVATE external/stb)
 # vulkan
 add_subdirectory(external/vulkan-headers)
 target_link_libraries(Doughnut PRIVATE Vulkan::Headers)
+# imgui
+include(imgui.cmake)
+target_link_libraries(Doughnut PRIVATE imgui)
+# stb
+target_include_directories(Doughnut PRIVATE external/stb)
+# glm
+add_subdirectory(external/glm)
+target_link_libraries(Doughnut PRIVATE glm::glm)
 
 # output
 get_target_property(LL Doughnut LINK_LIBRARIES)
 message(STATUS "Linked libraries: ${LL}")
+
+# ----------------------------------- ADD RESOURCES -----------------------------------
 
 # add resources
 add_custom_target(CopyAssets COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/CopyAssets.cmake)

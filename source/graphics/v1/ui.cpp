@@ -5,7 +5,7 @@
 #include "graphics/v1/ui.h"
 #include "util/performance_logging.h"
 
-#include "imgui.h"
+#include <imgui.h>
 
 void UI::update(UiState &state) {
     if (state.returnToOriginalMeshBuffer) {
