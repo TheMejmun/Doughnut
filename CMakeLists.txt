@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 # ----------------------------------- SETTINGS -----------------------------------
 
+# TODO check if VK_FOLDER is even necessary or if it is unused.
+
 if (WIN32)
     message(STATUS "Windows mode")
     set(VULKAN_BASE_DIR "C:/VulkanSDK")
@@ -17,16 +19,27 @@ elseif (UNIX)
 endif ()
 
 if (NOT DEFINED VK_FOLDER)
-    file(GLOB version_dirs "${VULKAN_BASE_DIR}/*")
-    foreach (version_dir ${version_dirs})
-        if (IS_DIRECTORY ${version_dir})
-            set(VK_FOLDER ${version_dir})
-        endif ()
-    endforeach ()
+    if ( DEFINED ENV{VULKAN_SDK})
+        message(STATUS "Setting VK_FOLDER from ENV{VULKAN_SDK}")
+        set(VK_FOLDER $ENV{VULKAN_SDK})
 
-    if(UNIX)
-        set(VK_FOLDER "${VK_FOLDER}/macOS")
+    else ()
+        file(GLOB version_dirs "${VULKAN_BASE_DIR}/*")
+        foreach (version_dir ${version_dirs})
+            if (IS_DIRECTORY ${version_dir})
+                set(VK_FOLDER ${version_dir})
+            endif ()
+        endforeach ()
+
+        if(UNIX)
+            set(VK_FOLDER "${VK_FOLDER}/macOS")
+        endif ()
     endif ()
+endif ()
+
+if (NOT DEFINED ENV{VULKAN_SDK})
+    message(STATUS "Setting ENV{VULKAN_SDK} from VK_FOLDER")
+    set(ENV{VULKAN_SDK} VK_FOLDER)
 endif ()
 
 message(STATUS "VK_FOLDER: ${VK_FOLDER}")
