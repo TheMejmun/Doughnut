@@ -8,16 +8,18 @@
 #include <stdexcept>
 #include <vulkan/vulkan.hpp>
 
-inline void require(bool result, const char *error) {
-    if (!result) throw std::runtime_error(error);
-}
+namespace dn {
+    inline void require(bool result, const char *error) {
+        if (!result) throw std::runtime_error(error);
+    }
 
-inline void require(vk::Result result, const char *error) {
-    if (result != vk::Result::eSuccess) throw std::runtime_error(error);
-}
+    inline void require(vk::Result result, const char *error) {
+        if (result != vk::Result::eSuccess) throw std::runtime_error(error);
+    }
 
-inline void require(VkResult result, const char *error) {
-    if (result != VK_SUCCESS) throw std::runtime_error(error);
+    inline void require(VkResult result, const char *error) {
+        if (result != VK_SUCCESS) throw std::runtime_error(error);
+    }
 }
 
 #endif //DOUGHNUT_REQUIRE_H
