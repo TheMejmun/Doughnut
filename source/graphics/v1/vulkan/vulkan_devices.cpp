@@ -29,7 +29,7 @@ Devices::QueueFamilyIndices Devices::queueFamilyIndices{};
 Devices::OptionalFeatures  Devices::optionalFeatures{};
 
 void Devices::create() {
-    dn::log::i("Creating Devices");
+    dn::log::d("Creating Devices");
 
     Devices::pickPhysical();
     Devices::createLogical();
@@ -278,7 +278,7 @@ void Devices::QueueFamilyIndices::print() {
 }
 
 void Devices::destroy() {
-   log::i("Destroying Devices");
+   log::d("Destroying Devices");
 
     vkDestroyDevice(Devices::logical, nullptr);
 }

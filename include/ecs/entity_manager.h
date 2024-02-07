@@ -41,7 +41,7 @@ namespace dn {
     class EntityManager {
     public:
         EntityManager() {
-            dn::log::i("Creating EntityManager");
+            dn::log::d("Creating EntityManager");
 
             ([&] {
                 dn::log::v("Adding type", typeid(COMPONENTS).name());
@@ -53,7 +53,7 @@ namespace dn {
         }
 
         ~EntityManager() {
-            dn::log::i("Destroying EntityManager");
+            dn::log::d("Destroying EntityManager");
         }
 
         size_t makeEntity() {

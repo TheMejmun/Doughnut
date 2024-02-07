@@ -17,7 +17,7 @@ using namespace dn;
 VkInstance Instance::instance = nullptr;
 
 void Instance::create(const std::string &title) {
-   log::i("Creating Instance");
+   log::d("Creating Instance");
 
     // App Info
     VkApplicationInfo appInfo{};
@@ -85,7 +85,7 @@ void Instance::printAvailableExtensions() {
 }
 
 void Instance::destroy() {
-   log::i("Destroying Instance");
+   log::d("Destroying Instance");
 
     vkDestroyInstance(instance, nullptr);
 }

@@ -34,7 +34,7 @@ static void checkVkResult(VkResult err) {
 }
 
 void Imgui::create(RenderState &state) {
-   log::i("Creating Imgui");
+   log::d("Creating Imgui");
 
     // https://github.com/ocornut/imgui/blob/master/examples/example_glfw_vulkan/main.cpp
 
@@ -142,7 +142,7 @@ void Imgui::draw(RenderState &renderState, UiState &uiState) {
 }
 
 void Imgui::destroy() {
-   log::i("Destroying Imgui");
+   log::d("Destroying Imgui");
 
     vkDeviceWaitIdle(Devices::logical);
 

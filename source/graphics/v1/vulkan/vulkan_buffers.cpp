@@ -46,7 +46,7 @@ uint32_t indexCountToSet, vertexCountToSet;
 uint32_t meshBufferIndexToSet;
 
 void Buffers::create() {
-   log::i("Creating Buffers");
+   log::d("Creating Buffers");
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
@@ -79,7 +79,7 @@ void destroyStagingBuffers() {
 }
 
 void Buffers::destroy() {
-   log::i("Destroying Buffers");
+   log::d("Destroying Buffers");
 
     vkQueueWaitIdle(Buffers::transferQueue); // In case we are still uploading
     destroyStagingBuffers();

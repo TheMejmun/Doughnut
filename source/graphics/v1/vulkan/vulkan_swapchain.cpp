@@ -164,7 +164,7 @@ bool Swapchain::recreateSwapchain(RenderState &state) {
 }
 
 bool Swapchain::createSwapchain() {
-   log::i("Creating Swapchain");
+   log::d("Creating Swapchain");
 
     Swapchain::SwapchainSupportDetails swapchainSupport = Swapchain::querySwapchainSupport(
             Devices::physical);
@@ -246,7 +246,7 @@ bool Swapchain::createSwapchain() {
 }
 
 void Swapchain::destroySwapchain() {
-   log::i("Destroying Swapchain");
+   log::d("Destroying Swapchain");
 
     for (auto &swapchainFramebuffer: Swapchain::framebuffers) {
         vkDestroyFramebuffer(Devices::logical, swapchainFramebuffer, nullptr);

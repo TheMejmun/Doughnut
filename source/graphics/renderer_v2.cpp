@@ -8,9 +8,9 @@
 using namespace dn;
 
 RendererV2::RendererV2(Window *window, const std::string &title) : mAPI(window, title) {
-   log::i("Creating RendererV2");
+   log::d("Creating RendererV2");
 }
 
 RendererV2::~RendererV2() {
-   log::i("Destroying RendererV2");
+   log::d("Destroying RendererV2");
 }

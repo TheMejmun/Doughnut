@@ -10,7 +10,7 @@
 using namespace dn;
 
 Window::Window(const std::string &t) {
-    dn::log::i("Creating Window");
+    dn::log::d("Creating Window");
 
     this->title = t;
 
@@ -78,7 +78,7 @@ void Window::pollPosition() {
 }
 
 Window::~Window() {
-    dn::log::i("Destroying Window");
+    dn::log::d("Destroying Window");
 
     glfwDestroyWindow(this->glfwWindow);
 

@@ -35,7 +35,7 @@ void Application::run() {
 }
 
 void Application::init() {
-   log::i("Creating Application");
+   log::d("Creating Application");
 
 #ifdef NDEBUG
    log::i(this->mTitle, "is running in release mode.");
@@ -125,7 +125,7 @@ void Application::mainLoop() {
 }
 
 void Application::destroy() {
-   log::i("Destroying Application");
+   log::d("Destroying Application");
 
     // Reset in order
     mRenderer.reset();

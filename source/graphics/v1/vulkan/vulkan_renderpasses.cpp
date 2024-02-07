@@ -15,7 +15,7 @@ using namespace dn::vulkan;
 VkRenderPass RenderPasses::renderPass = nullptr;
 
 void RenderPasses::create() {
-   log::i("Creating RenderPasses");
+   log::d("Creating RenderPasses");
 
     // Color attachment
     VkAttachmentDescription colorAttachment{};
@@ -88,7 +88,7 @@ void RenderPasses::create() {
 }
 
 void RenderPasses::destroy() {
-   log::i("Destroying RenderPasses");
+   log::d("Destroying RenderPasses");
 
     vkDestroyRenderPass(Devices::logical, RenderPasses::renderPass, nullptr);
 }

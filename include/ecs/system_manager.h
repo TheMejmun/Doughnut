@@ -39,11 +39,11 @@ namespace dn {
     public:
         explicit SystemManager(ENTITY_MANAGER *entityManager) : mEntityManager(entityManager) {
             static_assert(0 < LAYERS, "There must be at least one layer.");
-            dn::log::i("Creating SystemManager");
+            dn::log::d("Creating SystemManager");
         }
 
         ~SystemManager() {
-            dn::log::i("Destroying SystemManager");
+            dn::log::d("Destroying SystemManager");
         }
 
         template<class SYSTEM, uint32_t LAYER>

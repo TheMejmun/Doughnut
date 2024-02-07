@@ -14,7 +14,7 @@ using namespace dn;
 using namespace dn;
 
 Renderer::Renderer(const std::string &title, GLFWwindow *window) {
-   log::i("Creating Renderer");
+   log::d("Creating Renderer");
 
     // Reset
     this->state = {};
@@ -63,7 +63,7 @@ void Renderer::destroyVulkan() {
 }
 
 Renderer::~Renderer() {
-   log::i("Destroying Renderer");
+   log::d("Destroying Renderer");
 
     if (this->simplifiedMeshAllocationThread.joinable())
         this->simplifiedMeshAllocationThread.join();
