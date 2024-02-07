@@ -1,0 +1,76 @@
+//
+// Created by Saman on 26.08.23.
+//
+
+#include "graphics/v1/ui.h"
+#include "util/performance_logging.h"
+
+#include <imgui.h>
+
+void UI::update(UiState &state) {
+    if (state.returnToOriginalMeshBuffer) {
+        state.returnToOriginalMeshBuffer = false;
+    }
+
+    ImGui::Begin("Realtime Cell Collapse");
+
+    ImGui::Text("Camera Z: %3.2f", state.cameraZ);
+
+    ImGui::SeparatorText("Performance");
+
+    ImGui::Text("CPU wait time: %1.4f seconds", state.cpuWaitTime);
+    if (!state.fps.frametimesLastSecond.empty()) {
+        double lastFrametime = state.fps.frametimesLastSecond.back();
+        ImGui::Text("Total frame time: %1.4f seconds", lastFrametime);
+    } else {
+        ImGui::Text("Total frame time: >1 Second");
+    }
+    ImGui::Text("Frames per Second: %d", state.fps.currentFPS());
+
+    if (!state.loggingStarted) {
+        if (ImGui::Button("Start performance log")) {
+            state.loggingStarted = true;
+            state.loggingStartTime = dn::now();
+        }
+    } else {
+        ImGui::Text("Performance log running: %3.2f",
+                    PerformanceLogging::LOG_DURATION - dn::duration(state.loggingStartTime, dn::now()));
+    }
+
+    ImGui::SeparatorText("Mesh Info");
+
+    ImGui::Text("Current vertex count: %d", state.currentMeshVertices);
+    ImGui::Text("Current triangle count: %d", state.currentMeshTriangles);
+    if (ImGui::Button("Use original mesh"))
+        state.returnToOriginalMeshBuffer = true;
+    const std::string meshSwitchText = state.isMonkeyMesh ? "Switch to Sphere" : "Switch to Monkey";
+    if (ImGui::Button(meshSwitchText.c_str()))
+        state.switchMesh = true;
+
+    ImGui::SeparatorText("Mesh Optimizer");
+
+    ImGui::Text("Took: %3.4f seconds", state.meshSimplifierTimeTaken);
+    ImGui::Text("Took: %d frames", state.meshSimplifierFramesTaken);
+    if (state.runMeshSimplifier) {
+        if (ImGui::Button("Stop"))
+            state.runMeshSimplifier = false;
+    } else {
+        if (ImGui::Button("Start"))
+            state.runMeshSimplifier = true;
+    }
+
+    ImGui::SeparatorText("Mesh Upload");
+
+    ImGui::Text("Took: %3.4f seconds", state.meshUploadTimeTaken);
+
+    ImGui::SeparatorText("Controls");
+
+    ImGui::Text("W: Move camera forwards");
+    ImGui::Text("S: Move camera backwards");
+    ImGui::Text("Space: Start/Stop rotation");
+    ImGui::Text("M: Maximize/Minimize window");
+    ImGui::Text("Esc: Exit");
+
+
+    ImGui::End();
+}

@@ -1,0 +1,45 @@
+//
+// Created by Saman on 24.08.23.
+//
+
+#include "graphics/v1/vulkan/vulkan_validation.h"
+
+#include <vulkan/vulkan.h>
+#include <cstring>
+
+using namespace dn::vulkan;
+
+// Constant
+#ifdef NDEBUG
+extern const bool Validation::ENABLE_VALIDATION_LAYERS = false;
+#else
+extern const bool Validation::ENABLE_VALIDATION_LAYERS = true;
+#endif
+extern const std::vector<const char *> Validation::VALIDATION_LAYERS = {
+        "VK_LAYER_KHRONOS_validation"
+};
+
+bool Validation::checkValidationLayerSupport() {
+    // get available layers
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+    for (const char *layerName: VALIDATION_LAYERS) {
+        bool layerFound = false;
+
+        for (const auto &layerProperties: availableLayers) {
+            if (strcmp(layerName, layerProperties.layerName) == 0) {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if (!layerFound) {
+            return false;
+        }
+    }
+
+    return true;
+}

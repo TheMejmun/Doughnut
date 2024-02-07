@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-07.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_IMPORTER_H
-#define REALTIME_CELL_COLLAPSE_IMPORTER_H
+#ifndef DOUGHNUT_IMPORTER_H
+#define DOUGHNUT_IMPORTER_H
 
 #include "preprocessor.h"
 #include "graphics/vertex.h"
@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 
-namespace Importinator {
+namespace dn {
     struct Mesh{
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -22,4 +22,4 @@ namespace Importinator {
     Mesh importMesh(const std::string &filename);
 }
 
-#endif //REALTIME_CELL_COLLAPSE_IMPORTER_H
+#endif //DOUGHNUT_IMPORTER_H

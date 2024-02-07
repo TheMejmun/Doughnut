@@ -9,7 +9,7 @@
 void DenseSphere::upload(EntityManagerSpec &em) {
     auto id = em.makeEntity();
 
-    auto mesh = Importinator::importMesh("resources/models/dense_sphere.glb");
+    auto mesh = dn::importMesh("resources/models/dense_sphere.glb");
 
     RenderMesh renderMesh{};
     renderMesh.indices = std::move(mesh.indices);

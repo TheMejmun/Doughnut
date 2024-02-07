@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-09.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_TRIANGLE_H
-#define REALTIME_CELL_COLLAPSE_TRIANGLE_H
+#ifndef DOUGHNUT_TRIANGLE_H
+#define DOUGHNUT_TRIANGLE_H
 
 #include "preprocessor.h"
 #include "ecs/components/render_mesh.h"
@@ -38,4 +38,4 @@ public:
             }};
 };
 
-#endif //REALTIME_CELL_COLLAPSE_TRIANGLE_H
+#endif //DOUGHNUT_TRIANGLE_H

@@ -15,30 +15,38 @@
 
 #include <iomanip>
 
-using namespace Doughnut;
+using namespace dn;
 
 void Application::run() {
-    do {
-        mExitAfterMainLoop = true;
-        init();
-        mainLoop();
-        destroy();
-    } while (!mExitAfterMainLoop);
+    try {
+
+        do {
+            mExitAfterMainLoop = true;
+            init();
+            mainLoop();
+            destroy();
+        } while (!mExitAfterMainLoop);
+
+    } catch (const std::exception &e) {
+        dn::log::flush();
+        throw e;
+        std::cerr << e.what() << std::endl;
+    }
 }
 
 void Application::init() {
-    Log::i("Creating Application");
+   log::i("Creating Application");
 
 #ifdef NDEBUG
-    Log::i(this->mTitle, "is running in release mode.");
+   log::i(this->mTitle, "is running in release mode.");
 #else
-    Log::i(this->mTitle, "is running in debug mode.");
+   log::i(this->mTitle, "is running in debug mode.");
 #endif
 
     mESM = std::make_unique<EntitySystemManagerSpec>();
-    mWindowManager = std::make_unique<WindowManager>(this->mTitle);
-    mInputManager = std::make_unique<InputController>(mWindowManager->window);
-    mRenderer = std::make_unique<GFX::Renderer>(this->mTitle, mWindowManager->window);
+    mWindowManager = std::make_unique<Window>(this->mTitle);
+    mInputManager = std::make_unique<InputController>(mWindowManager->glfwWindow);
+    mRenderer = std::make_unique<Renderer>(this->mTitle, mWindowManager->glfwWindow);
 
     // Entities
     Camera::upload(mESM->mEntities);
@@ -76,7 +84,7 @@ void Application::mainLoop() {
             mWindowManager->toggleFullscreen();
 
         // UI
-       const auto uiState = mESM->mEntities.template getArchetype<UiState>()[0].components;
+        const auto uiState = mESM->mEntities.template getArchetype<UiState>()[0].components;
         uiState->fps.update(mDeltaTime);
         uiState->cpuWaitTime = mCurrentCpuWaitTime;
 
@@ -88,7 +96,7 @@ void Application::mainLoop() {
 
         // Update camera Z for UI
         auto cameras = mESM->mEntities.template getArchetype<Projector, Transformer4>();
-        for (auto & camera : cameras) {
+        for (auto &camera: cameras) {
             if (camera.get<Projector>()->isMainCamera) {
                 uiState->cameraZ = camera.get<Transformer4>()->getPosition().z;
                 break;
@@ -103,8 +111,8 @@ void Application::mainLoop() {
         mCurrentCpuWaitTime = mRenderer->draw(mDeltaTime, mESM->mEntities);
 
         // Benchmark
-        auto time = Timer::now();
-        mDeltaTime = Timer::duration(mLastTimestamp, time);
+        auto time = now();
+        mDeltaTime = duration(mLastTimestamp, time);
         mLastTimestamp = time;
 
         // Performance logging
@@ -117,7 +125,7 @@ void Application::mainLoop() {
 }
 
 void Application::destroy() {
-    Log::i("Destroying Application");
+   log::i("Destroying Application");
 
     // Reset in order
     mRenderer.reset();

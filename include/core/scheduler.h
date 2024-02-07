@@ -11,7 +11,7 @@
 #include <thread>
 #include <functional>
 
-namespace Doughnut {
+namespace dn {
     class Scheduler {
     public:
         /**

@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_TEMPLATES_H
 #define DOUGHNUT_TEMPLATES_H
 
-namespace Doughnut {
+namespace dn {
     template<class T, class... OTHER>
     struct FirstOf {
         using Type = T;

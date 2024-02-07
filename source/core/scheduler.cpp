@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cassert>
 
-using namespace Doughnut;
+using namespace dn;
 using namespace std::literals::chrono_literals;
 
 static void threadBody(
@@ -113,13 +113,13 @@ Scheduler::~Scheduler() {
     }
 }
 
-void Doughnut::testScheduler() {
+void dn::testScheduler() {
     bool task1Done = false;
     bool task2Done = false;
     bool task3Done = false;
     bool task4Done = false;
 
-    Doughnut::Scheduler scheduler{2};
+    dn::Scheduler scheduler{2};
 
     assert(scheduler.done());
 
@@ -189,5 +189,5 @@ void Doughnut::testScheduler() {
     assert(scheduler.done());
     assert(task4Done);
 
-    Log::i("Scheduler test successful.");
+   log::i("Scheduler test successful.");
 }

@@ -11,35 +11,35 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace Doughnut;
+using namespace dn;
 
-Scheduler Log::Internal::scheduler{1};
+Scheduler log::internal::scheduler{1};
 
 bool iInfoEnabled = false;
 bool iDebugEnabled = false;
 bool iVerboseEnabled = false;
 bool iTraceEnabled = false;
 
-void Log::init(bool enableInfo, bool enableDebug, bool enableVerbose, bool enableTrace) {
+void log::init(bool enableInfo, bool enableDebug, bool enableVerbose, bool enableTrace) {
     iInfoEnabled = enableInfo;
     iDebugEnabled = enableDebug;
     iVerboseEnabled = enableVerbose;
     iTraceEnabled = enableTrace;
 }
 
-bool Log::infoEnabled() {
+bool log::infoEnabled() {
     return iInfoEnabled;
 }
 
-bool Log::debugEnabled() {
+bool log::debugEnabled() {
     return iDebugEnabled;
 }
 
-bool Log::verboseEnabled() {
+bool log::verboseEnabled() {
     return iVerboseEnabled;
 }
 
-bool Log::traceEnabled() {
+bool log::traceEnabled() {
     return iTraceEnabled;
 }
 
@@ -68,7 +68,7 @@ std::string getTimestamp() {
     return stream.str();
 }
 
-void Log::Internal::log(Log::Internal::Level level, const std::string &message) {
+void log::internal::log(log::internal::Level level, const std::string &message) {
     auto time = getTimestamp();
     switch (level) {
         case INFO:
@@ -89,17 +89,21 @@ void Log::Internal::log(Log::Internal::Level level, const std::string &message) 
     }
 }
 
-void Log::benchmarkLogger(size_t count) {
+void log::flush() {
+    log::internal::scheduler.await();
+}
+
+void log::benchmarkLogger(size_t count) {
     {
-        Doughnut::Timer::ScopeTracer tracer1{"Execute Logs"};
+        dn::ScopeTracer tracer1{"Execute Logs"};
         {
-            Doughnut::Timer::ScopeTracer tracer2{"Insert Logs"};
+            dn::ScopeTracer tracer2{"Insert Logs"};
 
             for (uint32_t i = 0; i < count; ++i) {
-                Doughnut::Log::i("TESTING", "LOGGER", "FOLDED", i);
+                dn::log::i("TESTING", "LOGGER", "FOLDED", i);
             }
         }
 
-        Doughnut::Log::Internal::scheduler.await();
+        dn::log::internal::scheduler.await();
     }
 }

@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-08.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_TIMER_H
-#define REALTIME_CELL_COLLAPSE_TIMER_H
+#ifndef DOUGHNUT_TIMER_H
+#define DOUGHNUT_TIMER_H
 
 #include "preprocessor.h"
 
@@ -12,18 +12,18 @@
 #include <cmath>
 #include <deque>
 
-#define trace_scope(name) auto _tracer = Doughnut::Timer::ScopeTracer(name);
+#define trace_scope(name) auto _tracer = dn::ScopeTracer(name);
 
-namespace Doughnut::Timer {
+namespace dn {
     using Clock = std::chrono::steady_clock;
     using Second = std::chrono::duration<double>;
-    using Point = std::chrono::time_point<Clock, Second>;
+    using Time = std::chrono::time_point<Clock, Second>;
 
-    inline Point now() {
+    inline Time now() {
         return Clock::now();
     }
 
-    inline double duration(const Point &time1, const Point &time2) {
+    inline double duration(const Time &time1, const Time &time2) {
         return std::abs((double) (time1 - time2).count());
     }
 
@@ -31,7 +31,7 @@ namespace Doughnut::Timer {
         return static_cast<uint32_t>(1.0 / frameTimeSec);
     }
 
-    inline uint32_t fps(const Point &time1, const Point &time2) {
+    inline uint32_t fps(const Time &time1, const Time &time2) {
         return fps(duration(time1, time2));
     }
 
@@ -58,9 +58,9 @@ namespace Doughnut::Timer {
 
     private:
         const char *mName;
-        const Point mTimeStarted = Doughnut::Timer::now();
+        const Time mTimeStarted = dn::now();
     };
 };
 
 
-#endif //REALTIME_CELL_COLLAPSE_TIMER_H
+#endif //DOUGHNUT_TIMER_H

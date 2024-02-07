@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-09.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_COLORS_H
-#define REALTIME_CELL_COLLAPSE_COLORS_H
+#ifndef DOUGHNUT_COLORS_H
+#define DOUGHNUT_COLORS_H
 
 #include "preprocessor.h"
 
@@ -75,4 +75,4 @@ private:
     glm::vec3 xyz = {0.0f, 0.0f, 0.0f};
 };
 
-#endif //REALTIME_CELL_COLLAPSE_COLORS_H
+#endif //DOUGHNUT_COLORS_H
