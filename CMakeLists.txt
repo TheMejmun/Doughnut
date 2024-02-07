@@ -7,20 +7,30 @@ set(CMAKE_CXX_STANDARD 20)
 
 if (WIN32)
     message(STATUS "Windows mode")
-    #    set(VK_FOLDER "C:/VulkanSDK/1.3.239.0")
-    message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
-
+    set(VULKAN_BASE_DIR "C:/VulkanSDK")
 elseif (LINUX)
     message(STATUS "Linux mode")
-    #    set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0")
-    message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
-
+    set(VULKAN_BASE_DIR "$ENV{HOME}/VulkanSDK")
 elseif (UNIX)
     message(STATUS "Unix mode")
-    #    set(VK_FOLDER "$ENV{HOME}/VulkanSDK/1.3.239.0/macOS")
-    message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
-
+    set(VULKAN_BASE_DIR "$ENV{HOME}/VulkanSDK")
 endif ()
+
+if (NOT DEFINED VK_FOLDER)
+    file(GLOB version_dirs "${VULKAN_BASE_DIR}/*")
+    foreach (version_dir ${version_dirs})
+        if (IS_DIRECTORY ${version_dir})
+            set(VK_FOLDER ${version_dir})
+        endif ()
+    endforeach ()
+
+    if(UNIX)
+        set(VK_FOLDER "${VK_FOLDER}/macOS")
+    endif ()
+endif ()
+
+message(STATUS "VK_FOLDER: ${VK_FOLDER}")
+message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
 
 # ----------------------------------- ADD LIBRARY -----------------------------------
 
@@ -140,22 +150,17 @@ target_include_directories(Doughnut PUBLIC include)
 
 # ----------------------------------- ADD DEPENDENCIES -----------------------------------
 
-# assimp
-add_subdirectory(external/assimp)
+find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
-# glfw
-add_subdirectory(external/glfw)
+find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE glfw)
-# vulkan
-add_subdirectory(external/vulkan-headers)
+find_package(imgui CONFIG REQUIRED)
+target_link_libraries(Doughnut PRIVATE imgui::imgui)
+find_package(Stb REQUIRED)
+target_include_directories(Doughnut PRIVATE ${Stb_INCLUDE_DIR})
+find_package(VulkanHeaders CONFIG)
 target_link_libraries(Doughnut PRIVATE Vulkan::Headers)
-# imgui
-include(imgui.cmake)
-target_link_libraries(Doughnut PRIVATE imgui)
-# stb
-target_include_directories(Doughnut PRIVATE external/stb)
-# glm
-add_subdirectory(external/glm)
+find_package(glm CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE glm::glm)
 
 # output
