@@ -14,7 +14,7 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
-namespace Doughnut {
+namespace dn {
     class RendererV2 {
     public:
         RendererV2(Window* window, const std::string &title);

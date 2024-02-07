@@ -16,8 +16,8 @@
 #include "imgui_impl_glfw.h"
 #include <sstream>
 
-using namespace Doughnut;
-using namespace Doughnut::Graphics::Vk;
+using namespace dn;
+using namespace dn::vulkan;
 
 VkDescriptorPool uiDescriptorPool;
 float scale = 1.0f;
@@ -34,7 +34,7 @@ static void checkVkResult(VkResult err) {
 }
 
 void Imgui::create(RenderState &state) {
-    Log::i("Creating Imgui");
+   log::i("Creating Imgui");
 
     // https://github.com/ocornut/imgui/blob/master/examples/example_glfw_vulkan/main.cpp
 
@@ -91,7 +91,8 @@ void Imgui::create(RenderState &state) {
     checkVkResult(vkBeginCommandBuffer(command_buffer, &beginInfo));
 
     // TODO find out why this function needs VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT and provide the appropriate queue
-    ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
+    // TODO why does this not take the commandBuffer anymore. Probably because docking branch is used now.
+    ImGui_ImplVulkan_CreateFontsTexture();
 
     VkSubmitInfo endInfo = {};
     endInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -102,7 +103,8 @@ void Imgui::create(RenderState &state) {
     checkVkResult(vkQueueSubmit(Buffers::transferQueue, 1, &endInfo, VK_NULL_HANDLE));
 
     checkVkResult(vkDeviceWaitIdle(Devices::logical));
-    ImGui_ImplVulkan_DestroyFontUploadObjects();
+    // TODO why did this change. Probably because docking branch is used now.
+//    ImGui_ImplVulkan_DestroyFontUploadObjects();
 
     Imgui::recalculateScale(state);
 }
@@ -140,7 +142,7 @@ void Imgui::draw(RenderState &renderState, UiState &uiState) {
 }
 
 void Imgui::destroy() {
-    Log::i("Destroying Imgui");
+   log::i("Destroying Imgui");
 
     vkDeviceWaitIdle(Devices::logical);
 

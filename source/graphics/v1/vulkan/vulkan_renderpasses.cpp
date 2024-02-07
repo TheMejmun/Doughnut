@@ -9,13 +9,13 @@
 
 #include <array>
 
-using namespace Doughnut;
-using namespace Doughnut::Graphics::Vk;
+using namespace dn;
+using namespace dn::vulkan;
 
 VkRenderPass RenderPasses::renderPass = nullptr;
 
 void RenderPasses::create() {
-    Log::i("Creating RenderPasses");
+   log::i("Creating RenderPasses");
 
     // Color attachment
     VkAttachmentDescription colorAttachment{};
@@ -88,7 +88,7 @@ void RenderPasses::create() {
 }
 
 void RenderPasses::destroy() {
-    Log::i("Destroying RenderPasses");
+   log::i("Destroying RenderPasses");
 
     vkDestroyRenderPass(Devices::logical, RenderPasses::renderPass, nullptr);
 }

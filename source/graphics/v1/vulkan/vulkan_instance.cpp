@@ -10,14 +10,14 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-using namespace Doughnut::Graphics::Vk;
-using namespace Doughnut;
+using namespace dn::vulkan;
+using namespace dn;
 
 // Global
 VkInstance Instance::instance = nullptr;
 
 void Instance::create(const std::string &title) {
-    Log::i("Creating Instance");
+   log::i("Creating Instance");
 
     // App Info
     VkApplicationInfo appInfo{};
@@ -81,11 +81,11 @@ void Instance::printAvailableExtensions() {
     for (const auto &extension: extensions) {
         stream << '\t' << extension.extensionName << "\n";
     }
-    Log::v(stream.str());
+   log::v(stream.str());
 }
 
 void Instance::destroy() {
-    Log::i("Destroying Instance");
+   log::i("Destroying Instance");
 
     vkDestroyInstance(instance, nullptr);
 }

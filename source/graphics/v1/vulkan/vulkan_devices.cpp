@@ -11,8 +11,8 @@
 #include <set>
 #include <cstdint>
 
-using namespace Doughnut::Graphics::Vk;
-using namespace Doughnut;
+using namespace dn::vulkan;
+using namespace dn;
 
 // Constant
 extern const std::vector<const char *> Devices::REQUIRED_DEVICE_EXTENSIONS = {
@@ -29,7 +29,7 @@ Devices::QueueFamilyIndices Devices::queueFamilyIndices{};
 Devices::OptionalFeatures  Devices::optionalFeatures{};
 
 void Devices::create() {
-    Log::i("Creating Devices");
+    dn::log::i("Creating Devices");
 
     Devices::pickPhysical();
     Devices::createLogical();
@@ -49,7 +49,7 @@ void Devices::printAvailablePhysicalDevices() {
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
         stream << "\t" << deviceProperties.deviceName << "\n";
     }
-    Log::v(stream.str());
+   log::v(stream.str());
 }
 
 void Devices::pickPhysical() {
@@ -77,7 +77,7 @@ void Devices::pickPhysical() {
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
-    Log::i("Picked physical device: ", deviceProperties.deviceName);
+   log::i("Picked physical device: ", deviceProperties.deviceName);
 
     if (Devices::physical == VK_NULL_HANDLE) {
         throw std::runtime_error("Failed to find a suitable GPU!");
@@ -138,7 +138,7 @@ bool Devices::checkExtensionSupport(VkPhysicalDevice device) {
         stream << '\t' << extension.extensionName << "\n";
         requiredExtensions.erase(extension.extensionName);
     }
-    Log::v(stream.str());
+   log::v(stream.str());
 
     return requiredExtensions.empty();
 }
@@ -272,13 +272,13 @@ bool Devices::QueueFamilyIndices::hasUniqueTransferQueue() const {
 }
 
 void Devices::QueueFamilyIndices::print() {
-    Log::v(
+   log::v(
             "QueueFamilyIndices: Graphics:", this->graphicsFamily.value(), "Present:", this->presentFamily.value(), "Transfer:", this->transferFamily.value()
     );
 }
 
 void Devices::destroy() {
-    Log::i("Destroying Devices");
+   log::i("Destroying Devices");
 
     vkDestroyDevice(Devices::logical, nullptr);
 }

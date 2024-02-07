@@ -7,10 +7,10 @@
 
 #include <iostream>
 
-using namespace Doughnut;
+using namespace dn;
 
 Window::Window(const std::string &t) {
-    Doughnut::Log::i("Creating Window");
+    dn::log::i("Creating Window");
 
     this->title = t;
 
@@ -62,7 +62,7 @@ void Window::pollMonitorResolution() {
     auto params = glfwGetVideoModes(this->monitor, &count);
 
     for (int i = 0; i < count; ++i) {
-        Doughnut::Log::d("Got monitor info:",
+        dn::log::d("Got monitor info:",
                          "\n\tWidth:\t", params[i].width,
                          "\n\tHeight:\t", params[i].height,
                          "\n\tRed Bits:\t", params[i].redBits,
@@ -78,7 +78,7 @@ void Window::pollPosition() {
 }
 
 Window::~Window() {
-    Doughnut::Log::i("Destroying Window");
+    dn::log::i("Destroying Window");
 
     glfwDestroyWindow(this->glfwWindow);
 

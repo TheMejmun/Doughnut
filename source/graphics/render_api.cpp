@@ -10,7 +10,7 @@
 #include <vector>
 #include <set>
 
-using namespace Doughnut;
+using namespace dn;
 
 // Constants
 const std::vector<const char *> REQUIRED_DEVICE_EXTENSIONS = {
@@ -27,13 +27,13 @@ const std::vector<const char *> VALIDATION_LAYERS = {
 };
 
 VulkanAPI::VulkanAPI(Window *window, const std::string &title) : mWindow(window) {
-    Log::d("Creating VulkanAPI");
+   log::d("Creating VulkanAPI");
     createInstance(title);
     createDevice();
 }
 
 VulkanAPI::~VulkanAPI() {
-    Log::d("Destroying VulkanAPI");
+   log::d("Destroying VulkanAPI");
     destroyDevice();
     destroyInstance();
 }
@@ -205,7 +205,7 @@ void VulkanAPI::createDevice() {
     for (const vk::PhysicalDevice &device: availableDevices) {
         stream << "\t" << device.getProperties().deviceName << "\n";
     }
-    Log::d(stream.str());
+   log::d(stream.str());
 
     for (const auto &device: availableDevices) {
         if (isPhysicalDeviceSuitable(device, mSurface, true)) {
@@ -218,7 +218,7 @@ void VulkanAPI::createDevice() {
     }
 
     require(mPhysicalDevice, "Failed to find a suitable GPU!");
-    Log::i("Picked physical device: ", mPhysicalDevice.getProperties().deviceName);
+   log::i("Picked physical device: ", mPhysicalDevice.getProperties().deviceName);
 
     vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
 

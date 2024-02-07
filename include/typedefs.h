@@ -14,7 +14,7 @@
 #include "physics/transformer.h"
 #include "ecs/components/ui_state.h"
 
-typedef Doughnut::ECS::EntityManager<
+typedef dn::EntityManager<
         InputState,
         UiState,
         RenderMesh,
@@ -24,7 +24,7 @@ typedef Doughnut::ECS::EntityManager<
         RotatingSphere
 > EntityManagerSpec;
 
-typedef Doughnut::ECS::EntitySystemManager<
+typedef dn::EntitySystemManager<
         1,
         EntityManagerSpec
 > EntitySystemManagerSpec;

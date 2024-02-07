@@ -14,7 +14,7 @@
 #include <vulkan/vulkan.hpp>
 #include <string>
 
-namespace Doughnut {
+namespace dn {
     class VulkanAPI {
     public:
         VulkanAPI(Window *window, const std::string &title);

@@ -15,7 +15,7 @@
 
 #include <iomanip>
 
-using namespace Doughnut;
+using namespace dn;
 
 void Application::run() {
     try {
@@ -28,25 +28,25 @@ void Application::run() {
         } while (!mExitAfterMainLoop);
 
     } catch (const std::exception &e) {
-        Doughnut::Log::flush();
+        dn::log::flush();
         throw e;
         std::cerr << e.what() << std::endl;
     }
 }
 
 void Application::init() {
-    Log::i("Creating Application");
+   log::i("Creating Application");
 
 #ifdef NDEBUG
-    Log::i(this->mTitle, "is running in release mode.");
+   log::i(this->mTitle, "is running in release mode.");
 #else
-    Log::i(this->mTitle, "is running in debug mode.");
+   log::i(this->mTitle, "is running in debug mode.");
 #endif
 
     mESM = std::make_unique<EntitySystemManagerSpec>();
     mWindowManager = std::make_unique<Window>(this->mTitle);
     mInputManager = std::make_unique<InputController>(mWindowManager->glfwWindow);
-    mRenderer = std::make_unique<Graphics::Renderer>(this->mTitle, mWindowManager->glfwWindow);
+    mRenderer = std::make_unique<Renderer>(this->mTitle, mWindowManager->glfwWindow);
 
     // Entities
     Camera::upload(mESM->mEntities);
@@ -111,8 +111,8 @@ void Application::mainLoop() {
         mCurrentCpuWaitTime = mRenderer->draw(mDeltaTime, mESM->mEntities);
 
         // Benchmark
-        auto time = Timer::now();
-        mDeltaTime = Timer::duration(mLastTimestamp, time);
+        auto time = now();
+        mDeltaTime = duration(mLastTimestamp, time);
         mLastTimestamp = time;
 
         // Performance logging
@@ -125,7 +125,7 @@ void Application::mainLoop() {
 }
 
 void Application::destroy() {
-    Log::i("Destroying Application");
+   log::i("Destroying Application");
 
     // Reset in order
     mRenderer.reset();

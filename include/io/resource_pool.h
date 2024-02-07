@@ -12,7 +12,7 @@
 #include <string>
 #include <type_traits>
 
-namespace Doughnut {
+namespace dn {
     /**
      * @tparam T    The template argument T must be constructible with only a string parameter,
      *              and have a size_t size() member function that returns an estimate for how much memory this resource uses.
@@ -31,16 +31,16 @@ namespace Doughnut {
 
             // Instantiate
             if constexpr (std::is_constructible<T, const std::string &>::value) {
-                Doughnut::Log::v("Loading", typeid(T).name(), "with string", fileHandle);
+                dn::log::v("Loading", typeid(T).name(), "with string", fileHandle);
                 mResources[fileHandle] = new T{fileHandle};
             } else {
-                Doughnut::Log::v("Loading", typeid(T).name(), "with char pointer", fileHandle);
+                dn::log::v("Loading", typeid(T).name(), "with char pointer", fileHandle);
                 mResources[fileHandle] = new T{fileHandle.c_str()};
             }
 
             // Set size
             mSizes[fileHandle] = mResources[fileHandle]->size();
-            Doughnut::Log::d("Caluclated size via size() as", mSizes[fileHandle], "B");
+            dn::log::d("Caluclated size via size() as", mSizes[fileHandle], "B");
         }
 
         T *get(const std::string &fileHandle) {

@@ -11,36 +11,36 @@
 
 // SYSTEMS THAT PLUG INTO THE ECS
 
-using namespace Doughnut;
-using namespace Doughnut::Graphics;
+using namespace dn;
+using namespace dn;
 
 void Renderer::uploadRenderables(EntityManagerSpec &ecs) {
     const auto entities = ecs.getArchetype<RenderMesh>();
     for (auto entity: entities) {
         auto renderMesh = entity.components;
         if (renderMesh->isAllocated) continue;
-        Vk::Buffers::uploadVertices(renderMesh->vertices);
-        Vk::Buffers::uploadIndices(renderMesh->indices);
+        vulkan::Buffers::uploadVertices(renderMesh->vertices);
+        vulkan::Buffers::uploadIndices(renderMesh->indices);
         renderMesh->isAllocated = true;
     }
 }
 
 void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
-    if (Vk::Buffers::waitingForFence) {
-        Log::d("Waiting for fence");
-        if (Vk::Buffers::isTransferQueueReady()) {
-            Log::d("Ready");
-            Vk::Buffers::finishTransfer();
+    if (vulkan::Buffers::waitingForFence) {
+       log::d("Waiting for fence");
+        if (vulkan::Buffers::isTransferQueueReady()) {
+           log::d("Ready");
+            vulkan::Buffers::finishTransfer();
         } else {
-            Log::d("Not ready");
+           log::d("Not ready");
             return;
         }
     }
-    const auto startTime = Timer::now();
+    const auto startTime = now();
     auto entities = ecs.getArchetype<RenderMeshSimplifiable>();
 
     uint32_t bufferToUse = 1;
-    if (Vk::Buffers::meshBufferToUse == 1) bufferToUse = 2;
+    if (vulkan::Buffers::meshBufferToUse == 1) bufferToUse = 2;
 
     bool uploadedAny = false;
 
@@ -49,7 +49,7 @@ void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
         if (renderMeshSimplifiable->updateSimplifiedMesh && renderMeshSimplifiable->simplifiedMeshMutex->try_lock()) {
             PerformanceLogging::meshUploadStarted();
             // TODO this upload produced a bad access error
-            Vk::Buffers::uploadMesh(renderMeshSimplifiable->vertices, renderMeshSimplifiable->indices, true, bufferToUse);
+            vulkan::Buffers::uploadMesh(renderMeshSimplifiable->vertices, renderMeshSimplifiable->indices, true, bufferToUse);
             renderMeshSimplifiable->isAllocated = true;
             renderMeshSimplifiable->bufferIndex = bufferToUse;
             renderMeshSimplifiable->updateSimplifiedMesh = false;
@@ -63,7 +63,7 @@ void Renderer::uploadSimplifiedMeshes(EntityManagerSpec &ecs) {
     if (uploadedAny) {
         // Treat this like a return
         auto &uiState = *ecs.getArchetype<UiState>()[0].components;
-        uiState.meshUploadTimeTaken = Timer::duration(startTime, Timer::now());
+        uiState.meshUploadTimeTaken = duration(startTime, now());
     }
 }
 
@@ -92,11 +92,11 @@ void Renderer::updateUniformBuffer(const double &delta, EntityManagerSpec &ecs) 
 
     ubo.view = cameraProjector->getView(*cameraTransform);
 
-    ubo.proj = cameraProjector->getProjection(Vk::Swapchain::aspectRatio);
+    ubo.proj = cameraProjector->getProjection(vulkan::Swapchain::aspectRatio);
 
     // TODO replace with push constants for small objects:
     // https://registry.khronos.org/vulkan/site/guide/latest/push_constants.html
 
-    Vk::Buffers::nextUniformBuffer();
-    memcpy(Vk::Buffers::getCurrentUniformBufferMapping(), &ubo, sizeof(ubo));
+    vulkan::Buffers::nextUniformBuffer();
+    memcpy(vulkan::Buffers::getCurrentUniformBufferMapping(), &ubo, sizeof(ubo));
 }

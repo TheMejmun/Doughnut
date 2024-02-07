@@ -5,12 +5,12 @@
 #include "graphics/renderer_v2.h"
 #include "io/logger.h"
 
-using namespace Doughnut;
+using namespace dn;
 
 RendererV2::RendererV2(Window *window, const std::string &title) : mAPI(window, title) {
-    Log::i("Creating RendererV2");
+   log::i("Creating RendererV2");
 }
 
 RendererV2::~RendererV2() {
-    Log::i("Destroying RendererV2");
+   log::i("Destroying RendererV2");
 }

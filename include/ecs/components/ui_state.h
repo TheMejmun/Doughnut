@@ -16,10 +16,10 @@ struct UiState {
 
     float cameraZ = 0;
 
-    Doughnut::Timer::FPSCounter fps{};
+    dn::FPSCounter fps{};
     double cpuWaitTime = 0.0;
     bool loggingStarted = false;
-    Doughnut::Timer::Point loggingStartTime{};
+    dn::Time loggingStartTime{};
 
     uint32_t currentMeshVertices = 0;
     uint32_t currentMeshTriangles = 0;

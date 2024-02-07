@@ -7,7 +7,7 @@
 
 #include <optional>
 
-namespace Doughnut{
+namespace dn{
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;

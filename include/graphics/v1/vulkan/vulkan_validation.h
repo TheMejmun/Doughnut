@@ -10,7 +10,7 @@
 #include <vector>
 
 
-namespace Doughnut::Graphics::Vk::Validation {
+namespace dn::vulkan::Validation {
     extern const bool ENABLE_VALIDATION_LAYERS;
     extern const std::vector<const char *> VALIDATION_LAYERS;
 

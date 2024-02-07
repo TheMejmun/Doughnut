@@ -7,7 +7,7 @@
 #include <vulkan/vulkan.h>
 #include <cstring>
 
-using namespace Doughnut::Graphics::Vk;
+using namespace dn::vulkan;
 
 // Constant
 #ifdef NDEBUG

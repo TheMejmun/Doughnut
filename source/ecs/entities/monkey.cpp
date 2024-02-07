@@ -8,7 +8,7 @@
 void Monkey::upload(EntityManagerSpec &em) {
     auto id = em.makeEntity();
 
-    auto mesh = Doughnut::importMesh("resources/models/monkey.glb");
+    auto mesh = dn::importMesh("resources/models/monkey.glb");
 
     RenderMesh renderMesh{};
     renderMesh.indices = std::move(mesh.indices);

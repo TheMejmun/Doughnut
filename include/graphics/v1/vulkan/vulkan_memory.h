@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <vulkan/vulkan.h>
 
-namespace Doughnut::Graphics::Vk::Memory {
+namespace dn::vulkan::Memory {
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 }
 #endif //DOUGHNUT_VULKAN_MEMORY_H

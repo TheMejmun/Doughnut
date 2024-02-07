@@ -15,7 +15,7 @@
 #include <string>
 #include <utility>
 
-namespace Doughnut {
+namespace dn {
     class Application {
     public:
         explicit Application(std::string title) : mTitle(std::move(title)) {}
@@ -31,11 +31,11 @@ namespace Doughnut {
         void destroy();
 
         std::unique_ptr<EntitySystemManagerSpec> mESM;
-        std::unique_ptr<Graphics::Renderer> mRenderer;
+        std::unique_ptr<Renderer> mRenderer;
         std::unique_ptr<Window> mWindowManager;
         std::unique_ptr<InputController> mInputManager;
 
-        Timer::Point mLastTimestamp = Timer::now();
+        Time mLastTimestamp = now();
         double mCurrentCpuWaitTime{};
         double mDeltaTime = 0;
 

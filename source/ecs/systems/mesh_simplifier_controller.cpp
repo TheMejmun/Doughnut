@@ -26,7 +26,7 @@ constexpr uint32_t MAX_INDEX = std::numeric_limits<uint32_t>::max();
 
 std::thread thread;
 uint32_t simplifiedMeshCalculationThreadFrameCounter = 0;
-Doughnut::Timer::Point simplifiedMeshCalculationThreadStartedTime{};
+dn::Time simplifiedMeshCalculationThreadStartedTime{};
 bool meshCalculationDone = false;
 
 struct SVO { // Simplification Vertex Object
@@ -156,14 +156,14 @@ void simplify(const Projector &cameraProjector,
     const auto normalModel = glm::transpose(transform.inverse);
     const auto cameraPos = cameraTransform.getPosition();
     const auto view = cameraProjector.getView(cameraTransform);
-    const auto proj = cameraProjector.getProjection(Doughnut::Graphics::Vk::Swapchain::aspectRatio);
+    const auto proj = cameraProjector.getProjection(dn::vulkan::Swapchain::aspectRatio);
     const auto viewProj = proj * view;
 
     to.vertices.clear();
     to.indices.clear();
 
-    const uint32_t rasterWidth = Doughnut::Graphics::Vk::Swapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
-    const uint32_t rasterHeight = Doughnut::Graphics::Vk::Swapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterWidth = dn::vulkan::Swapchain::framebufferWidth / MAX_PIXELS_PER_VERTEX;
+    const uint32_t rasterHeight = dn::vulkan::Swapchain::framebufferHeight / MAX_PIXELS_PER_VERTEX;
 
     std::vector<SVO> svos{};
     svos.resize(from.vertices.size());
@@ -212,7 +212,7 @@ void simplify(const Projector &cameraProjector,
 
     std::vector<SVO> indicesRaster{};
     indicesRaster.resize(rasterWidth * rasterHeight);
-    Doughnut::Log::d("Using raster", rasterWidth, "*", rasterHeight, "for mesh simplification");
+    dn::log::d("Using raster", rasterWidth, "*", rasterHeight, "for mesh simplification");
     IndexLut lut{};
     lut.resize(from.vertices.size());
     uint32_t newVertexCount = 0;
@@ -287,9 +287,9 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
     if (thread.joinable()) {
         simplifiedMeshCalculationThreadFrameCounter++;
         if (meshCalculationDone) {
-            Doughnut::Log::d("Mesh calculation thread took", simplifiedMeshCalculationThreadFrameCounter, "frames");
+            dn::log::d("Mesh calculation thread took", simplifiedMeshCalculationThreadFrameCounter, "frames");
             thread.join();
-            uiState->meshSimplifierTimeTaken = Doughnut::Timer::duration(simplifiedMeshCalculationThreadStartedTime, Doughnut::Timer::now());
+            uiState->meshSimplifierTimeTaken = dn::duration(simplifiedMeshCalculationThreadStartedTime, dn::now());
             uiState->meshSimplifierFramesTaken = simplifiedMeshCalculationThreadFrameCounter;
         }
     } else if (uiState->runMeshSimplifier) {
@@ -306,7 +306,7 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
         if (!entities.empty()) {
             meshCalculationDone = false;
             simplifiedMeshCalculationThreadFrameCounter = 0;
-            simplifiedMeshCalculationThreadStartedTime = Doughnut::Timer::now();
+            simplifiedMeshCalculationThreadStartedTime = dn::now();
 
             auto function = [=](bool &done) {
                 for (const auto & entity : entities) {
