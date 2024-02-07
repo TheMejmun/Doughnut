@@ -26,14 +26,16 @@ const std::vector<const char *> VALIDATION_LAYERS = {
         "VK_LAYER_KHRONOS_validation"
 };
 
-VulkanAPI::VulkanAPI(Window *window, const std::string &title) : mWindow(window) {
-   log::d("Creating VulkanAPI");
+VulkanAPI::VulkanAPI(Window &window, const std::string &title) : mWindow(window) {
+    log::d("Creating VulkanAPI");
     createInstance(title);
     createDevice();
+    createSwapchain();
 }
 
 VulkanAPI::~VulkanAPI() {
-   log::d("Destroying VulkanAPI");
+    log::d("Destroying VulkanAPI");
+    destroySwapchain();
     destroyDevice();
     destroyInstance();
 }
@@ -99,7 +101,7 @@ void VulkanAPI::createInstance(const std::string &title) {
     mInstance = vk::createInstance(instanceCreateInfo);
 
     require(
-            glfwCreateWindowSurface(mInstance, mWindow->glfwWindow, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
+            glfwCreateWindowSurface(mInstance, mWindow.glfwWindow, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
             "Failed to create window surface!"
     );
 }
@@ -149,22 +151,6 @@ bool checkExtensionSupport(const vk::PhysicalDevice &device) {
     return requiredExtensions.empty();
 }
 
-struct SwapchainSupportDetails {
-    vk::SurfaceCapabilitiesKHR capabilities{};
-    std::vector<vk::SurfaceFormatKHR> formats{};
-    std::vector<vk::PresentModeKHR> presentModes{};
-};
-
-SwapchainSupportDetails querySwapchainSupport(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface) {
-    SwapchainSupportDetails details;
-
-    details.capabilities = device.getSurfaceCapabilitiesKHR(surface);
-    details.formats = device.getSurfaceFormatsKHR(surface);
-    details.presentModes = device.getSurfacePresentModesKHR(surface);
-
-    return details;
-}
-
 bool isPhysicalDeviceSuitable(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface, bool strictMode) {
     vk::PhysicalDeviceProperties properties = device.getProperties();
     bool suitable = true;
@@ -205,7 +191,7 @@ void VulkanAPI::createDevice() {
     for (const vk::PhysicalDevice &device: availableDevices) {
         stream << "\t" << device.getProperties().deviceName << "\n";
     }
-   log::d(stream.str());
+    log::d(stream.str());
 
     for (const auto &device: availableDevices) {
         if (isPhysicalDeviceSuitable(device, mSurface, true)) {
@@ -218,7 +204,7 @@ void VulkanAPI::createDevice() {
     }
 
     require(mPhysicalDevice, "Failed to find a suitable GPU!");
-   log::i("Picked physical device: ", mPhysicalDevice.getProperties().deviceName);
+    log::i("Picked physical device: ", mPhysicalDevice.getProperties().deviceName);
 
     vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
 
@@ -268,6 +254,21 @@ void VulkanAPI::createDevice() {
     // TODO multiple queues per family?
     mGraphicsQueue = mDevice.getQueue(mQueueFamilyIndices.graphicsFamily.value(), 0);
     mPresentQueue = mDevice.getQueue(mQueueFamilyIndices.presentFamily.value(), 0);
+}
+
+void VulkanAPI::createSwapchain() {
+    mSwapchain = std::make_unique<VulkanSwapchain>(
+            mWindow,
+            mPhysicalDevice,
+            mDevice,
+            mSurface,
+            mQueueFamilyIndices,
+            false
+    );
+}
+
+void VulkanAPI::destroySwapchain() {
+    mSwapchain.reset();
 }
 
 void VulkanAPI::destroyDevice() {

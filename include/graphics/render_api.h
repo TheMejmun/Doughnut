@@ -9,15 +9,17 @@
 #include "queue_family_indices.h"
 #include "optional_features.h"
 #include "io/window.h"
+#include "swapchain.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 #include <string>
+#include <memory>
 
 namespace dn {
     class VulkanAPI {
     public:
-        VulkanAPI(Window *window, const std::string &title);
+        VulkanAPI(Window &window, const std::string &title);
 
         ~VulkanAPI();
 
@@ -26,11 +28,15 @@ namespace dn {
 
         void createDevice();
 
+        void createSwapchain();
+
+        void destroySwapchain();
+
         void destroyDevice();
 
         void destroyInstance();
 
-        Window *mWindow;
+        Window &mWindow;
         vk::Instance mInstance = nullptr;
         vk::SurfaceKHR mSurface = nullptr;
 
@@ -41,6 +47,8 @@ namespace dn {
 
         vk::Queue mGraphicsQueue = nullptr;
         vk::Queue mPresentQueue = nullptr;
+
+        std::unique_ptr<VulkanSwapchain> mSwapchain{};
     };
 }
 
