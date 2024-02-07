@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace Doughnut {
+namespace dn {
     template<class T>
     struct WithIndex {
         size_t index;

@@ -12,7 +12,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Doughnut::Graphics::Vk::Buffers {
+namespace dn::vulkan::Buffers {
     extern const uint32_t UBO_BUFFER_COUNT;
     extern const uint32_t DEFAULT_ALLOCATION_SIZE;
     extern uint32_t maxAllocations, currentAllocations;

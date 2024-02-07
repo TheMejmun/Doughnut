@@ -18,7 +18,7 @@
 
 // TODO https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Frames_in_flight
 
-namespace Doughnut::Graphics {
+namespace dn {
     class Renderer {
     public:
         Renderer(const std::string &title, GLFWwindow *window);
@@ -67,7 +67,7 @@ namespace Doughnut::Graphics {
 
         RenderState state{};
 
-        Doughnut::Timer::Point lastTimestamp = Timer::now();
+        dn::Time lastTimestamp = now();
         std::thread simplifiedMeshAllocationThread{};
 
         VkDescriptorSetLayout descriptorSetLayout = nullptr;
@@ -81,7 +81,7 @@ namespace Doughnut::Graphics {
         VkSemaphore renderFinishedSemaphore = nullptr;
         VkFence inFlightFence = nullptr;
 
-        Doughnut::ResourcePool<Doughnut::Texture> mTexturePool{};
+        dn::ResourcePool<dn::Texture> mTexturePool{};
     };
 };
 

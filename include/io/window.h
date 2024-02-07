@@ -14,7 +14,7 @@
 const int32_t DEFAULT_WIDTH = 1920;
 const int32_t DEFAULT_HEIGHT = 1080;
 
-namespace Doughnut {
+namespace dn {
     class Window {
     public:
         explicit Window(const std::string &title);

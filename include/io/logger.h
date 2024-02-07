@@ -12,8 +12,8 @@
 
 // TODO move printing into separate thread
 
-namespace Doughnut::Log {
-    namespace Internal {
+namespace dn::log {
+    namespace internal {
         extern Scheduler scheduler;
 
         enum Level {
@@ -38,9 +38,9 @@ namespace Doughnut::Log {
 
         template<typename... ARGS>
         void logFormattedAsync(Level level, ARGS &&... args) {
-            Internal::scheduler.queue({[=]() {
-                auto formatted = Internal::format(args...);
-                Internal::log(level, formatted);
+            internal::scheduler.queue({[=]() {
+                auto formatted = internal::format(args...);
+                internal::log(level, formatted);
             }});
         }
     }
@@ -58,34 +58,34 @@ namespace Doughnut::Log {
     template<typename... ARGS>
     inline void i(ARGS &&... args) {
         if (infoEnabled()) {
-            Internal::logFormattedAsync(Internal::INFO, args...);
+            internal::logFormattedAsync(internal::INFO, args...);
         }
     }
 
     template<typename... ARGS>
     inline void d(ARGS &&... args) {
         if (debugEnabled()) {
-            Internal::logFormattedAsync(Internal::DEBUG, args...);
+            internal::logFormattedAsync(internal::DEBUG, args...);
         }
     }
 
     template<typename... ARGS>
     inline void v(ARGS &&... args) {
         if (verboseEnabled()) {
-            Internal::logFormattedAsync(Internal::VERBOSE, args...);
+            internal::logFormattedAsync(internal::VERBOSE, args...);
         }
     }
 
     template<typename... ARGS>
     inline void t(ARGS &&... args) {
         if (traceEnabled()) {
-            Internal::logFormattedAsync(Internal::TRACE, args...);
+            internal::logFormattedAsync(internal::TRACE, args...);
         }
     }
 
     template<typename... ARGS>
     inline void e(ARGS &&... args) {
-        Internal::logFormattedAsync(Internal::ERROR, args...);
+        internal::logFormattedAsync(internal::ERROR, args...);
     }
 
     void flush();

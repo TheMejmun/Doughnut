@@ -16,8 +16,8 @@
 #include "imgui_impl_glfw.h"
 #include <sstream>
 
-using namespace Doughnut;
-using namespace Doughnut::Graphics::Vk;
+using namespace dn;
+using namespace dn::vulkan;
 
 VkDescriptorPool uiDescriptorPool;
 float scale = 1.0f;
@@ -34,7 +34,7 @@ static void checkVkResult(VkResult err) {
 }
 
 void Imgui::create(RenderState &state) {
-    Log::i("Creating Imgui");
+   log::i("Creating Imgui");
 
     // https://github.com/ocornut/imgui/blob/master/examples/example_glfw_vulkan/main.cpp
 
@@ -142,7 +142,7 @@ void Imgui::draw(RenderState &renderState, UiState &uiState) {
 }
 
 void Imgui::destroy() {
-    Log::i("Destroying Imgui");
+   log::i("Destroying Imgui");
 
     vkDeviceWaitIdle(Devices::logical);
 

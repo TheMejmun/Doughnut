@@ -15,8 +15,8 @@
 #include <array>
 #include <algorithm>
 
-using namespace Doughnut;
-using namespace Doughnut::Graphics::Vk;
+using namespace dn;
+using namespace dn::vulkan;
 
 // Global
 VkSurfaceKHR Swapchain::surface = nullptr;
@@ -81,9 +81,9 @@ VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
         }
     }
 
-    Log::v("Picked Swapchain Surface Format: ");
-    Log::v("\tFormat:", out.format);
-    Log::v("\tColor Space:", out.colorSpace);
+   log::v("Picked Swapchain Surface Format: ");
+   log::v("\tFormat:", out.format);
+   log::v("\tColor Space:", out.colorSpace);
 
     return out;
 }
@@ -109,7 +109,7 @@ VkPresentModeKHR Swapchain::chooseSwapPresentMode(const std::vector<VkPresentMod
         }
     }
 
-    Log::i("Picked Swapchain Present Mode:", presentModeNames[currentIndex]);
+   log::i("Picked Swapchain Present Mode:", presentModeNames[currentIndex]);
     return presentModePreferences[currentIndex];
 }
 
@@ -141,12 +141,12 @@ VkExtent2D Swapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilit
     Swapchain::framebufferHeight = out.height;
     Swapchain::aspectRatio = static_cast<float>(out.width) / static_cast<float>(out.height);
 
-    Log::i("Swapchain extents set to:", out.width, "*", out.height);
+   log::i("Swapchain extents set to:", out.width, "*", out.height);
     return out;
 }
 
 bool Swapchain::recreateSwapchain(RenderState &state) {
-    Log::v("Recreating Swapchain");
+   log::v("Recreating Swapchain");
 
     // May need to recreate render pass here if e.g. window moves to HDR monitor
 
@@ -164,7 +164,7 @@ bool Swapchain::recreateSwapchain(RenderState &state) {
 }
 
 bool Swapchain::createSwapchain() {
-    Log::i("Creating Swapchain");
+   log::i("Creating Swapchain");
 
     Swapchain::SwapchainSupportDetails swapchainSupport = Swapchain::querySwapchainSupport(
             Devices::physical);
@@ -174,7 +174,7 @@ bool Swapchain::createSwapchain() {
     VkExtent2D extentTemp = chooseSwapExtent(swapchainSupport.capabilities);
 
     if (extentTemp.width < 1 || extentTemp.height < 1) {
-        Log::v("Invalid swapchain extents. Retry later!");
+       log::v("Invalid swapchain extents. Retry later!");
         Swapchain::needsNewSwapchain = true;
         return false;
     }
@@ -185,7 +185,7 @@ bool Swapchain::createSwapchain() {
         Swapchain::minImageCount > swapchainSupport.capabilities.maxImageCount) {
         Swapchain::minImageCount = swapchainSupport.capabilities.maxImageCount;
     }
-    Log::v("Creating the swapchain with at least", Swapchain::minImageCount, "images!");
+   log::v("Creating the swapchain with at least", Swapchain::minImageCount, "images!");
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -246,7 +246,7 @@ bool Swapchain::createSwapchain() {
 }
 
 void Swapchain::destroySwapchain() {
-    Log::i("Destroying Swapchain");
+   log::i("Destroying Swapchain");
 
     for (auto &swapchainFramebuffer: Swapchain::framebuffers) {
         vkDestroyFramebuffer(Devices::logical, swapchainFramebuffer, nullptr);

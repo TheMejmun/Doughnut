@@ -30,11 +30,11 @@ void UI::update(UiState &state) {
     if (!state.loggingStarted) {
         if (ImGui::Button("Start performance log")) {
             state.loggingStarted = true;
-            state.loggingStartTime = Doughnut::Timer::now();
+            state.loggingStartTime = dn::now();
         }
     } else {
         ImGui::Text("Performance log running: %3.2f",
-                    PerformanceLogging::LOG_DURATION - Doughnut::Timer::duration(state.loggingStartTime, Doughnut::Timer::now()));
+                    PerformanceLogging::LOG_DURATION - dn::duration(state.loggingStartTime, dn::now()));
     }
 
     ImGui::SeparatorText("Mesh Info");

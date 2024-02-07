@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Doughnut::Graphics::Vk::RenderPasses{
+namespace dn::vulkan::RenderPasses{
     extern VkRenderPass renderPass;
 
     void create();

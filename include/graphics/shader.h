@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace Doughnut {
+namespace dn {
     class Shader {
     public:
         explicit Shader(const std::string &filename);

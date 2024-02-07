@@ -4,10 +4,10 @@
 
 #include "ecs/system_manager.h"
 
-using namespace Doughnut::ECS;
+using namespace dn;
 
 // TODO could fail due to race conditions in 'TestSystem::update'
-void Doughnut::ECS::testSystemManager() {
+void dn::testSystemManager() {
     EntityManager<int, long, std::mutex *> em{};
 
     em.makeEntity();
@@ -60,5 +60,5 @@ void Doughnut::ECS::testSystemManager() {
     assert(constructed == 6);
     assert(executions == 12);
 
-    Doughnut::Log::i("SystemManager test successful.");
+    dn::log::i("SystemManager test successful.");
 }

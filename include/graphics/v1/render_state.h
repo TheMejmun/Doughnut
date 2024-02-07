@@ -12,13 +12,13 @@
 #include "GLFW/glfw3.h"
 #include <string>
 
-namespace Doughnut::Graphics {
+namespace dn {
     struct RenderState {
         std::string title{};
 
         GLFWwindow *window = nullptr;
 
-        Vk::State vulkanState{};
+        vulkan::State vulkanState{};
     };
 };
 #endif //DOUGHNUT_RENDER_STATE_H

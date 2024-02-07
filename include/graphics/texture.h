@@ -10,7 +10,7 @@
 #include <stb_image.h>
 #include "io/logger.h"
 
-namespace Doughnut {
+namespace dn {
     class Texture {
     public:
         explicit Texture(const std::string &filename);

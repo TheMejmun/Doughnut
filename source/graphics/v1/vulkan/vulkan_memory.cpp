@@ -7,7 +7,7 @@
 
 #include <stdexcept>
 
-using namespace Doughnut::Graphics::Vk;
+using namespace dn::vulkan;
 
 uint32_t Memory::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
     VkPhysicalDeviceMemoryProperties memoryProperties;

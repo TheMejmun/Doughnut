@@ -21,11 +21,11 @@
 #include <optional>
 #include <cassert>
 
-namespace Doughnut::ECS {
+namespace dn {
     template<class... COMPONENTS>
     struct Reference {
         size_t entity;
-        typename Doughnut::TupleOrSingle<COMPONENTS *...>::Type components;
+        typename dn::TupleOrSingle<COMPONENTS *...>::Type components;
 
         template<class COMPONENT>
         inline COMPONENT *get() const {
@@ -41,10 +41,10 @@ namespace Doughnut::ECS {
     class EntityManager {
     public:
         EntityManager() {
-            Doughnut::Log::i("Creating EntityManager");
+            dn::log::i("Creating EntityManager");
 
             ([&] {
-                Doughnut::Log::v("Adding type", typeid(COMPONENTS).name());
+                dn::log::v("Adding type", typeid(COMPONENTS).name());
 
                 const auto typeIndex = std::type_index(typeid(COMPONENTS));
                 assert(!mTypeIndexMap.contains(typeIndex) && "Can not add multiple components of the same type due to ambiguity");
@@ -53,7 +53,7 @@ namespace Doughnut::ECS {
         }
 
         ~EntityManager() {
-            Doughnut::Log::i("Destroying EntityManager");
+            dn::log::i("Destroying EntityManager");
         }
 
         size_t makeEntity() {
@@ -201,7 +201,7 @@ namespace Doughnut::ECS {
             for (auto b: matchesArchetype) {
                 if (b) ++totalMatches;
             }
-            Doughnut::Log::v("Archetype matches:", totalMatches, "for", typeid(typename Doughnut::TupleOrSingle<COMPONENT...>::Type).name());
+            dn::log::v("Archetype matches:", totalMatches, "for", typeid(typename dn::TupleOrSingle<COMPONENT...>::Type).name());
 
             out.resize(totalMatches);
 
@@ -214,7 +214,7 @@ namespace Doughnut::ECS {
                     if constexpr (sizeof...(COMPONENT) > 1) {
                         insertArchetypeComponents<COMPONENT...>(out, mIndexArrays[denseIndex], archetypeIndex);
                     } else {
-                        insertSingleArchetypeComponents<typename Doughnut::FirstOf<COMPONENT...>::Type>(out, mIndexArrays[denseIndex], archetypeIndex);
+                        insertSingleArchetypeComponents<typename dn::FirstOf<COMPONENT...>::Type>(out, mIndexArrays[denseIndex], archetypeIndex);
                     }
 
                     ++archetypeIndex;
@@ -239,7 +239,7 @@ namespace Doughnut::ECS {
         std::vector<std::array<std::optional<size_t>, sizeof...(COMPONENTS)>> mIndexArrays{};
 
         std::map<std::type_index, size_t> mTypeIndexMap{};
-        std::tuple<std::vector<Doughnut::WithIndex<COMPONENTS>>...> mComponentVectors{};
+        std::tuple<std::vector<dn::WithIndex<COMPONENTS>>...> mComponentVectors{};
 
         std::mutex mMakeEntityMutex{};
         std::mutex mDeleteEntityMutex{};
@@ -250,8 +250,8 @@ namespace Doughnut::ECS {
         std::array<std::vector<size_t>, sizeof...(COMPONENTS)> mDeletableComponentVectors{};
 
         template<typename T>
-        inline std::vector<Doughnut::WithIndex<T>> &componentVector() {
-            return std::get<std::vector<Doughnut::WithIndex<T>>>(mComponentVectors);
+        inline std::vector<dn::WithIndex<T>> &componentVector() {
+            return std::get<std::vector<dn::WithIndex<T>>>(mComponentVectors);
         }
 
         template<class COMPONENT>

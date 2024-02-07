@@ -8,7 +8,7 @@
 #include "preprocessor.h"
 #include "typedefs.h"
 
-class CameraController : public Doughnut::ECS::System<EntityManagerSpec> {
+class CameraController : public dn::System<EntityManagerSpec> {
 public:
     void update(double delta, EntityManagerSpec &entityManager) override;
 };

@@ -6,7 +6,7 @@
 #include "util/importer.h"
 #include "io/logger.h"
 
-using namespace Doughnut;
+using namespace dn;
 
 Shader::Shader(const std::string &filename) {
     mRaw = readFile(filename);
@@ -16,7 +16,7 @@ Shader::Shader(const std::string &filename) {
         for (const char &c: mRaw) {
             stream << c;
         }
-        Log::v(stream.str());
+       log::v(stream.str());
     }
 }
 

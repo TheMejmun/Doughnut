@@ -10,7 +10,7 @@
 static InputController *instance;
 
 InputController::InputController(GLFWwindow *w) {
-    Doughnut::Log::i("Creating InputManager");
+    dn::log::i("Creating InputManager");
 
     this->window = w;
     instance = this;
@@ -120,5 +120,5 @@ void InputController::handleKey(KeyState *key, const int &actionCode) {
 }
 
 InputController::~InputController() {
-    Doughnut::Log::i("Destroying InputManager");
+    dn::log::i("Destroying InputManager");
 }

@@ -4,15 +4,15 @@
 
 #include "ecs/entity_manager.h"
 
-using namespace Doughnut::ECS;
+using namespace dn;
 
-void Doughnut::ECS::testEntityManager() {
+void dn::testEntityManager() {
     struct test {
         size_t someValue = 0;
     };
 
     // Init
-    Doughnut::ECS::EntityManager<test, int, double> em;
+    dn::EntityManager<test, int, double> em;
     assert(em.entityCount() == 0);
     assert(em.componentCount<int>() == 0);
 
@@ -86,10 +86,10 @@ void Doughnut::ECS::testEntityManager() {
     assert(em.componentCount<int>() == 1);
     assert(*em.getComponent<int>(id2) == 3);
 
-    Doughnut::Log::i("EntityManager test successful.");
+    dn::log::i("EntityManager test successful.");
 }
 
-void Doughnut::ECS::benchmarkEntityManager(const size_t count) {
+void dn::benchmarkEntityManager(const size_t count) {
     struct Component1 {
         double one;
         double two;

@@ -8,7 +8,7 @@
 
 #include <stb_image.h>
 
-using namespace Doughnut;
+using namespace dn;
 
 Texture::Texture(const std::string &filename) {
     // STBI_rgb_alpha for alpha in the future
@@ -18,11 +18,11 @@ Texture::Texture(const std::string &filename) {
     }
 
     if (!mData) {
-        Doughnut::Log::e("Failed to load texture", filename);
-        Doughnut::Log::flush();
+        dn::log::e("Failed to load texture", filename);
+        dn::log::flush();
         throw std::runtime_error("Failed to load texture!");
     } else {
-        Doughnut::Log::i("Loaded", filename);
+        dn::log::i("Loaded", filename);
     }
 }
 
@@ -32,6 +32,6 @@ size_t Texture::size() {
 }
 
 Texture::~Texture() {
-    Doughnut::Log::i("Freed texture");
+    dn::log::i("Freed texture");
     stbi_image_free(mData);
 }

@@ -11,15 +11,15 @@
 #include "util/importer.h"
 #include "io/logger.h"
 
-using namespace Doughnut;
-using namespace Doughnut::Graphics;
+using namespace dn;
+using namespace dn;
 
 void Renderer::createGraphicsPipeline() {
     // TODO pull these out of here
-    auto vertShaderCode = Doughnut::readFile("resources/shaders/sphere.vert.spv");
-    Log::v("Loaded vertex shader with byte size:", vertShaderCode.size());
-    auto fragShaderCode = Doughnut::readFile("resources/shaders/sphere.frag.spv");
-    Log::v("Loaded fragment shader with byte size:", fragShaderCode.size());
+    auto vertShaderCode = dn::readFile("resources/shaders/sphere.vert.spv");
+   log::v("Loaded vertex shader with byte size:", vertShaderCode.size());
+    auto fragShaderCode = dn::readFile("resources/shaders/sphere.frag.spv");
+   log::v("Loaded fragment shader with byte size:", fragShaderCode.size());
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -137,7 +137,7 @@ void Renderer::createGraphicsPipeline() {
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-    if (vkCreatePipelineLayout(Vk::Devices::logical, &pipelineLayoutInfo, nullptr, &this->pipelineLayout) !=
+    if (vkCreatePipelineLayout(vulkan::Devices::logical, &pipelineLayoutInfo, nullptr, &this->pipelineLayout) !=
         VK_SUCCESS) {
         throw std::runtime_error("Failed to create pipeline layout!");
     }
@@ -167,7 +167,7 @@ void Renderer::createGraphicsPipeline() {
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = &dynamicState;
     pipelineInfo.layout = this->pipelineLayout;
-    pipelineInfo.renderPass = Vk::RenderPasses::renderPass; // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap8.html#renderpass-compatibility
+    pipelineInfo.renderPass = vulkan::RenderPasses::renderPass; // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap8.html#renderpass-compatibility
     pipelineInfo.subpass = 0; // Subpass index for this pipeline
     // Index or handle of parent pipeline. -> Perf+ if available
     // Needs VK_PIPELINE_CREATE_DERIVATIVE_BIT flag in this struct
@@ -175,14 +175,14 @@ void Renderer::createGraphicsPipeline() {
     pipelineInfo.basePipelineIndex = -1; // Optional
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    if (vkCreateGraphicsPipelines(Vk::Devices::logical, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
+    if (vkCreateGraphicsPipelines(vulkan::Devices::logical, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
                                   &this->graphicsPipeline) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create graphics pipeline!");
     }
 
     // Once the pipeline is created, we don't need this anymore
-    vkDestroyShaderModule(Vk::Devices::logical, fragShaderModule, nullptr);
-    vkDestroyShaderModule(Vk::Devices::logical, vertShaderModule, nullptr);
+    vkDestroyShaderModule(vulkan::Devices::logical, fragShaderModule, nullptr);
+    vkDestroyShaderModule(vulkan::Devices::logical, vertShaderModule, nullptr);
 }
 
 void Renderer::createDescriptorSetLayout() {
@@ -198,7 +198,7 @@ void Renderer::createDescriptorSetLayout() {
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = &uboLayoutBinding;
 
-    if (vkCreateDescriptorSetLayout(Vk::Devices::logical, &layoutInfo, nullptr, &this->descriptorSetLayout) !=
+    if (vkCreateDescriptorSetLayout(vulkan::Devices::logical, &layoutInfo, nullptr, &this->descriptorSetLayout) !=
         VK_SUCCESS) {
         throw std::runtime_error("Failed to create descriptor set layout!");
     }
@@ -208,39 +208,39 @@ void Renderer::createDescriptorPool() {
     // Can have multiple pools, with multiple buffers each
     VkDescriptorPoolSize poolSize{};
     poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount = static_cast<uint32_t>(Vk::Buffers::UBO_BUFFER_COUNT);
+    poolSize.descriptorCount = static_cast<uint32_t>(vulkan::Buffers::UBO_BUFFER_COUNT);
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = 1;
     poolInfo.pPoolSizes = &poolSize;
-    poolInfo.maxSets = static_cast<uint32_t>(Vk::Buffers::UBO_BUFFER_COUNT);
+    poolInfo.maxSets = static_cast<uint32_t>(vulkan::Buffers::UBO_BUFFER_COUNT);
     // poolInfo.flags = 0; // Investigate VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT
     // Would mean that Descriptor sets could individually be freed to their pools
     // Would allow vkFreeDescriptorSets
     // Otherwise only vkAllocateDescriptorSets and vkResetDescriptorPool
 
-    if (vkCreateDescriptorPool(Vk::Devices::logical, &poolInfo, nullptr, &this->descriptorPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(vulkan::Devices::logical, &poolInfo, nullptr, &this->descriptorPool) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create descriptor pool!");
     }
 }
 
 void Renderer::createDescriptorSets() {
-    std::vector<VkDescriptorSetLayout> layouts(Vk::Buffers::UBO_BUFFER_COUNT, this->descriptorSetLayout);
+    std::vector<VkDescriptorSetLayout> layouts(vulkan::Buffers::UBO_BUFFER_COUNT, this->descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = this->descriptorPool;
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(Vk::Buffers::UBO_BUFFER_COUNT);
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(vulkan::Buffers::UBO_BUFFER_COUNT);
     allocInfo.pSetLayouts = layouts.data();
 
-    this->descriptorSets.resize(Vk::Buffers::UBO_BUFFER_COUNT);
-    if (vkAllocateDescriptorSets(Vk::Devices::logical, &allocInfo, this->descriptorSets.data()) != VK_SUCCESS) {
+    this->descriptorSets.resize(vulkan::Buffers::UBO_BUFFER_COUNT);
+    if (vkAllocateDescriptorSets(vulkan::Devices::logical, &allocInfo, this->descriptorSets.data()) != VK_SUCCESS) {
         throw std::runtime_error("Failed to allocate descriptor sets!");
     }
 
-    for (size_t i = 0; i < Vk::Buffers::UBO_BUFFER_COUNT; i++) {
+    for (size_t i = 0; i < vulkan::Buffers::UBO_BUFFER_COUNT; i++) {
         VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = Vk::Buffers::uniformBuffers[i];
+        bufferInfo.buffer = vulkan::Buffers::uniformBuffers[i];
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(UniformBufferObject); // Or VK_WHOLE_SIZE
 
@@ -258,7 +258,7 @@ void Renderer::createDescriptorSets() {
         descriptorWrite.pTexelBufferView = nullptr; // Optional
 
         // Optional VkCopyDescriptorSet to copy between descriptors
-        vkUpdateDescriptorSets(Vk::Devices::logical, 1, &descriptorWrite, 0, nullptr);
+        vkUpdateDescriptorSets(vulkan::Devices::logical, 1, &descriptorWrite, 0, nullptr);
     }
 }
 
@@ -267,15 +267,15 @@ void Renderer::createCommandPool() {
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; // for vkResetCommandBuffer
     // Use VK_COMMAND_POOL_CREATE_TRANSIENT_BIT if buffer is very short-lived
-    poolInfo.queueFamilyIndex = Vk::Devices::queueFamilyIndices.graphicsFamily.value();
+    poolInfo.queueFamilyIndex = vulkan::Devices::queueFamilyIndices.graphicsFamily.value();
 
-    if (vkCreateCommandPool(Vk::Devices::logical, &poolInfo, nullptr, &this->commandPool) != VK_SUCCESS) {
+    if (vkCreateCommandPool(vulkan::Devices::logical, &poolInfo, nullptr, &this->commandPool) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create command pool!");
     }
 
     this->state.vulkanState.commandPool = this->commandPool;
 
-    Vk::Buffers::createCommandBuffer(this->commandPool);
+    vulkan::Buffers::createCommandBuffer(this->commandPool);
 }
 
 void Renderer::createSyncObjects() {
@@ -286,11 +286,11 @@ void Renderer::createSyncObjects() {
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // Start off as signaled
 
-    if (vkCreateSemaphore(Vk::Devices::logical, &semaphoreInfo, nullptr, &this->imageAvailableSemaphore) !=
+    if (vkCreateSemaphore(vulkan::Devices::logical, &semaphoreInfo, nullptr, &this->imageAvailableSemaphore) !=
         VK_SUCCESS ||
-        vkCreateSemaphore(Vk::Devices::logical, &semaphoreInfo, nullptr, &this->renderFinishedSemaphore) !=
+        vkCreateSemaphore(vulkan::Devices::logical, &semaphoreInfo, nullptr, &this->renderFinishedSemaphore) !=
         VK_SUCCESS ||
-        vkCreateFence(Vk::Devices::logical, &fenceInfo, nullptr, &this->inFlightFence) != VK_SUCCESS) {
+        vkCreateFence(vulkan::Devices::logical, &fenceInfo, nullptr, &this->inFlightFence) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create semaphores and/or fences!");
     }
 }
@@ -307,10 +307,10 @@ void Renderer::recordCommandBuffer(EntityManagerSpec &ecs, VkCommandBuffer buffe
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = Vk::RenderPasses::renderPass;
-    renderPassInfo.framebuffer = Vk::Swapchain::framebuffers[imageIndex];
+    renderPassInfo.renderPass = vulkan::RenderPasses::renderPass;
+    renderPassInfo.framebuffer = vulkan::Swapchain::framebuffers[imageIndex];
     renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = Vk::Swapchain::extent;
+    renderPassInfo.renderArea.extent = vulkan::Swapchain::extent;
 
     // Identical order to attachment order!
     std::array<VkClearValue, 2> clearValues{};
@@ -324,35 +324,35 @@ void Renderer::recordCommandBuffer(EntityManagerSpec &ecs, VkCommandBuffer buffe
 
     vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsPipeline);
 
-    VkBuffer vertexBuffers[] = {Vk::Buffers::vertexBuffer[Vk::Buffers::meshBufferToUse]};
+    VkBuffer vertexBuffers[] = {vulkan::Buffers::vertexBuffer[vulkan::Buffers::meshBufferToUse]};
     VkDeviceSize offsets[] = {0};
     // Offset and number of bindings, buffers, and byte offsets from those buffers
     vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers, offsets);
 
-    vkCmdBindIndexBuffer(buffer, Vk::Buffers::indexBuffer[Vk::Buffers::meshBufferToUse], 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindIndexBuffer(buffer, vulkan::Buffers::indexBuffer[vulkan::Buffers::meshBufferToUse], 0, VK_INDEX_TYPE_UINT32);
 
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(Vk::Swapchain::extent.width);
-    viewport.height = static_cast<float>(Vk::Swapchain::extent.height);
+    viewport.width = static_cast<float>(vulkan::Swapchain::extent.width);
+    viewport.height = static_cast<float>(vulkan::Swapchain::extent.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(buffer, 0, 1, &viewport);
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = Vk::Swapchain::extent;
+    scissor.extent = vulkan::Swapchain::extent;
     vkCmdSetScissor(buffer, 0, 1, &scissor);
 
     // TODO Do not directly access uniform buffer index like this
     vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->pipelineLayout, 0, 1,
-                            &this->descriptorSets[Vk::Buffers::uniformBufferIndex], 0, nullptr);
+                            &this->descriptorSets[vulkan::Buffers::uniformBufferIndex], 0, nullptr);
 
 #ifdef INSTANCED_RENDERING
-    vkCmdDrawIndexed(buffer, Vk::Buffers::indexCount[Vk::Buffers::meshBufferToUse], 25, 0, 0, 0);
+    vkCmdDrawIndexed(buffer, vulkan::Buffers::indexCount[vulkan::Buffers::meshBufferToUse], 25, 0, 0, 0);
 #else
-    vkCmdDrawIndexed(buffer, Vk::Buffers::indexCount[Vk::Buffers::meshBufferToUse], 1, 0, 0, 0);
+    vkCmdDrawIndexed(buffer, vulkan::Buffers::indexCount[vulkan::Buffers::meshBufferToUse], 1, 0, 0, 0);
 #endif
 
     this->drawUi(ecs);
@@ -365,14 +365,14 @@ void Renderer::recordCommandBuffer(EntityManagerSpec &ecs, VkCommandBuffer buffe
 }
 
 double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
-    if (Vk::Swapchain::shouldRecreateSwapchain()) {
-        bool success = Vk::Swapchain::recreateSwapchain(this->state);
+    if (vulkan::Swapchain::shouldRecreateSwapchain()) {
+        bool success = vulkan::Swapchain::recreateSwapchain(this->state);
         if (success) {
-            Log::d("Created new swapchain");
-            Vk::Swapchain::needsNewSwapchain = false;
+           log::d("Created new swapchain");
+            vulkan::Swapchain::needsNewSwapchain = false;
 
         } else {
-            Log::d("Failed to create new swapchain");
+           log::d("Failed to create new swapchain");
             return -1;
         }
     }
@@ -381,32 +381,32 @@ double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
     uploadSimplifiedMeshes(ecs);
     destroyRenderables(ecs);
 
-    auto beforeFence = Timer::now();
-    vkWaitForFences(Vk::Devices::logical, 1, &this->inFlightFence, VK_TRUE, UINT64_MAX);
-    auto afterFence = Timer::now();
+    auto beforeFence = now();
+    vkWaitForFences(vulkan::Devices::logical, 1, &this->inFlightFence, VK_TRUE, UINT64_MAX);
+    auto afterFence = now();
 
-//    printf("Waited for fence: %f seconds\n", Timer::duration(beforeFence, afterFence));
+//    printf("Waited for fence: %f seconds\n", duration(beforeFence, afterFence));
 
     uint32_t imageIndex;
-    auto acquireImageResult = vkAcquireNextImageKHR(Vk::Devices::logical, Vk::Swapchain::swapchain, UINT64_MAX,
+    auto acquireImageResult = vkAcquireNextImageKHR(vulkan::Devices::logical, vulkan::Swapchain::swapchain, UINT64_MAX,
                                                     this->imageAvailableSemaphore, nullptr, &imageIndex);
 
     if (acquireImageResult == VK_ERROR_OUT_OF_DATE_KHR) {
-        Log::d("Swapchain is out of date");
-        Vk::Swapchain::recreateSwapchain(this->state);
-        return Timer::duration(beforeFence, afterFence); // Why not
+       log::d("Swapchain is out of date");
+        vulkan::Swapchain::recreateSwapchain(this->state);
+        return duration(beforeFence, afterFence); // Why not
     } else if (acquireImageResult == VK_SUBOPTIMAL_KHR) {
-        Log::d("Swapchain is suboptimal");
-        Vk::Swapchain::needsNewSwapchain = true;
+       log::d("Swapchain is suboptimal");
+        vulkan::Swapchain::needsNewSwapchain = true;
 
     } else if (acquireImageResult != VK_SUCCESS) {
         throw std::runtime_error("Failed to acquire swapchain image!");
     }
 
     // Avoid deadlock if recreating -> move to after success check
-    vkResetFences(Vk::Devices::logical, 1, &this->inFlightFence);
+    vkResetFences(vulkan::Devices::logical, 1, &this->inFlightFence);
 
-    auto commandBuffer = Vk::Buffers::commandBuffer;
+    auto commandBuffer = vulkan::Buffers::commandBuffer;
 
     updateUniformBuffer(delta, ecs);
 
@@ -431,7 +431,7 @@ double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
     submitInfo.pSignalSemaphores = signalSemaphores;
 
 //    START_TRACE
-    if (vkQueueSubmit(Vk::Devices::graphicsQueue, 1, &submitInfo, this->inFlightFence) != VK_SUCCESS) {
+    if (vkQueueSubmit(vulkan::Devices::graphicsQueue, 1, &submitInfo, this->inFlightFence) != VK_SUCCESS) {
         throw std::runtime_error("Failed to submit draw command buffer!");
     }
 //    END_TRACE("QUEUE SUBMIT")
@@ -442,13 +442,13 @@ double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
-    VkSwapchainKHR swapchains[] = {Vk::Swapchain::swapchain};
+    VkSwapchainKHR swapchains[] = {vulkan::Swapchain::swapchain};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapchains;
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr; // Per swapchain acquireImageResult
 
-    vkQueuePresentKHR(Vk::Devices::presentQueue, &presentInfo);
+    vkQueuePresentKHR(vulkan::Devices::presentQueue, &presentInfo);
 
-    return Timer::duration(beforeFence, afterFence);
+    return duration(beforeFence, afterFence);
 }

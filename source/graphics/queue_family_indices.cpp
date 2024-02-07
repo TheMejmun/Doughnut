@@ -5,7 +5,7 @@
 #include "graphics/queue_family_indices.h"
 #include "io/logger.h"
 
-using namespace Doughnut;
+using namespace dn;
 
 bool QueueFamilyIndices::isComplete() const {
     return this->graphicsFamily.has_value() &&
@@ -28,7 +28,7 @@ bool QueueFamilyIndices::hasUniqueTransferQueue() const {
 }
 
 void QueueFamilyIndices::print() {
-    Log::d(
+    log::d(
             "QueueFamilyIndices: Graphics:", this->graphicsFamily.value(), "Present:", this->presentFamily.value(), "Transfer:", this->transferFamily.value()
     );
 }

@@ -7,15 +7,15 @@
 #include "graphics/v1/vulkan/vulkan_imgui.h"
 #include "graphics/v1/vulkan/vulkan_buffers.h"
 
-using namespace Doughnut::Graphics;
+using namespace dn;
 
 void Renderer::resetMesh() {
-    Vk::Buffers::resetMeshBufferToUse();
+    vulkan::Buffers::resetMeshBufferToUse();
 }
 
 void Renderer::drawUi(EntityManagerSpec &ecs) {
     auto &uiState = *ecs.template getArchetype<UiState>()[0].components;
-    uiState.currentMeshVertices = Vk::Buffers::vertexCount[Vk::Buffers::meshBufferToUse];
-    uiState.currentMeshTriangles = Vk::Buffers::indexCount[Vk::Buffers::meshBufferToUse] / 3;
-    Vk::Imgui::draw(this->state, uiState);
+    uiState.currentMeshVertices = vulkan::Buffers::vertexCount[vulkan::Buffers::meshBufferToUse];
+    uiState.currentMeshTriangles = vulkan::Buffers::indexCount[vulkan::Buffers::meshBufferToUse] / 3;
+    vulkan::Imgui::draw(this->state, uiState);
 }

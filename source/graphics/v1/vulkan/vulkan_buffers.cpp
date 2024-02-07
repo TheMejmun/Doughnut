@@ -9,8 +9,8 @@
 #include "util/timer.h"
 #include "io/logger.h"
 
-using namespace Doughnut;
-using namespace Doughnut::Graphics::Vk;
+using namespace dn;
+using namespace dn::vulkan;
 
 uint32_t Buffers::maxAllocations = 0, Buffers::currentAllocations = 0;
 
@@ -46,13 +46,13 @@ uint32_t indexCountToSet, vertexCountToSet;
 uint32_t meshBufferIndexToSet;
 
 void Buffers::create() {
-    Log::i("Creating Buffers");
+   log::i("Creating Buffers");
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
 
     Buffers::maxAllocations = deviceProperties.limits.maxMemoryAllocationCount;
-    Log::v("Maximum memory allocation count:", Buffers::maxAllocations);
+   log::v("Maximum memory allocation count:", Buffers::maxAllocations);
 
     vkGetPhysicalDeviceMemoryProperties(Devices::physical, &Buffers::memProperties);
 
@@ -79,7 +79,7 @@ void destroyStagingBuffers() {
 }
 
 void Buffers::destroy() {
-    Log::i("Destroying Buffers");
+   log::i("Destroying Buffers");
 
     vkQueueWaitIdle(Buffers::transferQueue); // In case we are still uploading
     destroyStagingBuffers();

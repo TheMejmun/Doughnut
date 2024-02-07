@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 
-namespace Doughnut {
+namespace dn {
     struct Mesh{
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
