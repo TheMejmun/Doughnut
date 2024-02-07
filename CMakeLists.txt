@@ -114,6 +114,10 @@ set(SOURCE_FILES
         source/core/scheduler.cpp
 
         source/graphics/colors.cpp
+        source/graphics/renderer_v2.cpp
+        source/graphics/render_api.cpp
+        source/graphics/texture.cpp
+        source/graphics/queue_family_indices.cpp
 
         source/graphics/v1/ui.cpp
         source/graphics/v1/renderer/drawing.cpp
@@ -174,7 +178,7 @@ target_include_directories(Doughnut PRIVATE ${Stb_INCLUDE_DIR})
 find_package(VulkanHeaders CONFIG)
 target_link_libraries(Doughnut PRIVATE Vulkan::Headers)
 find_package(glm CONFIG REQUIRED)
-target_link_libraries(Doughnut PRIVATE glm::glm)
+target_link_libraries(Doughnut PUBLIC glm::glm)
 
 # output
 get_target_property(LL Doughnut LINK_LIBRARIES)
