@@ -12,75 +12,79 @@ using namespace dn;
 Window::Window(const std::string &t) {
     dn::log::d("Creating Window");
 
-    this->title = t;
+    mTitle = t;
 
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    this->glfwWindow = glfwCreateWindow(this->width, this->height, this->title.c_str(), nullptr, nullptr);
-    this->monitor = glfwGetPrimaryMonitor();
+    mGlfwWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), nullptr, nullptr);
+    mMonitor = glfwGetPrimaryMonitor();
     pollMonitorResolution();
 }
 
 void Window::updateTitle(const std::string &t) {
-    this->title = t;
-    if (this->glfwWindow != nullptr) {
-        glfwSetWindowTitle(this->glfwWindow, this->title.c_str());
+    mTitle = t;
+    if (mGlfwWindow != nullptr) {
+        glfwSetWindowTitle(mGlfwWindow, mTitle.c_str());
     }
 }
 
 bool Window::shouldClose() const {
-    return glfwWindowShouldClose(this->glfwWindow);
+    return glfwWindowShouldClose(mGlfwWindow);
 }
 
 void Window::close() const {
-    glfwSetWindowShouldClose(this->glfwWindow, GLFW_TRUE);
+    glfwSetWindowShouldClose(mGlfwWindow, GLFW_TRUE);
 }
 
 void Window::toggleFullscreen() {
-    this->isMaximized = !this->isMaximized;
-    if (this->isMaximized) {
+    mIsMaximized = !mIsMaximized;
+    if (mIsMaximized) {
         pollPosition(); // For restoring later
-        glfwSetWindowMonitor(this->glfwWindow, glfwGetPrimaryMonitor(),
+        glfwSetWindowMonitor(mGlfwWindow, glfwGetPrimaryMonitor(),
                              0, 0,
-                             this->monitorParams->width, this->monitorParams->height,
-                             this->monitorParams->refreshRate);
+                             mWidth, mHeight,
+                             mMonitorParams->refreshRate);
     } else {
-        glfwSetWindowMonitor(this->glfwWindow, nullptr,
-                             this->windowPosX, this->windowPosY,
-                             this->width, this->height, GLFW_DONT_CARE);
+        glfwSetWindowMonitor(mGlfwWindow, nullptr,
+                             mWindowPosX, mWindowPosY,
+                             mWidth, mHeight, GLFW_DONT_CARE);
     }
 }
 
 
 void Window::pollMonitorResolution() {
     // Supposed to be valid until monitor disconnected, but seems to change between fullscreen and windowed
-    this->monitorParams = glfwGetVideoMode(this->monitor);
+    mMonitorParams = glfwGetVideoMode(mMonitor);
     int count;
-    auto params = glfwGetVideoModes(this->monitor, &count);
+    auto params = glfwGetVideoModes(mMonitor, &count);
 
     for (int i = 0; i < count; ++i) {
         dn::log::d("Got monitor info:",
-                         "\n\tWidth:\t", params[i].width,
-                         "\n\tHeight:\t", params[i].height,
-                         "\n\tRed Bits:\t", params[i].redBits,
-                         "\n\tGreen Bits:\t", params[i].greenBits,
-                         "\n\tBlue Bits:\t", params[i].blueBits,
-                         "\n\tHz:\t", params[i].refreshRate);
-        this->monitorParams = &params[i];
+                   "\n\tWidth:\t", params[i].width,
+                   "\n\tHeight:\t", params[i].height,
+                   "\n\tRed Bits:\t", params[i].redBits,
+                   "\n\tGreen Bits:\t", params[i].greenBits,
+                   "\n\tBlue Bits:\t", params[i].blueBits,
+                   "\n\tHz:\t", params[i].refreshRate);
+        mMonitorParams = &params[i];
     }
 }
 
 void Window::pollPosition() {
-    glfwGetWindowPos(this->glfwWindow, &this->windowPosX, &this->windowPosY);
+    glfwGetWindowPos(mGlfwWindow, &mWindowPosX, &mWindowPosY);
+}
+
+std::string Window::getTitle() {
+    return mTitle;
 }
 
 Window::~Window() {
     dn::log::d("Destroying Window");
 
-    glfwDestroyWindow(this->glfwWindow);
+    glfwDestroyWindow(mGlfwWindow);
 
     glfwTerminate();
 }

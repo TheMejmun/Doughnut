@@ -7,7 +7,7 @@
 
 using namespace dn;
 
-RendererV2::RendererV2(Window &window, const std::string &title) : mAPI(window, title) {
+RendererV2::RendererV2(Window &window) : mAPI(window) {
    log::d("Creating RendererV2");
 }
 

@@ -29,20 +29,22 @@ namespace dn {
 
         void toggleFullscreen();
 
-        GLFWwindow *glfwWindow = nullptr;
+        GLFWwindow *mGlfwWindow = nullptr;
 
-        bool isMaximized = false;
+        [[nodiscard]] std::string getTitle();
+
     private:
         void pollMonitorResolution();
 
         void pollPosition();
 
-        int32_t width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT;
-        int windowPosX = 0, windowPosY = 0;
+        bool mIsMaximized = false;
+        int32_t mWidth = DEFAULT_WIDTH, mHeight = DEFAULT_HEIGHT;
+        int mWindowPosX = 0, mWindowPosY = 0;
 
-        GLFWmonitor *monitor = nullptr;
-        const GLFWvidmode *monitorParams = nullptr;
-        std::string title;
+        GLFWmonitor *mMonitor = nullptr;
+        const GLFWvidmode *mMonitorParams = nullptr;
+        std::string mTitle;
     };
 }
 

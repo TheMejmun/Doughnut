@@ -26,9 +26,9 @@ const std::vector<const char *> VALIDATION_LAYERS = {
         "VK_LAYER_KHRONOS_validation"
 };
 
-VulkanAPI::VulkanAPI(Window &window, const std::string &title) : mWindow(window) {
+VulkanAPI::VulkanAPI(Window &window) : mWindow(window) {
     log::d("Creating VulkanAPI");
-    createInstance(title);
+    createInstance(window.getTitle());
     createDevice();
     createSwapchain();
 }
@@ -101,7 +101,7 @@ void VulkanAPI::createInstance(const std::string &title) {
     mInstance = vk::createInstance(instanceCreateInfo);
 
     require(
-            glfwCreateWindowSurface(mInstance, mWindow.glfwWindow, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
+            glfwCreateWindowSurface(mInstance, mWindow.mGlfwWindow, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
             "Failed to create window surface!"
     );
 }

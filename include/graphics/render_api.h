@@ -19,7 +19,7 @@
 namespace dn {
     class VulkanAPI {
     public:
-        VulkanAPI(Window &window, const std::string &title);
+        VulkanAPI(Window &window);
 
         ~VulkanAPI();
 

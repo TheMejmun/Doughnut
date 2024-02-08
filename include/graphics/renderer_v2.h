@@ -17,7 +17,7 @@
 namespace dn {
     class RendererV2 {
     public:
-        RendererV2(Window& window, const std::string &title);
+        RendererV2(Window& window);
 
         ~RendererV2();
 
