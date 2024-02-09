@@ -76,20 +76,20 @@ VulkanSwapchain::VulkanSwapchain(
         vk::Device device,
         vk::SurfaceKHR surface,
         const QueueFamilyIndices &queueFamilyIndices,
-        bool requestUncapped
-) : mDevice(device) {
+        SwapchainConfiguration config
+) : mConfig(config), mDevice(device) {
     log::d("Creating VulkanSwapchain");
 
     SwapchainSupportDetails swapchainSupport = querySwapchainSupport(physicalDevice, surface);
 
-    vk::SurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
-    vk::PresentModeKHR presentModeTemp = chooseSwapPresentMode(swapchainSupport.presentModes, requestUncapped);
-    vk::Extent2D extentTemp = chooseSwapExtent(swapchainSupport.capabilities, window);
+    mSurfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
+    mPresentMode = chooseSwapPresentMode(swapchainSupport.presentModes, mConfig.uncappedFramerate);
+    mExtent = chooseSwapExtent(swapchainSupport.capabilities, window);
 
-    if (extentTemp.width < 1 || extentTemp.height < 1) {
+    if (mExtent.width < 1 || mExtent.height < 1) {
         log::v("Invalid swapchain extents. Retry later!");
         mNeedsNewSwapchain = true;
-        // TODO return false;
+        return;
     }
 
     // One more image than the minimum to avoid stalling if the driver is still working on the image
@@ -113,9 +113,9 @@ VulkanSwapchain::VulkanSwapchain(
             {},
             surface,
             minImageCount,
-            surfaceFormat.format,
-            surfaceFormat.colorSpace,
-            extentTemp,
+            mSurfaceFormat.format,
+            mSurfaceFormat.colorSpace,
+            mExtent,
             1, // Can be 2 for 3D, etc.
             {vk::ImageUsageFlagBits::eColorAttachment},
             imageSharingMode,
@@ -123,30 +123,22 @@ VulkanSwapchain::VulkanSwapchain(
             queueIndices.data(),
             swapchainSupport.capabilities.currentTransform, // Do not add any swapchain transforms beyond the default
             vk::CompositeAlphaFlagBitsKHR::eOpaque, // Do not blend with other windows
-            presentModeTemp,
+            mPresentMode,
             vk::True, // Clip pixels if obscured by other window -> Perf+
             nullptr // TODO Put previous swapchain here if overridden, e.g. if window size changed
     );
 
     mSwapchain = device.createSwapchainKHR(createInfo);
-    require(mSwapchain != nullptr, "Failed to create swapchain!");
 
     // imageCount only specified a minimum!
+    mImages = device.getSwapchainImagesKHR(mSwapchain);
     // TODO the following
-//    vkGetSwapchainImagesKHR(Devices::logical, Swapchain::swapchain, &Swapchain::imageCount, nullptr);
-//    Swapchain::images.resize(Swapchain::imageCount);
-//    vkGetSwapchainImagesKHR(Devices::logical, Swapchain::swapchain, &Swapchain::imageCount,
-//                            Swapchain::images.data());
-//    Swapchain::imageFormat = surfaceFormat.format;
-//    Swapchain::extent = extentTemp;
-//    Swapchain::presentMode = presentModeTemp;
-//
 //    Swapchain::createImageViews();
 //    Swapchain::createDepthResources();
 //    RenderPasses::create();
 //    createFramebuffers();
 
-    // TODO return true;
+    mNeedsNewSwapchain = false;
 }
 
 uint32_t VulkanSwapchain::getWidth() const {

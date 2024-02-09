@@ -19,6 +19,10 @@ namespace dn {
 
     SwapchainSupportDetails querySwapchainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface);
 
+    struct SwapchainConfiguration{
+        bool uncappedFramerate;
+    };
+
     class VulkanSwapchain {
     public:
         VulkanSwapchain(
@@ -27,7 +31,7 @@ namespace dn {
                 vk::Device device,
                 vk::SurfaceKHR surface,
                 const QueueFamilyIndices &queueFamilyIndices,
-                bool requestUncapped
+                SwapchainConfiguration config
         );
 
         ~VulkanSwapchain();
@@ -43,11 +47,16 @@ namespace dn {
         [[nodiscard]] float getAspectRatio() const;
 
     private:
+        SwapchainConfiguration mConfig;
+
         vk::Device mDevice= nullptr;
 
         bool mNeedsNewSwapchain;
         vk::Extent2D mExtent{};
+        vk::SurfaceFormatKHR mSurfaceFormat{};
+        vk::PresentModeKHR mPresentMode{};
         vk::SwapchainKHR mSwapchain = nullptr;
+        std::vector<vk::Image> mImages{};
     };
 }
 
