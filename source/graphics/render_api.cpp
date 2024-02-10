@@ -15,26 +15,20 @@ using namespace dn::vulkan;
 
 VulkanAPI::VulkanAPI(Window &window) {
     log::d("Creating VulkanAPI");
+
     mInstance.emplace(
             window,
             InstanceConfiguration{}
     );
-    createSwapchain();
-}
 
-VulkanAPI::~VulkanAPI() {
-    log::d("Destroying VulkanAPI");
-    destroySwapchain();
-    mInstance.reset();
-}
-
-void VulkanAPI::createSwapchain() {
     mSwapchain.emplace(
             mInstance.value(),
             SwapchainConfiguration{false}
     );
 }
 
-void VulkanAPI::destroySwapchain() {
+VulkanAPI::~VulkanAPI() {
+    log::d("Destroying VulkanAPI");
     mSwapchain.reset();
+    mInstance.reset();
 }

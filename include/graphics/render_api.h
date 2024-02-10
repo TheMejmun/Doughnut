@@ -20,18 +20,11 @@
 namespace dn {
     class VulkanAPI {
     public:
-        VulkanAPI(Window &window);
+        explicit VulkanAPI(Window &window);
 
         ~VulkanAPI();
 
     private:
-        void createSwapchain();
-
-        void destroySwapchain();
-
-        void destroyDevice();
-
-        void destroyInstance();
 
         std::optional<vulkan::Instance> mInstance{};
         std::optional<vulkan::Swapchain> mSwapchain{};

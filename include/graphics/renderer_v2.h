@@ -17,7 +17,7 @@
 namespace dn {
     class RendererV2 {
     public:
-        RendererV2(Window& window);
+        explicit RendererV2(Window& window);
 
         ~RendererV2();
 
