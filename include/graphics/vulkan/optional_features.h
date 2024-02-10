@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_OPTIONAL_FEATURES_H
 #define DOUGHNUT_OPTIONAL_FEATURES_H
 
-namespace dn{
+namespace dn::vulkan {
     struct OptionalFeatures {
         bool supportsWireframeMode = false;
         bool physicalDeviceFeatures2 = false;

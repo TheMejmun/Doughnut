@@ -6,11 +6,13 @@
 #define DOUGHNUTSANDBOX_SWAPCHAIN_H
 
 #include "io/window.h"
-#include "graphics/queue_family_indices.h"
+#include "graphics/vulkan/queue_family_indices.h"
+#include "image.h"
+#include "image_view.h"
 
 #include <vulkan/vulkan.hpp>
 
-namespace dn {
+namespace dn::vulkan {
     struct SwapchainSupportDetails {
         vk::SurfaceCapabilitiesKHR capabilities{};
         std::vector<vk::SurfaceFormatKHR> formats{};
@@ -23,9 +25,9 @@ namespace dn {
         bool uncappedFramerate;
     };
 
-    class VulkanSwapchain {
+    class Swapchain {
     public:
-        VulkanSwapchain(
+        Swapchain(
                 Window &window,
                 vk::PhysicalDevice physicalDevice,
                 vk::Device device,
@@ -34,7 +36,7 @@ namespace dn {
                 SwapchainConfiguration config
         );
 
-        ~VulkanSwapchain();
+        ~Swapchain();
 
         bool shouldRecreateSwapchain();
 
@@ -56,7 +58,10 @@ namespace dn {
         vk::SurfaceFormatKHR mSurfaceFormat{};
         vk::PresentModeKHR mPresentMode{};
         vk::SwapchainKHR mSwapchain = nullptr;
-        std::vector<vk::Image> mImages{};
+        std::vector<Image> mImages{};
+        std::vector<ImageView> mImageViews{};
+        std::optional<Image> mDepthImage;
+        std::optional<ImageView> mDepthImageView;
     };
 }
 

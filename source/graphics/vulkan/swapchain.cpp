@@ -2,13 +2,14 @@
 // Created by Sam on 2024-02-07.
 //
 
-#include "graphics/swapchain.h"
+#include "graphics/vulkan/swapchain.h"
 #include "io/logger.h"
 #include "util/require.h"
 
 using namespace dn;
+using namespace dn::vulkan;
 
-SwapchainSupportDetails dn::querySwapchainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface) {
+SwapchainSupportDetails vulkan::querySwapchainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface) {
     SwapchainSupportDetails details;
 
     details.capabilities = device.getSurfaceCapabilitiesKHR(surface);
@@ -70,7 +71,7 @@ vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities, Wi
     return out;
 }
 
-VulkanSwapchain::VulkanSwapchain(
+Swapchain::Swapchain(
         Window &window,
         vk::PhysicalDevice physicalDevice,
         vk::Device device,
@@ -78,7 +79,7 @@ VulkanSwapchain::VulkanSwapchain(
         const QueueFamilyIndices &queueFamilyIndices,
         SwapchainConfiguration config
 ) : mConfig(config), mDevice(device) {
-    log::d("Creating VulkanSwapchain");
+    log::d("Creating Swapchain");
 
     SwapchainSupportDetails swapchainSupport = querySwapchainSupport(physicalDevice, surface);
 
@@ -109,7 +110,7 @@ VulkanSwapchain::VulkanSwapchain(
     }
 
     // TODO switch to VK_IMAGE_USAGE_TRANSFER_DST_BIT for post processing, instead of directly rendering to the SC
-    vk::SwapchainCreateInfoKHR createInfo(
+    vk::SwapchainCreateInfoKHR createInfo{
             {},
             surface,
             minImageCount,
@@ -126,35 +127,55 @@ VulkanSwapchain::VulkanSwapchain(
             mPresentMode,
             vk::True, // Clip pixels if obscured by other window -> Perf+
             nullptr // TODO Put previous swapchain here if overridden, e.g. if window size changed
-    );
+    };
 
     mSwapchain = device.createSwapchainKHR(createInfo);
 
-    // imageCount only specified a minimum!
-    mImages = device.getSwapchainImagesKHR(mSwapchain);
+    std::vector<vk::Image> images = device.getSwapchainImagesKHR(mSwapchain);
+    for (const vk::Image image: images) {
+        mImages.emplace_back(mDevice, image, nullptr);
+        mImageViews.emplace_back(device, mImages.back(), ImageViewConfiguration{mSurfaceFormat.format});
+    }
+
+    vk::Format depthFormat = findDepthFormat(physicalDevice);
+    mDepthImage.emplace(
+            mDevice, physicalDevice,
+            ImageConfiguration{
+                    mExtent.width,
+                    mExtent.height,
+                    depthFormat,
+                    vk::ImageTiling::eOptimal,
+                    vk::ImageUsageFlagBits::eDepthStencilAttachment,
+                    vk::MemoryPropertyFlagBits::eDeviceLocal
+            }
+    );
+    mDepthImageView.emplace(
+            mDevice,
+            mDepthImage.value(),
+            ImageViewConfiguration{depthFormat, vk::ImageAspectFlagBits::eDepth}
+    );
+
     // TODO the following
-//    Swapchain::createImageViews();
-//    Swapchain::createDepthResources();
 //    RenderPasses::create();
 //    createFramebuffers();
 
     mNeedsNewSwapchain = false;
 }
 
-uint32_t VulkanSwapchain::getWidth() const {
+uint32_t Swapchain::getWidth() const {
     return mExtent.width;
 }
 
-uint32_t VulkanSwapchain::getHeight() const {
+uint32_t Swapchain::getHeight() const {
     return mExtent.height;
 }
 
-float VulkanSwapchain::getAspectRatio() const {
+float Swapchain::getAspectRatio() const {
     return static_cast<float>(mExtent.width) / static_cast<float>(mExtent.height);
 }
 
-VulkanSwapchain::~VulkanSwapchain() {
-    log::d("Destroying VulkanSwapchain");
+Swapchain::~Swapchain() {
+    log::d("Destroying Swapchain");
 
     // TODO destroy all
 //    for (auto &swapchainFramebuffer: Swapchain::framebuffers) {
@@ -162,14 +183,11 @@ VulkanSwapchain::~VulkanSwapchain() {
 //    }
 //
 //    RenderPasses::destroy();
-//
-//    vkDestroyImageView(Devices::logical, Swapchain::depthImageView, nullptr);
-//    vkDestroyImage(Devices::logical, Swapchain::depthImage, nullptr);
-//    vkFreeMemory(Devices::logical, Swapchain::depthImageMemory, nullptr);
-//
-//    for (auto &swapchainImageView: Swapchain::imageViews) {
-//        vkDestroyImageView(Devices::logical, swapchainImageView, nullptr);
-//    }
+
+    mDepthImageView.reset();
+    mDepthImage.reset();
+
+    mImageViews.clear();
 
     mDevice.destroy(mSwapchain);
 }

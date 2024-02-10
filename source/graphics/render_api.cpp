@@ -11,6 +11,7 @@
 #include <set>
 
 using namespace dn;
+using namespace dn::vulkan;
 
 // Constants
 const std::vector<const char *> REQUIRED_DEVICE_EXTENSIONS = {
@@ -257,13 +258,13 @@ void VulkanAPI::createDevice() {
 }
 
 void VulkanAPI::createSwapchain() {
-    mSwapchain = std::make_unique<VulkanSwapchain>(
+    mSwapchain.emplace(
             mWindow,
             mPhysicalDevice,
             mDevice,
             mSurface,
             mQueueFamilyIndices,
-            false
+            SwapchainConfiguration{false}
     );
 }
 

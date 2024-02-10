@@ -2,10 +2,11 @@
 // Created by Sam on 2024-01-23.
 //
 
-#include "graphics/queue_family_indices.h"
+#include "graphics/vulkan/queue_family_indices.h"
 #include "io/logger.h"
 
 using namespace dn;
+using namespace dn::vulkan;
 
 bool QueueFamilyIndices::isComplete() const {
     return this->graphicsFamily.has_value() &&

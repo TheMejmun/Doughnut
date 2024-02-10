@@ -6,15 +6,15 @@
 #define DOUGHNUT_RENDER_API_H
 
 #include "preprocessor.h"
-#include "queue_family_indices.h"
-#include "optional_features.h"
 #include "io/window.h"
-#include "swapchain.h"
+#include "graphics/vulkan/optional_features.h"
+#include "graphics/vulkan/queue_family_indices.h"
+#include "graphics/vulkan/swapchain.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 #include <string>
-#include <memory>
+#include <optional>
 
 namespace dn {
     class VulkanAPI {
@@ -42,13 +42,13 @@ namespace dn {
 
         vk::PhysicalDevice mPhysicalDevice = nullptr;
         vk::Device mDevice = nullptr;
-        OptionalFeatures mOptionalFeatures{};
-        QueueFamilyIndices mQueueFamilyIndices{};
+        vulkan::OptionalFeatures mOptionalFeatures{};
+        vulkan::QueueFamilyIndices mQueueFamilyIndices{};
 
         vk::Queue mGraphicsQueue = nullptr;
         vk::Queue mPresentQueue = nullptr;
 
-        std::unique_ptr<VulkanSwapchain> mSwapchain{};
+        std::optional<vulkan::Swapchain> mSwapchain{};
     };
 }
 
