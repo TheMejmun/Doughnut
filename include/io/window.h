@@ -30,8 +30,7 @@ namespace dn {
         void toggleFullscreen();
 
         GLFWwindow *mGlfwWindow = nullptr;
-
-        [[nodiscard]] std::string getTitle();
+        std::string mTitle;
 
     private:
         void pollMonitorResolution();
@@ -44,7 +43,6 @@ namespace dn {
 
         GLFWmonitor *mMonitor = nullptr;
         const GLFWvidmode *mMonitorParams = nullptr;
-        std::string mTitle;
     };
 }
 

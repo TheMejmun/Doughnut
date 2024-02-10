@@ -10,8 +10,10 @@ using namespace dn;
 using namespace dn::vulkan;
 
 
-Framebuffer::Framebuffer(vk::Device device, const std::vector<ImageView*> &attachments, vk::RenderPass renderPass)
-        : mDevice(device) {
+Framebuffer::Framebuffer(Instance &instance,
+                         const std::vector<ImageView *> &attachments,
+                         vk::RenderPass renderPass)
+        : mInstance(instance) {
     log::v("Creating Framebuffer");
     require(!attachments.empty(), "Can not create a Framebuffer on empty attachments");
 
@@ -30,15 +32,15 @@ Framebuffer::Framebuffer(vk::Device device, const std::vector<ImageView*> &attac
             1
     };
 
-    mFramebuffer = mDevice.createFramebuffer(createInfo);
+    mFramebuffer = mInstance.mDevice.createFramebuffer(createInfo);
 }
 
 Framebuffer::Framebuffer(dn::vulkan::Framebuffer &&other) noexcept
-        : mDevice(other.mDevice), mFramebuffer(std::exchange(other.mFramebuffer, nullptr)) {
+        : mInstance(other.mInstance), mFramebuffer(std::exchange(other.mFramebuffer, nullptr)) {
     log::v("Moving Framebuffer");
 }
 
 Framebuffer::~Framebuffer() {
     log::v("Destroying Framebuffer");
-    if (mFramebuffer != nullptr) { mDevice.destroy(mFramebuffer); }
+    if (mFramebuffer != nullptr) { mInstance.mDevice.destroy(mFramebuffer); }
 }

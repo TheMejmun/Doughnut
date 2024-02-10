@@ -10,6 +10,7 @@
 #include "graphics/vulkan/optional_features.h"
 #include "graphics/vulkan/queue_family_indices.h"
 #include "graphics/vulkan/swapchain.h"
+#include "graphics/vulkan/instance.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -24,10 +25,6 @@ namespace dn {
         ~VulkanAPI();
 
     private:
-        void createInstance(const std::string &title);
-
-        void createDevice();
-
         void createSwapchain();
 
         void destroySwapchain();
@@ -36,18 +33,7 @@ namespace dn {
 
         void destroyInstance();
 
-        Window &mWindow;
-        vk::Instance mInstance = nullptr;
-        vk::SurfaceKHR mSurface = nullptr;
-
-        vk::PhysicalDevice mPhysicalDevice = nullptr;
-        vk::Device mDevice = nullptr;
-        vulkan::OptionalFeatures mOptionalFeatures{};
-        vulkan::QueueFamilyIndices mQueueFamilyIndices{};
-
-        vk::Queue mGraphicsQueue = nullptr;
-        vk::Queue mPresentQueue = nullptr;
-
+        std::optional<vulkan::Instance> mInstance{};
         std::optional<vulkan::Swapchain> mSwapchain{};
     };
 }

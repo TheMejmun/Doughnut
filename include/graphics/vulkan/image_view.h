@@ -11,15 +11,15 @@
 
 namespace dn::vulkan {
     struct ImageViewConfiguration {
+        vk::Extent2D extent;
         vk::Format format;
         vk::ImageAspectFlags aspectFlags = {vk::ImageAspectFlagBits::eColor};
     };
 
     class ImageView {
     public:
-        ImageView(vk::Device device,
+        ImageView(Instance &instance,
                   const Image &image,
-                  const vk::Extent2D &extent,
                   ImageViewConfiguration config);
 
         ImageView(ImageView &&other) noexcept;
@@ -30,7 +30,7 @@ namespace dn::vulkan {
         vk::Extent2D mExtent{};
 
     private:
-        vk::Device mDevice;
+        Instance &mInstance;
     };
 }
 

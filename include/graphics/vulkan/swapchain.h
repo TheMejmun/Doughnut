@@ -10,6 +10,7 @@
 #include "image.h"
 #include "image_view.h"
 #include "framebuffer.h"
+#include "instance.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -26,16 +27,17 @@ namespace dn::vulkan {
         bool uncappedFramerate;
     };
 
+    // TODO Recreate Swapchain when needed
     class Swapchain {
     public:
         Swapchain(
-                Window &window,
-                vk::PhysicalDevice physicalDevice,
-                vk::Device device,
-                vk::SurfaceKHR surface,
-                const QueueFamilyIndices &queueFamilyIndices,
+                Instance &instance,
                 SwapchainConfiguration config
         );
+
+        Swapchain(const Swapchain &other) = delete;
+
+        Swapchain(Swapchain &&other) = delete;
 
         ~Swapchain();
 
@@ -53,8 +55,7 @@ namespace dn::vulkan {
         void createRenderPass();
 
         SwapchainConfiguration mConfig;
-
-        vk::Device mDevice = nullptr;
+        Instance &mInstance;
 
         bool mNeedsNewSwapchain;
         vk::Extent2D mExtent{};

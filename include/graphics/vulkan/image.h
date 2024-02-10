@@ -5,6 +5,8 @@
 #ifndef DOUGHNUTSANDBOX_IMAGE_H
 #define DOUGHNUTSANDBOX_IMAGE_H
 
+#include "instance.h"
+
 #include <vulkan/vulkan.hpp>
 
 namespace dn::vulkan {
@@ -26,11 +28,10 @@ namespace dn::vulkan {
 
     class Image {
     public:
-        Image(vk::Device device,
-              vk::PhysicalDevice physicalDevice,
+        Image(Instance &instance,
               ImageConfiguration config);
 
-        Image(vk::Device device,
+        Image(Instance &instance,
               vk::Image image,
               vk::DeviceMemory memory);
 
@@ -40,8 +41,9 @@ namespace dn::vulkan {
 
         vk::Image mImage;
         vk::DeviceMemory mMemory;
+
     private:
-        vk::Device mDevice;
+        Instance &mInstance;
         bool mLocallyConstructed;
     };
 }

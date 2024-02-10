@@ -5,14 +5,16 @@
 #ifndef DOUGHNUTSANDBOX_FRAMEBUFFER_H
 #define DOUGHNUTSANDBOX_FRAMEBUFFER_H
 
-#include <vulkan/vulkan.hpp>
 #include "image_view.h"
+#include "instance.h"
+
+#include <vulkan/vulkan.hpp>
 
 namespace dn::vulkan {
     class Framebuffer {
     public:
-        Framebuffer(vk::Device device,
-                    const std::vector<ImageView*> &attachments,
+        Framebuffer(Instance &instance,
+                    const std::vector<ImageView *> &attachments,
                     vk::RenderPass renderPass);
 
         Framebuffer(Framebuffer &&other) noexcept;
@@ -20,8 +22,9 @@ namespace dn::vulkan {
         ~Framebuffer();
 
         vk::Framebuffer mFramebuffer = nullptr;
+
     private:
-        vk::Device mDevice= nullptr;
+        Instance &mInstance;
     };
 }
 #endif //DOUGHNUTSANDBOX_FRAMEBUFFER_H

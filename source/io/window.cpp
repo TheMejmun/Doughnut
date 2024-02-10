@@ -77,10 +77,6 @@ void Window::pollPosition() {
     glfwGetWindowPos(mGlfwWindow, &mWindowPosX, &mWindowPosY);
 }
 
-std::string Window::getTitle() {
-    return mTitle;
-}
-
 Window::~Window() {
     dn::log::d("Destroying Window");
 

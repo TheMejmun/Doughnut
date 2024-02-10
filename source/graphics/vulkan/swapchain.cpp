@@ -72,20 +72,16 @@ vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities, Wi
 }
 
 Swapchain::Swapchain(
-        Window &window,
-        vk::PhysicalDevice physicalDevice,
-        vk::Device device,
-        vk::SurfaceKHR surface,
-        const QueueFamilyIndices &queueFamilyIndices,
+        Instance &instance,
         SwapchainConfiguration config
-) : mConfig(config), mDevice(device) {
+) : mConfig(config), mInstance(instance) {
     log::d("Creating Swapchain");
 
-    SwapchainSupportDetails swapchainSupport = querySwapchainSupport(physicalDevice, surface);
+    SwapchainSupportDetails swapchainSupport = querySwapchainSupport(mInstance.mPhysicalDevice, mInstance.mSurface);
 
     mSurfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
     mPresentMode = chooseSwapPresentMode(swapchainSupport.presentModes, mConfig.uncappedFramerate);
-    mExtent = chooseSwapExtent(swapchainSupport.capabilities, window);
+    mExtent = chooseSwapExtent(swapchainSupport.capabilities, mInstance.mWindow);
 
     if (mExtent.width < 1 || mExtent.height < 1) {
         log::v("Invalid swapchain extents. Retry later!");
@@ -101,10 +97,13 @@ Swapchain::Swapchain(
     }
     log::d("Creating the swapchain with at least", minImageCount, "images");
 
-    const std::array<uint32_t, 2> queueIndices{queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value()};
+    const std::array<uint32_t, 2> queueIndices{
+            mInstance.mQueueFamilyIndices.graphicsFamily.value(),
+            mInstance.mQueueFamilyIndices.presentFamily.value()
+    };
     vk::SharingMode imageSharingMode = vk::SharingMode::eExclusive;
     uint32_t queueFamilyIndexCount = 0;
-    if (!queueFamilyIndices.isUnifiedGraphicsPresentQueue()) {
+    if (!mInstance.mQueueFamilyIndices.isUnifiedGraphicsPresentQueue()) {
         imageSharingMode = vk::SharingMode::eConcurrent;
         queueFamilyIndexCount = 2;
     }
@@ -112,7 +111,7 @@ Swapchain::Swapchain(
     // TODO switch to VK_IMAGE_USAGE_TRANSFER_DST_BIT for post processing, instead of directly rendering to the SC
     vk::SwapchainCreateInfoKHR createInfo{
             {},
-            surface,
+            mInstance.mSurface,
             minImageCount,
             mSurfaceFormat.format,
             mSurfaceFormat.colorSpace,
@@ -129,17 +128,17 @@ Swapchain::Swapchain(
             nullptr // Put previous swapchain here if overridden, e.g. if window size changed
     };
 
-    mSwapchain = device.createSwapchainKHR(createInfo);
+    mSwapchain = mInstance.mDevice.createSwapchainKHR(createInfo);
 
-    std::vector<vk::Image> images = device.getSwapchainImagesKHR(mSwapchain);
+    std::vector<vk::Image> images = mInstance.mDevice.getSwapchainImagesKHR(mSwapchain);
     for (const vk::Image image: images) {
-        mImages.emplace_back(mDevice, image, nullptr);
-        mImageViews.emplace_back(device, mImages.back(), mExtent, ImageViewConfiguration{mSurfaceFormat.format});
+        mImages.emplace_back(mInstance, image, nullptr);
+        mImageViews.emplace_back(mInstance, mImages.back(), ImageViewConfiguration{mExtent, mSurfaceFormat.format});
     }
 
-    mDepthFormat = findDepthFormat(physicalDevice);
+    mDepthFormat = findDepthFormat(mInstance.mPhysicalDevice);
     mDepthImage.emplace(
-            mDevice, physicalDevice,
+            mInstance,
             ImageConfiguration{
                     mExtent.width,
                     mExtent.height,
@@ -150,10 +149,9 @@ Swapchain::Swapchain(
             }
     );
     mDepthImageView.emplace(
-            mDevice,
+            mInstance,
             mDepthImage.value(),
-            mExtent,
-            ImageViewConfiguration{mDepthFormat, vk::ImageAspectFlagBits::eDepth}
+            ImageViewConfiguration{mExtent, mDepthFormat, vk::ImageAspectFlagBits::eDepth}
     );
 
     createRenderPass();
@@ -162,7 +160,7 @@ Swapchain::Swapchain(
     for (auto &imageView: mImageViews) {
         std::vector<ImageView *> data{&imageView, &(mDepthImageView.value())};
         mFramebuffers.emplace_back(
-                mDevice,
+                mInstance,
                 data,
                 mRenderPass
         );
@@ -240,7 +238,7 @@ void Swapchain::createRenderPass() {
             1, &dependency
     };
 
-    mRenderPass = mDevice.createRenderPass(renderPassCreateInfo);
+    mRenderPass = mInstance.mDevice.createRenderPass(renderPassCreateInfo);
 }
 
 
@@ -261,12 +259,12 @@ Swapchain::~Swapchain() {
 
     mFramebuffers.clear();
 
-    mDevice.destroy(mRenderPass);
+    mInstance.mDevice.destroy(mRenderPass);
 
     mDepthImageView.reset();
     mDepthImage.reset();
 
     mImageViews.clear();
 
-    mDevice.destroy(mSwapchain);
+    mInstance.mDevice.destroy(mSwapchain);
 }

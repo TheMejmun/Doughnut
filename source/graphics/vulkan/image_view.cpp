@@ -8,11 +8,10 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-ImageView::ImageView(vk::Device device,
+ImageView::ImageView(Instance &instance,
                      const Image &image,
-                     const vk::Extent2D &extent,
                      ImageViewConfiguration config)
-        : mDevice(device), mExtent(extent) {
+        : mInstance(instance), mExtent(config.extent) {
     log::v("Creating ImageView");
 
     vk::ImageViewCreateInfo viewCreateInfo{
@@ -35,15 +34,15 @@ ImageView::ImageView(vk::Device device,
             }
     };
 
-    mImageView = device.createImageView(viewCreateInfo);
+    mImageView = mInstance.mDevice.createImageView(viewCreateInfo);
 }
 
 ImageView::ImageView(ImageView &&other) noexcept
-        : mImageView(std::exchange(other.mImageView, nullptr)), mDevice(other.mDevice), mExtent(other.mExtent) {
+        : mImageView(std::exchange(other.mImageView, nullptr)),mInstance(other.mInstance), mExtent(other.mExtent) {
     log::v("Moving ImageView");
 }
 
 ImageView::~ImageView() {
     log::v("Destroying ImageView");
-    if (mImageView != nullptr) { mDevice.destroy(mImageView); }
+    if (mImageView != nullptr) { mInstance.mDevice.destroy(mImageView); }
 }

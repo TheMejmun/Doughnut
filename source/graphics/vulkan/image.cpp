@@ -34,15 +34,14 @@ vk::Format vulkan::findDepthFormat(vk::PhysicalDevice physicalDevice) {
     );
 }
 
-Image::Image(vk::Device device, vk::Image image, vk::DeviceMemory memory)
-        : mDevice(device), mImage(image), mMemory(memory), mLocallyConstructed(false) {
+Image::Image(Instance &instance, vk::Image image, vk::DeviceMemory memory)
+        : mInstance(instance), mImage(image), mMemory(memory), mLocallyConstructed(false) {
     log::v("Creating Image from existing vk::Image");
 }
 
-Image::Image(vk::Device device,
-             vk::PhysicalDevice physicalDevice,
+Image::Image(Instance &instance,
              ImageConfiguration config)
-        : mDevice(device), mLocallyConstructed(true) {
+        : mInstance(instance), mLocallyConstructed(true) {
     log::v("Creating Image");
 
     vk::ImageCreateInfo createInfo{
@@ -61,22 +60,22 @@ Image::Image(vk::Device device,
             vk::ImageLayout::eUndefined
     };
 
-    mImage = mDevice.createImage(createInfo);
-    vk::MemoryRequirements memoryRequirements = mDevice.getImageMemoryRequirements(mImage);
+    mImage = mInstance.mDevice.createImage(createInfo);
+    vk::MemoryRequirements memoryRequirements = mInstance.mDevice.getImageMemoryRequirements(mImage);
 
     vk::MemoryAllocateInfo allocateInfo{
             memoryRequirements.size,
-            findMemoryType(physicalDevice, memoryRequirements.memoryTypeBits, config.properties)
+            findMemoryType(mInstance.mPhysicalDevice, memoryRequirements.memoryTypeBits, config.properties)
     };
 
-    mMemory = mDevice.allocateMemory(allocateInfo);
-    mDevice.bindImageMemory(mImage, mMemory, 0);
+    mMemory = mInstance.mDevice.allocateMemory(allocateInfo);
+    mInstance.mDevice.bindImageMemory(mImage, mMemory, 0);
 }
 
 Image::Image(dn::vulkan::Image &&other) noexcept
         : mImage(std::exchange(other.mImage, nullptr)),
           mMemory(std::exchange(other.mMemory, nullptr)),
-          mDevice(other.mDevice),
+          mInstance(other.mInstance),
           mLocallyConstructed(other.mLocallyConstructed) {
     log::v("Moving Image");
 }
@@ -84,8 +83,8 @@ Image::Image(dn::vulkan::Image &&other) noexcept
 Image::~Image() {
     if (mLocallyConstructed) {
         log::v("Destroying Image");
-        if (mImage != nullptr) { mDevice.destroy(mImage); }
-        if (mMemory != nullptr) { mDevice.free(mMemory); }
+        if (mImage != nullptr) { mInstance.mDevice.destroy(mImage); }
+        if (mMemory != nullptr) { mInstance.mDevice.free(mMemory); }
     } else {
         log::v("Skipping Image destruction");
     }
