@@ -10,8 +10,9 @@ using namespace dn::vulkan;
 
 ImageView::ImageView(vk::Device device,
                      const Image &image,
+                     const vk::Extent2D &extent,
                      ImageViewConfiguration config)
-        : mDevice(device) {
+        : mDevice(device), mExtent(extent) {
     log::v("Creating ImageView");
 
     vk::ImageViewCreateInfo viewCreateInfo{
@@ -38,7 +39,7 @@ ImageView::ImageView(vk::Device device,
 }
 
 ImageView::ImageView(ImageView &&other) noexcept
-        : mImageView(std::exchange(other.mImageView, nullptr)), mDevice(other.mDevice) {
+        : mImageView(std::exchange(other.mImageView, nullptr)), mDevice(other.mDevice), mExtent(other.mExtent) {
     log::v("Moving ImageView");
 }
 

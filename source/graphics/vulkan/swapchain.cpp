@@ -126,7 +126,7 @@ Swapchain::Swapchain(
             vk::CompositeAlphaFlagBitsKHR::eOpaque, // Do not blend with other windows
             mPresentMode,
             vk::True, // Clip pixels if obscured by other window -> Perf+
-            nullptr // TODO Put previous swapchain here if overridden, e.g. if window size changed
+            nullptr // Put previous swapchain here if overridden, e.g. if window size changed
     };
 
     mSwapchain = device.createSwapchainKHR(createInfo);
@@ -134,16 +134,16 @@ Swapchain::Swapchain(
     std::vector<vk::Image> images = device.getSwapchainImagesKHR(mSwapchain);
     for (const vk::Image image: images) {
         mImages.emplace_back(mDevice, image, nullptr);
-        mImageViews.emplace_back(device, mImages.back(), ImageViewConfiguration{mSurfaceFormat.format});
+        mImageViews.emplace_back(device, mImages.back(), mExtent, ImageViewConfiguration{mSurfaceFormat.format});
     }
 
-    vk::Format depthFormat = findDepthFormat(physicalDevice);
+    mDepthFormat = findDepthFormat(physicalDevice);
     mDepthImage.emplace(
             mDevice, physicalDevice,
             ImageConfiguration{
                     mExtent.width,
                     mExtent.height,
-                    depthFormat,
+                    mDepthFormat,
                     vk::ImageTiling::eOptimal,
                     vk::ImageUsageFlagBits::eDepthStencilAttachment,
                     vk::MemoryPropertyFlagBits::eDeviceLocal
@@ -152,15 +152,97 @@ Swapchain::Swapchain(
     mDepthImageView.emplace(
             mDevice,
             mDepthImage.value(),
-            ImageViewConfiguration{depthFormat, vk::ImageAspectFlagBits::eDepth}
+            mExtent,
+            ImageViewConfiguration{mDepthFormat, vk::ImageAspectFlagBits::eDepth}
     );
 
-    // TODO the following
-//    RenderPasses::create();
-//    createFramebuffers();
+    createRenderPass();
+
+    mFramebuffers.reserve(mImageViews.size());
+    for (auto &imageView: mImageViews) {
+        std::vector<ImageView *> data{&imageView, &(mDepthImageView.value())};
+        mFramebuffers.emplace_back(
+                mDevice,
+                data,
+                mRenderPass
+        );
+    }
 
     mNeedsNewSwapchain = false;
 }
+
+void Swapchain::createRenderPass() {
+    log::d("Creating RenderPasses");
+
+    // Color attachment
+    vk::AttachmentDescription colorAttachment{
+            {},
+            mSurfaceFormat.format,
+            vk::SampleCountFlagBits::e1, // MSAA
+            vk::AttachmentLoadOp::eClear,
+            vk::AttachmentStoreOp::eStore,
+            vk::AttachmentLoadOp::eDontCare,
+            vk::AttachmentStoreOp::eDontCare,
+            vk::ImageLayout::eUndefined,
+            vk::ImageLayout::ePresentSrcKHR,
+    };
+
+    vk::AttachmentReference colorAttachmentRef{
+            0, vk::ImageLayout::eColorAttachmentOptimal
+    };
+
+    // Depth attachment
+    vk::AttachmentDescription depthAttachment{
+            {},
+            mDepthFormat,
+            vk::SampleCountFlagBits::e1, // MSAA
+            vk::AttachmentLoadOp::eClear,
+            vk::AttachmentStoreOp::eDontCare,
+            vk::AttachmentLoadOp::eDontCare,
+            vk::AttachmentStoreOp::eDontCare,
+            vk::ImageLayout::eUndefined,
+            vk::ImageLayout::eDepthStencilAttachmentOptimal,
+    };
+
+    vk::AttachmentReference depthAttachmentRef{
+            1, vk::ImageLayout::eDepthStencilAttachmentOptimal
+    };
+
+    // Single subpass
+    vk::SubpassDescription subpassDescription{
+            {},
+            vk::PipelineBindPoint::eGraphics,
+            0, nullptr,
+            1, &colorAttachmentRef,
+            nullptr,
+            &depthAttachmentRef,
+            0, nullptr
+    };
+
+    std::array<vk::AttachmentDescription, 2> attachments{
+            colorAttachment, depthAttachment
+    };
+
+    // To avoid layout transitions before the image has been acquired
+    vk::SubpassDependency dependency{
+            vk::SubpassExternal,
+            0, // dstSubpass > srcSubpass !!! (unless VK_SUBPASS_EXTERNAL)
+            {vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests},
+            {vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests},
+            {},
+            {vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite}
+    };
+
+    vk::RenderPassCreateInfo renderPassCreateInfo{
+            {},
+            static_cast<uint32_t>(attachments.size()), attachments.data(),
+            1, &subpassDescription,
+            1, &dependency
+    };
+
+    mRenderPass = mDevice.createRenderPass(renderPassCreateInfo);
+}
+
 
 uint32_t Swapchain::getWidth() const {
     return mExtent.width;
@@ -177,12 +259,9 @@ float Swapchain::getAspectRatio() const {
 Swapchain::~Swapchain() {
     log::d("Destroying Swapchain");
 
-    // TODO destroy all
-//    for (auto &swapchainFramebuffer: Swapchain::framebuffers) {
-//        vkDestroyFramebuffer(Devices::logical, swapchainFramebuffer, nullptr);
-//    }
-//
-//    RenderPasses::destroy();
+    mFramebuffers.clear();
+
+    mDevice.destroy(mRenderPass);
 
     mDepthImageView.reset();
     mDepthImage.reset();

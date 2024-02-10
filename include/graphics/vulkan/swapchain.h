@@ -9,6 +9,7 @@
 #include "graphics/vulkan/queue_family_indices.h"
 #include "image.h"
 #include "image_view.h"
+#include "framebuffer.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -21,7 +22,7 @@ namespace dn::vulkan {
 
     SwapchainSupportDetails querySwapchainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface);
 
-    struct SwapchainConfiguration{
+    struct SwapchainConfiguration {
         bool uncappedFramerate;
     };
 
@@ -49,9 +50,11 @@ namespace dn::vulkan {
         [[nodiscard]] float getAspectRatio() const;
 
     private:
+        void createRenderPass();
+
         SwapchainConfiguration mConfig;
 
-        vk::Device mDevice= nullptr;
+        vk::Device mDevice = nullptr;
 
         bool mNeedsNewSwapchain;
         vk::Extent2D mExtent{};
@@ -60,8 +63,11 @@ namespace dn::vulkan {
         vk::SwapchainKHR mSwapchain = nullptr;
         std::vector<Image> mImages{};
         std::vector<ImageView> mImageViews{};
-        std::optional<Image> mDepthImage;
-        std::optional<ImageView> mDepthImageView;
+        vk::Format mDepthFormat{};
+        std::optional<Image> mDepthImage{};
+        std::optional<ImageView> mDepthImageView{};
+        vk::RenderPass mRenderPass = nullptr;
+        std::vector<Framebuffer> mFramebuffers{};
     };
 }
 

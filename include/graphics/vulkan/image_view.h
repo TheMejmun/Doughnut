@@ -19,6 +19,7 @@ namespace dn::vulkan {
     public:
         ImageView(vk::Device device,
                   const Image &image,
+                  const vk::Extent2D &extent,
                   ImageViewConfiguration config);
 
         ImageView(ImageView &&other) noexcept;
@@ -26,6 +27,7 @@ namespace dn::vulkan {
         ~ImageView();
 
         vk::ImageView mImageView;
+        vk::Extent2D mExtent{};
 
     private:
         vk::Device mDevice;
