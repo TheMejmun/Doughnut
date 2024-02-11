@@ -8,7 +8,7 @@
 #include "io/logger.h"
 #include "util/timer.h"
 #include "util/templates.h"
-#include "core/types.h"
+#include "core/with_index.h"
 
 #include <cstdint>
 #include <vector>

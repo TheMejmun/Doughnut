@@ -209,8 +209,9 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
 
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
     // If the indices are the same, the set will merge them -> Only one single queue creation.
-    std::set<uint32_t> uniqueQueueFamilies = {mQueueFamilyIndices.graphicsFamily.value(), mQueueFamilyIndices.presentFamily.value(),
-                                              mQueueFamilyIndices.transferFamily.value()};
+    std::set<uint32_t> uniqueQueueFamilies = {*mQueueFamilyIndices.graphicsFamily,
+                                              *mQueueFamilyIndices.presentFamily,
+                                              *mQueueFamilyIndices.transferFamily};
 
     // TODO more flexible queue creation
     float queuePriority = 1.0f;
@@ -243,8 +244,8 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
     mDevice = mPhysicalDevice.createDevice(createInfo);
 
     // TODO multiple queues per family?
-    mGraphicsQueue = mDevice.getQueue(mQueueFamilyIndices.graphicsFamily.value(), 0);
-    mPresentQueue = mDevice.getQueue(mQueueFamilyIndices.presentFamily.value(), 0);
+    mGraphicsQueue = mDevice.getQueue(*mQueueFamilyIndices.graphicsFamily, 0);
+    mPresentQueue = mDevice.getQueue(*mQueueFamilyIndices.presentFamily, 0);
 }
 
 Instance::Instance(Instance &&other) noexcept

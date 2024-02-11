@@ -11,6 +11,7 @@
 #include "image_view.h"
 #include "framebuffer.h"
 #include "instance.h"
+#include "render_pass.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -52,8 +53,6 @@ namespace dn::vulkan {
         [[nodiscard]] float getAspectRatio() const;
 
     private:
-        void createRenderPass();
-
         SwapchainConfiguration mConfig;
         Instance &mInstance;
 
@@ -67,7 +66,7 @@ namespace dn::vulkan {
         vk::Format mDepthFormat{};
         std::optional<Image> mDepthImage{};
         std::optional<ImageView> mDepthImageView{};
-        vk::RenderPass mRenderPass = nullptr;
+        std::optional<RenderPass> mRenderPass{};
         std::vector<Framebuffer> mFramebuffers{};
     };
 }

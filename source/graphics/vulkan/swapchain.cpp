@@ -98,8 +98,8 @@ Swapchain::Swapchain(
     log::d("Creating the swapchain with at least", minImageCount, "images");
 
     const std::array<uint32_t, 2> queueIndices{
-            mInstance.mQueueFamilyIndices.graphicsFamily.value(),
-            mInstance.mQueueFamilyIndices.presentFamily.value()
+            *mInstance.mQueueFamilyIndices.graphicsFamily,
+            *mInstance.mQueueFamilyIndices.presentFamily
     };
     vk::SharingMode imageSharingMode = vk::SharingMode::eExclusive;
     uint32_t queueFamilyIndexCount = 0;
@@ -150,97 +150,30 @@ Swapchain::Swapchain(
     );
     mDepthImageView.emplace(
             mInstance,
-            mDepthImage.value(),
+            *mDepthImage,
             ImageViewConfiguration{mExtent, mDepthFormat, vk::ImageAspectFlagBits::eDepth}
     );
 
-    createRenderPass();
+    mRenderPass.emplace(
+            mInstance,
+            RenderPassConfiguration{
+                    mSurfaceFormat.format,
+                    mDepthFormat
+            }
+    );
 
     mFramebuffers.reserve(mImageViews.size());
     for (auto &imageView: mImageViews) {
-        std::vector<ImageView *> data{&imageView, &(mDepthImageView.value())};
+        std::vector<ImageView *> data{&imageView, &(*mDepthImageView)};
         mFramebuffers.emplace_back(
                 mInstance,
                 data,
-                mRenderPass
+                *mRenderPass
         );
     }
 
     mNeedsNewSwapchain = false;
 }
-
-void Swapchain::createRenderPass() {
-    log::d("Creating RenderPasses");
-
-    // Color attachment
-    vk::AttachmentDescription colorAttachment{
-            {},
-            mSurfaceFormat.format,
-            vk::SampleCountFlagBits::e1, // MSAA
-            vk::AttachmentLoadOp::eClear,
-            vk::AttachmentStoreOp::eStore,
-            vk::AttachmentLoadOp::eDontCare,
-            vk::AttachmentStoreOp::eDontCare,
-            vk::ImageLayout::eUndefined,
-            vk::ImageLayout::ePresentSrcKHR,
-    };
-
-    vk::AttachmentReference colorAttachmentRef{
-            0, vk::ImageLayout::eColorAttachmentOptimal
-    };
-
-    // Depth attachment
-    vk::AttachmentDescription depthAttachment{
-            {},
-            mDepthFormat,
-            vk::SampleCountFlagBits::e1, // MSAA
-            vk::AttachmentLoadOp::eClear,
-            vk::AttachmentStoreOp::eDontCare,
-            vk::AttachmentLoadOp::eDontCare,
-            vk::AttachmentStoreOp::eDontCare,
-            vk::ImageLayout::eUndefined,
-            vk::ImageLayout::eDepthStencilAttachmentOptimal,
-    };
-
-    vk::AttachmentReference depthAttachmentRef{
-            1, vk::ImageLayout::eDepthStencilAttachmentOptimal
-    };
-
-    // Single subpass
-    vk::SubpassDescription subpassDescription{
-            {},
-            vk::PipelineBindPoint::eGraphics,
-            0, nullptr,
-            1, &colorAttachmentRef,
-            nullptr,
-            &depthAttachmentRef,
-            0, nullptr
-    };
-
-    std::array<vk::AttachmentDescription, 2> attachments{
-            colorAttachment, depthAttachment
-    };
-
-    // To avoid layout transitions before the image has been acquired
-    vk::SubpassDependency dependency{
-            vk::SubpassExternal,
-            0, // dstSubpass > srcSubpass !!! (unless VK_SUBPASS_EXTERNAL)
-            {vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests},
-            {vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests},
-            {},
-            {vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite}
-    };
-
-    vk::RenderPassCreateInfo renderPassCreateInfo{
-            {},
-            static_cast<uint32_t>(attachments.size()), attachments.data(),
-            1, &subpassDescription,
-            1, &dependency
-    };
-
-    mRenderPass = mInstance.mDevice.createRenderPass(renderPassCreateInfo);
-}
-
 
 uint32_t Swapchain::getWidth() const {
     return mExtent.width;
@@ -259,7 +192,7 @@ Swapchain::~Swapchain() {
 
     mFramebuffers.clear();
 
-    mInstance.mDevice.destroy(mRenderPass);
+    mRenderPass.reset();
 
     mDepthImageView.reset();
     mDepthImage.reset();

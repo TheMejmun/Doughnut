@@ -7,6 +7,7 @@
 
 #include "image_view.h"
 #include "instance.h"
+#include "render_pass.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -15,7 +16,7 @@ namespace dn::vulkan {
     public:
         Framebuffer(Instance &instance,
                     const std::vector<ImageView *> &attachments,
-                    vk::RenderPass renderPass);
+                    RenderPass &renderPass);
 
         Framebuffer(Framebuffer &&other) noexcept;
 

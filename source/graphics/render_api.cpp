@@ -22,7 +22,7 @@ VulkanAPI::VulkanAPI(Window &window) {
     );
 
     mSwapchain.emplace(
-            mInstance.value(),
+            *mInstance,
             SwapchainConfiguration{false}
     );
 }

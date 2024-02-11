@@ -2,8 +2,8 @@
 // Created by Saman on 31.10.23.
 //
 
-#ifndef DOUGHNUT_TYPES_H
-#define DOUGHNUT_TYPES_H
+#ifndef DOUGHNUT_WITH_INDEX_H
+#define DOUGHNUT_WITH_INDEX_H
 
 #include <cstddef>
 
@@ -19,4 +19,4 @@ namespace dn {
     };
 }
 
-#endif //DOUGHNUT_TYPES_H
+#endif //DOUGHNUT_WITH_INDEX_H

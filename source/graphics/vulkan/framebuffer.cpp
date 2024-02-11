@@ -12,7 +12,7 @@ using namespace dn::vulkan;
 
 Framebuffer::Framebuffer(Instance &instance,
                          const std::vector<ImageView *> &attachments,
-                         vk::RenderPass renderPass)
+                         RenderPass &renderPass)
         : mInstance(instance) {
     log::v("Creating Framebuffer");
     require(!attachments.empty(), "Can not create a Framebuffer on empty attachments");
@@ -25,7 +25,7 @@ Framebuffer::Framebuffer(Instance &instance,
 
     vk::FramebufferCreateInfo createInfo{
             {},
-            renderPass,
+            renderPass.mRenderPass,
             static_cast<uint32_t>(data.size()), data.data(),
             attachments[0]->mExtent.width,
             attachments[0]->mExtent.height,
