@@ -13,7 +13,7 @@ using namespace dn::vulkan;
 
 Pipeline::Pipeline(Instance &instance, RenderPass &renderPass, PipelineConfiguration config)
         : mInstance(instance) {
-    log::v("Creating Pipeline");
+    log::d("Creating Pipeline");
 
     // https://vulkan-tutorial.com/en/Drawing_a_triangle/Graphics_pipeline_basics/Fixed_functions
 
@@ -203,11 +203,11 @@ Pipeline::Pipeline(dn::vulkan::Pipeline &&other) noexcept
           mDescriptorSetLayout(std::exchange(other.mDescriptorSetLayout, nullptr)),
           mPipelineLayout(std::exchange(other.mPipelineLayout, nullptr)),
           mGraphicsPipeline(std::exchange(other.mGraphicsPipeline, nullptr)) {
-    log::v("Moving Pipeline");
+    log::d("Moving Pipeline");
 }
 
 Pipeline::~Pipeline() {
-    log::v("Destroying Pipeline");
+    log::d("Destroying Pipeline");
     if (mGraphicsPipeline != nullptr) { mInstance.mDevice.destroy(mGraphicsPipeline); }
     if (mPipelineLayout != nullptr) { mInstance.mDevice.destroy(mPipelineLayout); }
     mDescriptorSetLayout.reset();

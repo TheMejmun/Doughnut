@@ -125,6 +125,7 @@ bool checkPortabilityMode(const vk::PhysicalDevice &device) {
 }
 
 Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(window) {
+    log::d("Creating Instance");
 
     // INSTANCE
 
@@ -253,9 +254,11 @@ Instance::Instance(Instance &&other) noexcept
           mInstance(std::exchange(other.mInstance, nullptr)),
           mSurface(std::exchange(other.mSurface, nullptr)),
           mPhysicalDevice(other.mPhysicalDevice),
-          mDevice(std::exchange(other.mDevice, nullptr)) {}
+          mDevice(std::exchange(other.mDevice, nullptr)) {
+    log::d("Moving Instance");}
 
 Instance::~Instance() {
+    log::d("Destroying Instance");
     if (mDevice != nullptr) { mDevice.destroy(); }
     if (mSurface != nullptr) { mInstance.destroySurfaceKHR(mSurface); }
     if (mInstance != nullptr) { mInstance.destroy(); }

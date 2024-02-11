@@ -29,7 +29,7 @@ bool QueueFamilyIndices::hasUniqueTransferQueue() const {
 }
 
 void QueueFamilyIndices::print() {
-    log::d(
+    log::v(
             "QueueFamilyIndices: Graphics:", this->graphicsFamily.value(), "Present:", this->presentFamily.value(), "Transfer:", this->transferFamily.value()
     );
 }

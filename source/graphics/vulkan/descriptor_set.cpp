@@ -11,7 +11,7 @@ using namespace dn::vulkan;
 
 DescriptorSetLayout::DescriptorSetLayout(Instance &instance, dn::vulkan::DescriptorSetLayoutConfiguration config)
         : mInstance(instance) {
-    log::v("Creating DescriptorSetLayout");
+    log::d("Creating DescriptorSetLayout");
     require(config.descriptorSetConfigs.size() == 1, "TODO implement multiple descriptor bindings");
 
     // TODO actually take into account the configuration
@@ -34,10 +34,10 @@ DescriptorSetLayout::DescriptorSetLayout(Instance &instance, dn::vulkan::Descrip
 
 DescriptorSetLayout::DescriptorSetLayout(dn::vulkan::DescriptorSetLayout &&other) noexcept
         : mLayout(std::exchange(other.mLayout, nullptr)), mInstance(other.mInstance) {
-    log::v("Moving DescriptorSetLayout");
+    log::d("Moving DescriptorSetLayout");
 }
 
 DescriptorSetLayout::~DescriptorSetLayout() {
-    log::v("Destroying DescriptorSetLayout");
+    log::d("Destroying DescriptorSetLayout");
     if (mLayout != nullptr) { mInstance.mDevice.destroy(mLayout); }
 }

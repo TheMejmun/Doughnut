@@ -3,12 +3,14 @@
 //
 
 #include "graphics/vulkan/render_pass.h"
+#include "io/logger.h"
 
 using namespace dn;
 using namespace dn::vulkan;
 
 RenderPass::RenderPass(Instance &instance, dn::vulkan::RenderPassConfiguration config)
         : mInstance(instance) {
+    log::d("Creating RenderPass");
 
     // Color attachment
     vk::AttachmentDescription colorAttachment{
@@ -80,8 +82,11 @@ RenderPass::RenderPass(Instance &instance, dn::vulkan::RenderPassConfiguration c
 }
 
 RenderPass::RenderPass(dn::vulkan::RenderPass &&other) noexcept
-        : mInstance(other.mInstance), mRenderPass(std::exchange(other.mRenderPass, nullptr)) {}
+        : mInstance(other.mInstance), mRenderPass(std::exchange(other.mRenderPass, nullptr)) {
+    log::d("Moving RenderPass");
+}
 
 RenderPass::~RenderPass() {
+    log::d("Destroying RenderPass");
     if (mRenderPass != nullptr) { mInstance.mDevice.destroy(mRenderPass); }
 }
