@@ -52,7 +52,7 @@ file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS *.cpp)
 message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 
 # Main library
-add_library(Doughnut STATIC source/main.cpp ${HEADER_FILES} ${SOURCE_FILES})
+add_library(Doughnut STATIC ${SOURCE_FILES})
 
 # Add include
 target_include_directories(Doughnut PUBLIC include)
@@ -81,3 +81,9 @@ message(STATUS "Linked libraries: ${LL}")
 # add resources
 add_custom_target(CopyAssets COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/CopyAssets.cmake)
 add_dependencies(Doughnut CopyAssets)
+
+# ----------------------------------- ADD TEST EXECUTABLE -----------------------------------
+
+add_executable(DoughnutTests source/test.cpp ${SOURCE_FILES})
+target_include_directories(DoughnutTests PRIVATE include)
+target_link_libraries(DoughnutTests PRIVATE ${LL})
