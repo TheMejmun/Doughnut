@@ -14,6 +14,8 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
+#define WIREFRAME_MODE
+
 namespace dn {
     class RendererV2 {
     public:

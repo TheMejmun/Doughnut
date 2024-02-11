@@ -187,6 +187,15 @@ float Swapchain::getAspectRatio() const {
     return static_cast<float>(mExtent.width) / static_cast<float>(mExtent.height);
 }
 
+
+bool Swapchain::shouldRecreate() const {
+    int w, h;
+    glfwGetFramebufferSize(mInstance.mWindow.mGlfwWindow, &w, &h);
+    bool framebufferChanged = w != mExtent.width || h != mExtent.height;
+
+    return mNeedsNewSwapchain || framebufferChanged;
+}
+
 Swapchain::~Swapchain() {
     log::d("Destroying Swapchain");
 

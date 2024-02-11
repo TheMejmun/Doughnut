@@ -4,6 +4,7 @@
 
 #include "util/importer.h"
 #include "io/logger.h"
+#include "util/require.h"
 
 #include <fstream>
 #include <assimp/Importer.hpp>
@@ -14,7 +15,9 @@ std::vector<char> dn::readFile(const std::string &filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file " + filename);
+        std::string dnFilename = "external/Doughnut/" + filename;
+        file = std::ifstream{dnFilename, std::ios::ate | std::ios::binary};
+        require(file.is_open(), ("Failed to open file " + filename + " or " + dnFilename).c_str());
     }
 
     auto fileSize = file.tellg();

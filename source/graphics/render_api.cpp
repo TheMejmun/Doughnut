@@ -26,10 +26,13 @@ VulkanAPI::VulkanAPI(Window &window) {
             SwapchainConfiguration{false}
     );
 
-    mPipeline.emplace(
-            *mInstance,
-            PipelineConfiguration{}
-    );
+    if (!(*mSwapchain).shouldRecreate()) {
+        mPipeline.emplace(
+                *mInstance,
+                *mSwapchain->mRenderPass,
+                PipelineConfiguration{}
+        );
+    }
 }
 
 VulkanAPI::~VulkanAPI() {

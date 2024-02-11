@@ -10,6 +10,7 @@
 #include "graphics/v1/vulkan/vulkan_buffers.h"
 #include "util/importer.h"
 #include "io/logger.h"
+#include "util/require.h"
 
 using namespace dn;
 using namespace dn;
@@ -46,8 +47,9 @@ void Renderer::createGraphicsPipeline() {
     auto attributeDescriptions = Vertex::getAttributeDescriptions();
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+    require(false, "Turned this off due to rewrite");
+//    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+//    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

@@ -43,15 +43,17 @@ namespace dn::vulkan {
 
         ~Swapchain();
 
-        bool shouldRecreateSwapchain();
+        [[nodiscard]] bool shouldRecreate() const;
 
-        bool recreateSwapchain();
+        bool recreate();
 
         [[nodiscard]] uint32_t getWidth() const;
 
         [[nodiscard]] uint32_t getHeight() const;
 
         [[nodiscard]] float getAspectRatio() const;
+
+        LateInit<RenderPass> mRenderPass{};
 
     private:
         SwapchainConfiguration mConfig;
@@ -67,7 +69,6 @@ namespace dn::vulkan {
         vk::Format mDepthFormat{};
         LateInit<Image> mDepthImage{};
         LateInit<ImageView> mDepthImageView{};
-        LateInit<RenderPass> mRenderPass{};
         std::vector<Framebuffer> mFramebuffers{};
     };
 }
