@@ -17,9 +17,9 @@ using namespace dn;
 void Renderer::createGraphicsPipeline() {
     // TODO pull these out of here
     auto vertShaderCode = dn::readFile("resources/shaders/sphere.vert.spv");
-   log::v("Loaded vertex shader with byte size:", vertShaderCode.size());
+    log::v("Loaded vertex shader with byte size:", vertShaderCode.size());
     auto fragShaderCode = dn::readFile("resources/shaders/sphere.frag.spv");
-   log::v("Loaded fragment shader with byte size:", fragShaderCode.size());
+    log::v("Loaded fragment shader with byte size:", fragShaderCode.size());
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -368,11 +368,11 @@ double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
     if (vulkan::Swapchain::shouldRecreateSwapchain()) {
         bool success = vulkan::Swapchain::recreateSwapchain(this->state);
         if (success) {
-           log::d("Created new swapchain");
+            log::d("Created new swapchain");
             vulkan::Swapchain::needsNewSwapchain = false;
 
         } else {
-           log::d("Failed to create new swapchain");
+            log::d("Failed to create new swapchain");
             return -1;
         }
     }
@@ -392,11 +392,11 @@ double Renderer::draw(const double &delta, EntityManagerSpec &ecs) {
                                                     this->imageAvailableSemaphore, nullptr, &imageIndex);
 
     if (acquireImageResult == VK_ERROR_OUT_OF_DATE_KHR) {
-       log::d("Swapchain is out of date");
+        log::d("Swapchain is out of date");
         vulkan::Swapchain::recreateSwapchain(this->state);
         return duration(beforeFence, afterFence); // Why not
     } else if (acquireImageResult == VK_SUBOPTIMAL_KHR) {
-       log::d("Swapchain is suboptimal");
+        log::d("Swapchain is suboptimal");
         vulkan::Swapchain::needsNewSwapchain = true;
 
     } else if (acquireImageResult != VK_SUCCESS) {

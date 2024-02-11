@@ -25,10 +25,16 @@ VulkanAPI::VulkanAPI(Window &window) {
             *mInstance,
             SwapchainConfiguration{false}
     );
+
+    mPipeline.emplace(
+            *mInstance,
+            PipelineConfiguration{}
+    );
 }
 
 VulkanAPI::~VulkanAPI() {
     log::d("Destroying VulkanAPI");
+    mPipeline.reset();
     mSwapchain.reset();
     mInstance.reset();
 }

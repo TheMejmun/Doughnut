@@ -11,6 +11,8 @@
 #include "graphics/vulkan/queue_family_indices.h"
 #include "graphics/vulkan/swapchain.h"
 #include "graphics/vulkan/instance.h"
+#include "core/late_init.h"
+#include "graphics/vulkan/pipeline.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -25,9 +27,9 @@ namespace dn {
         ~VulkanAPI();
 
     private:
-
-        std::optional<vulkan::Instance> mInstance{};
-        std::optional<vulkan::Swapchain> mSwapchain{};
+        LateInit<vulkan::Instance> mInstance{};
+        LateInit<vulkan::Swapchain> mSwapchain{};
+        LateInit<vulkan::Pipeline> mPipeline{};
     };
 }
 

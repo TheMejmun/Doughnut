@@ -12,6 +12,7 @@
 #include "framebuffer.h"
 #include "instance.h"
 #include "render_pass.h"
+#include "core/late_init.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -64,9 +65,9 @@ namespace dn::vulkan {
         std::vector<Image> mImages{};
         std::vector<ImageView> mImageViews{};
         vk::Format mDepthFormat{};
-        std::optional<Image> mDepthImage{};
-        std::optional<ImageView> mDepthImageView{};
-        std::optional<RenderPass> mRenderPass{};
+        LateInit<Image> mDepthImage{};
+        LateInit<ImageView> mDepthImageView{};
+        LateInit<RenderPass> mRenderPass{};
         std::vector<Framebuffer> mFramebuffers{};
     };
 }
