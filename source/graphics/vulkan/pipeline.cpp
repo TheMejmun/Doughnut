@@ -18,9 +18,7 @@ Pipeline::Pipeline(Instance &instance, RenderPass &renderPass, PipelineConfigura
     // https://vulkan-tutorial.com/en/Drawing_a_triangle/Graphics_pipeline_basics/Fixed_functions
 
     DescriptorSetLayoutConfiguration layoutConfig{
-            std::vector<DescriptorSetConfiguration>{
-                    DescriptorSetConfiguration{}
-            }
+            // TODO
     };
 
     mDescriptorSetLayout.emplace(
@@ -195,6 +193,13 @@ Pipeline::Pipeline(Instance &instance, RenderPass &renderPass, PipelineConfigura
     auto result = mInstance.mDevice.createGraphicsPipeline(nullptr, pipelineInfo);
     require(result.result, "Failed to create graphics pipeline");
     mGraphicsPipeline = result.value;
+
+    mDescriptorPool.emplace(
+            mInstance,
+            DescriptorPoolConfiguration{
+                    2u
+            }
+    );
 }
 
 // TODO will this actually move the other Pipeline's descriptor set layout over without destroying it?

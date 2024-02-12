@@ -5,9 +5,10 @@
 #ifndef DOUGHNUTSANDBOX_PIPELINE_H
 #define DOUGHNUTSANDBOX_PIPELINE_H
 
-#include "descriptor_set.h"
+#include "descriptor_set_layout.h"
 #include "core/late_init.h"
 #include "graphics/vulkan/render_pass.h"
+#include "descriptor_pool.h"
 
 #include <vulkan/vulkan.hpp>
 #include <optional>
@@ -30,6 +31,7 @@ namespace dn::vulkan {
         LateInit<DescriptorSetLayout> mDescriptorSetLayout{};
         vk::PipelineLayout mPipelineLayout = nullptr;
         vk::Pipeline mGraphicsPipeline = nullptr;
+        LateInit<DescriptorPool> mDescriptorPool{};
     };
 }
 
