@@ -10,6 +10,8 @@
 #include "graphics/vertex.h"
 #include "core/scheduler.h"
 
+// TODO use new semaphore, fence, command buffer classes
+
 namespace dn::vulkan {
     enum BufferType {
         INDEX,

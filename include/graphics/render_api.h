@@ -16,6 +16,8 @@
 #include "graphics/vulkan/buffer.h"
 #include "graphics/vulkan/command_pool.h"
 #include "graphics/vulkan/command_buffer.h"
+#include "graphics/vulkan/semaphore.h"
+#include "graphics/vulkan/fence.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -38,6 +40,9 @@ namespace dn {
         LateInit<vulkan::Buffer> mUniformBuffer{};
         LateInit<vulkan::CommandPool> mCommandPool{};
         LateInit<vulkan::CommandBuffer> mCommandBuffer{};
+        LateInit<vulkan::Semaphore> mImageAvailableSemaphore{};
+        LateInit<vulkan::Semaphore> mRenderFinishedSemaphore{};
+        LateInit<vulkan::Fence> mInFlightFence{};
     };
 }
 

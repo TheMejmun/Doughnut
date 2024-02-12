@@ -57,10 +57,25 @@ VulkanAPI::VulkanAPI(Window &window) {
             *mInstance,
             *mCommandPool
     );
+
+    mImageAvailableSemaphore.emplace(
+            *mInstance
+    );
+    mRenderFinishedSemaphore.emplace(
+            *mInstance
+    );
+    mInFlightFence.emplace(
+            *mInstance,
+            FenceConfiguration{true}
+    );
 }
 
 VulkanAPI::~VulkanAPI() {
     log::d("Destroying VulkanAPI");
+    mInFlightFence.reset();
+    mImageAvailableSemaphore.reset();
+    mRenderFinishedSemaphore.reset();
+
     mCommandBuffer.reset();
     mCommandPool.reset();
     mUniformBuffer.reset();
