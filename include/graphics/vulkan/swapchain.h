@@ -13,6 +13,7 @@
 #include "instance.h"
 #include "render_pass.h"
 #include "core/late_init.h"
+#include "semaphore.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -53,6 +54,12 @@ namespace dn::vulkan {
         [[nodiscard]] uint32_t getHeight() const;
 
         [[nodiscard]] float getAspectRatio() const;
+
+        /**
+         * @param semaphore The semaphore to wait on
+         * @return True, if an image was acquired
+         */
+        std::optional<uint32_t> acquireNextImage(Semaphore& semaphore);
 
         LateInit<RenderPass> mRenderPass{};
 

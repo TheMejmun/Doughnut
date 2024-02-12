@@ -11,7 +11,6 @@
 #include "io/logger.h"
 
 using namespace dn;
-using namespace dn;
 
 Renderer::Renderer(const std::string &title, GLFWwindow *window) {
    log::d("Creating Renderer");

@@ -23,6 +23,8 @@ namespace dn::vulkan {
 
         ~Fence();
 
+        double await() const;
+
         vk::Fence mFence = nullptr;
 
     private:

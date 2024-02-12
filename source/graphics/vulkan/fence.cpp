@@ -4,6 +4,8 @@
 
 #include "graphics/vulkan/fence.h"
 #include "io/logger.h"
+#include "util/timer.h"
+#include "util/require.h"
 
 using namespace dn;
 using namespace dn::vulkan;
@@ -23,6 +25,15 @@ Fence::Fence(Instance &instance,
 Fence::Fence(dn::vulkan::Fence &&other) noexcept
         : mInstance(other.mInstance), mFence(std::exchange(other.mFence, nullptr)) {
     log::d("Moving Fence");
+}
+
+double Fence::await() const {
+    auto beforeFence = now();
+    auto result = mInstance.mDevice.waitForFences(mFence, vk::True, std::numeric_limits<uint64_t>::max());
+    require(result == vk::Result::eSuccess || result == vk::Result::eTimeout, "An error has occurred while waiting for a fence");
+    auto afterFence = now();
+
+    return duration(beforeFence, afterFence);
 }
 
 Fence::~Fence() {

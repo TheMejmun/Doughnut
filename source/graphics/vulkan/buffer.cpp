@@ -264,7 +264,7 @@ void Buffer::freeStagingMemory() {
 
 void Buffer::awaitUpload() {
     if (!mConfig.hostDirectAccessible) {
-        auto result = mInstance.mDevice.waitForFences(mTransferFence, true, 30'000'000); // nanoseconds
+        auto result = mInstance.mDevice.waitForFences(mTransferFence, true, std::numeric_limits<uint64_t>::max()); // nanoseconds
         require(result == vk::Result::eSuccess || result == vk::Result::eTimeout, "An error has occurred while waiting for an upload to finish");
     }
     // Else noop

@@ -187,13 +187,24 @@ float Swapchain::getAspectRatio() const {
     return static_cast<float>(mExtent.width) / static_cast<float>(mExtent.height);
 }
 
-
 bool Swapchain::shouldRecreate() const {
     int w, h;
     glfwGetFramebufferSize(mInstance.mWindow.mGlfwWindow, &w, &h);
     bool framebufferChanged = w != mExtent.width || h != mExtent.height;
 
     return mNeedsNewSwapchain || framebufferChanged;
+}
+
+std::optional<uint32_t> Swapchain::acquireNextImage(Semaphore &semaphore) {
+    auto result = mInstance.mDevice.acquireNextImageKHR(mSwapchain, std::numeric_limits<uint64_t>::max(), semaphore.mSemaphore, nullptr);
+    // TODO are these really all okay results?
+    // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkAcquireNextImageKHR.html
+    return (result.result == vk::Result::eSuccess ||
+            result.result == vk::Result::eTimeout ||
+            result.result == vk::Result::eNotReady ||
+            result.result == vk::Result::eSuboptimalKHR) ?
+           std::optional<uint32_t>{result.value} :
+           std::optional<uint32_t>{};
 }
 
 Swapchain::~Swapchain() {

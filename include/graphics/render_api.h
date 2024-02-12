@@ -31,6 +31,8 @@ namespace dn {
 
         ~VulkanAPI();
 
+        void drawFrame(double delta);
+
     private:
         LateInit<vulkan::Instance> mInstance{};
         LateInit<vulkan::Swapchain> mSwapchain{};

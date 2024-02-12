@@ -23,6 +23,8 @@ namespace dn {
 
         ~RendererV2();
 
+        void drawFrame(double delta);
+
     private:
         VulkanAPI mAPI;
 
