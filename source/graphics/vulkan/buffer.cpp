@@ -142,6 +142,10 @@ UploadResult Buffer::calculateMemoryIndex(const uint32_t size) {
     return {false, insertIndex, size};
 }
 
+UploadResult Buffer::reserve(uint32_t size) {
+    return calculateMemoryIndex(size);
+}
+
 UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
     debugRequire(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
 

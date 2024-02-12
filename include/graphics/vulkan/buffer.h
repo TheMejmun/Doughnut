@@ -65,11 +65,15 @@ namespace dn::vulkan {
             return upload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()), at);
         }
 
+        UploadResult reserve(uint32_t size);
+
         bool isCurrentlyUploading();
 
         void freeStagingMemory();
 
         void awaitUpload();
+
+        vk::Buffer mBuffer = nullptr;
 
     private:
         UploadResult calculateMemoryIndex(uint32_t size);
@@ -92,7 +96,6 @@ namespace dn::vulkan {
         vk::Buffer mStagingBuffer = nullptr;
         vk::DeviceMemory mStagingBufferMemory = nullptr;
 
-        vk::Buffer mBuffer = nullptr;
         vk::DeviceMemory mBufferMemory = nullptr;
         uint8_t *mMappedBuffer = nullptr;
 

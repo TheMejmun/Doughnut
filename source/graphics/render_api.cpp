@@ -26,14 +26,6 @@ VulkanAPI::VulkanAPI(Window &window) {
             SwapchainConfiguration{false}
     );
 
-    if (!(*mSwapchain).shouldRecreate()) {
-        mPipeline.emplace(
-                *mInstance,
-                *mSwapchain->mRenderPass,
-                PipelineConfiguration{}
-        );
-    }
-
     mVertexBuffer.emplace(
             *mInstance,
             BufferConfiguration{VERTEX, false}
@@ -47,6 +39,15 @@ VulkanAPI::VulkanAPI(Window &window) {
             *mInstance,
             BufferConfiguration{UNIFORM, true}
     );
+
+    if (!(*mSwapchain).shouldRecreate()) {
+        mPipeline.emplace(
+                *mInstance,
+                *mSwapchain->mRenderPass,
+                *mUniformBuffer,
+                PipelineConfiguration{}
+        );
+    }
 }
 
 VulkanAPI::~VulkanAPI() {

@@ -9,6 +9,7 @@
 #include "core/late_init.h"
 #include "graphics/vulkan/render_pass.h"
 #include "descriptor_pool.h"
+#include "descriptor_set.h"
 
 #include <vulkan/vulkan.hpp>
 #include <optional>
@@ -20,7 +21,10 @@ namespace dn::vulkan {
 
     class Pipeline {
     public:
-        Pipeline(Instance &instance, RenderPass &renderPass, PipelineConfiguration config);
+        Pipeline(Instance &instance,
+                 RenderPass &renderPass,
+                 Buffer &uboBuffer,
+                 PipelineConfiguration config);
 
         Pipeline(Pipeline &&other) noexcept;
 
@@ -32,6 +36,7 @@ namespace dn::vulkan {
         vk::PipelineLayout mPipelineLayout = nullptr;
         vk::Pipeline mGraphicsPipeline = nullptr;
         LateInit<DescriptorPool> mDescriptorPool{};
+        LateInit<DescriptorSet> mDescriptorSet{};
     };
 }
 

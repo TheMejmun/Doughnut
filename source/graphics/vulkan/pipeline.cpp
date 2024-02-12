@@ -7,11 +7,16 @@
 #include "util/importer.h"
 #include "graphics/vulkan/shader_module.h"
 #include "util/require.h"
+#include "graphics/vulkan/buffer.h"
+#include "graphics/v1/uniform_buffer_object.h"
 
 using namespace dn;
 using namespace dn::vulkan;
 
-Pipeline::Pipeline(Instance &instance, RenderPass &renderPass, PipelineConfiguration config)
+Pipeline::Pipeline(Instance &instance,
+                   RenderPass &renderPass,
+                   Buffer &uboBuffer,
+                   PipelineConfiguration config)
         : mInstance(instance) {
     log::d("Creating Pipeline");
 
@@ -200,6 +205,17 @@ Pipeline::Pipeline(Instance &instance, RenderPass &renderPass, PipelineConfigura
                     2u
             }
     );
+
+    mDescriptorSet.emplace(
+            mInstance,
+            uboBuffer,
+            *mDescriptorSetLayout,
+            *mDescriptorPool,
+            DescriptorSetConfiguration{
+                    2,
+                    sizeof(UniformBufferObject)
+            }
+    );
 }
 
 // TODO will this actually move the other Pipeline's descriptor set layout over without destroying it?
@@ -207,12 +223,16 @@ Pipeline::Pipeline(dn::vulkan::Pipeline &&other) noexcept
         : mInstance(other.mInstance),
           mDescriptorSetLayout(std::exchange(other.mDescriptorSetLayout, nullptr)),
           mPipelineLayout(std::exchange(other.mPipelineLayout, nullptr)),
-          mGraphicsPipeline(std::exchange(other.mGraphicsPipeline, nullptr)) {
+          mGraphicsPipeline(std::exchange(other.mGraphicsPipeline, nullptr)),
+          mDescriptorPool(std::exchange(other.mDescriptorPool, nullptr)),
+          mDescriptorSet(std::exchange(other.mDescriptorSet, nullptr)) {
     log::d("Moving Pipeline");
 }
 
 Pipeline::~Pipeline() {
     log::d("Destroying Pipeline");
+    mDescriptorSet.reset();
+    mDescriptorPool.reset();
     if (mGraphicsPipeline != nullptr) { mInstance.mDevice.destroy(mGraphicsPipeline); }
     if (mPipelineLayout != nullptr) { mInstance.mDevice.destroy(mPipelineLayout); }
     mDescriptorSetLayout.reset();
