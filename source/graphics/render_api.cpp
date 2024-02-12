@@ -42,6 +42,7 @@ VulkanAPI::VulkanAPI(Window &window) {
             *mInstance,
             BufferConfiguration{INDEX, false}
     );
+    // TODO one per frame in flight
     mUniformBuffer.emplace(
             *mInstance,
             BufferConfiguration{UNIFORM, true}
