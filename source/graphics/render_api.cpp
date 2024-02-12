@@ -41,6 +41,7 @@ VulkanAPI::VulkanAPI(Window &window) {
     );
 
     if (!(*mSwapchain).shouldRecreate()) {
+        // TODO do we need this condition?
         mPipeline.emplace(
                 *mInstance,
                 *mSwapchain->mRenderPass,
@@ -48,10 +49,20 @@ VulkanAPI::VulkanAPI(Window &window) {
                 PipelineConfiguration{}
         );
     }
+
+    mCommandPool.emplace(
+            *mInstance
+    );
+    mCommandBuffer.emplace(
+            *mInstance,
+            *mCommandPool
+    );
 }
 
 VulkanAPI::~VulkanAPI() {
     log::d("Destroying VulkanAPI");
+    mCommandBuffer.reset();
+    mCommandPool.reset();
     mUniformBuffer.reset();
     mVertexBuffer.reset();
     mIndexBuffer.reset();

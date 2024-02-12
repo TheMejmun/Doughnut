@@ -14,6 +14,8 @@
 #include "core/late_init.h"
 #include "graphics/vulkan/pipeline.h"
 #include "graphics/vulkan/buffer.h"
+#include "graphics/vulkan/command_pool.h"
+#include "graphics/vulkan/command_buffer.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -34,6 +36,8 @@ namespace dn {
         LateInit<vulkan::Buffer> mVertexBuffer{};
         LateInit<vulkan::Buffer> mIndexBuffer{};
         LateInit<vulkan::Buffer> mUniformBuffer{};
+        LateInit<vulkan::CommandPool> mCommandPool{};
+        LateInit<vulkan::CommandBuffer> mCommandBuffer{};
     };
 }
 
