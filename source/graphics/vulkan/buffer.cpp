@@ -151,8 +151,7 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
         return {true, 0};
     }
 
-    auto result = mInstance.mDevice.waitForFences(mTransferFence, true, 30'000'000); // nanoseconds
-    require(result == vk::Result::eSuccess || result == vk::Result::eTimeout, "An error has occurred while waiting for an upload to finish");
+    awaitUpload();
     freeStagingMemory();
 
     // Transfer Buffer Creation
@@ -249,12 +248,19 @@ void Buffer::freeStagingMemory() {
     if (mStagingBufferMemory != nullptr) { mInstance.mDevice.free(mStagingBufferMemory); }
 }
 
+void Buffer::awaitUpload(){
+    if(!mConfig.hostDirectAccessible){
+        auto result = mInstance.mDevice.waitForFences(mTransferFence, true, 30'000'000); // nanoseconds
+        require(result == vk::Result::eSuccess || result == vk::Result::eTimeout, "An error has occurred while waiting for an upload to finish");
+    }
+    // Else noop
+}
+
 Buffer::~Buffer() {
     log::d("Destroying Buffer");
 
     if (mTransferFence != nullptr) {
-        auto result = mInstance.mDevice.waitForFences(mTransferFence, true, 30'000'000); // nanoseconds
-        require(result == vk::Result::eSuccess || result == vk::Result::eTimeout, "An error has occurred while waiting for an upload to finish");
+        awaitUpload();
         mInstance.mDevice.destroy(mTransferFence);
     }
 

@@ -57,6 +57,8 @@ namespace dn::vulkan {
 
         void freeStagingMemory();
 
+        void awaitUpload();
+
     private:
         UploadResult calculateMemoryIndex(uint32_t size);
 
