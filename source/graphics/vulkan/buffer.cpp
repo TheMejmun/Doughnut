@@ -143,14 +143,20 @@ UploadResult Buffer::calculateMemoryIndex(const uint32_t size) {
 }
 
 UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
-    require(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
+    debugRequire(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
 
     trace_scope(("Upload Queueing of data size " + std::to_string(size)));
 
     const auto location = calculateMemoryIndex(size);
-    if (location.notEnoughSpace) {
-        return location;
+    if (!location.notEnoughSpace) {
+        queueUpload(size, data, location.memoryIndex);
     }
+
+    return location;
+}
+
+void Buffer::queueUpload(uint32_t size, const uint8_t *data, uint32_t at) {
+    debugRequire(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
 
     awaitUpload();
     freeStagingMemory();
@@ -197,7 +203,7 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
     // Upload vertices
     vk::BufferCopy copyRegion{
             0,
-            location.memoryIndex,
+            at,
             size
     };
     mTransferCommandBuffer.copyBuffer(mStagingBuffer, mBuffer, 1, &copyRegion);
@@ -217,19 +223,22 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
     };
 
     mInstance.mTransferQueue.submit(submitInfo, mTransferFence);
+}
+
+UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
+    debugRequire(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
+
+    const auto location = calculateMemoryIndex(size);
+    if (!location.notEnoughSpace) {
+        directUpload(size, data, location.memoryIndex);
+    }
 
     return location;
 }
 
-UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
-    require(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
-
-    const auto location = calculateMemoryIndex(size);
-    if (!location.notEnoughSpace) {
-        memcpy(mMappedBuffer + location.memoryIndex, data, size);
-    }
-
-    return location;
+void Buffer::directUpload(uint32_t size, const uint8_t *data, uint32_t at) {
+    debugRequire(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
+    memcpy(mMappedBuffer + at, data, size);
 }
 
 bool Buffer::isCurrentlyUploading() {

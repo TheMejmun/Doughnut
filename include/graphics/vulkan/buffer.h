@@ -51,8 +51,18 @@ namespace dn::vulkan {
         }
 
         template<class T>
+        void queueUpload(const std::vector<T> &data, uint32_t at) {
+            return upload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()), at);
+        }
+
+        template<class T>
         UploadResult directUpload(const std::vector<T> &data) {
             return upload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()));
+        }
+
+        template<class T>
+        void directUpload(const std::vector<T> &data, uint32_t at) {
+            return upload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()), at);
         }
 
         bool isCurrentlyUploading();
@@ -66,7 +76,11 @@ namespace dn::vulkan {
 
         UploadResult queueUpload(uint32_t size, const uint8_t *data);
 
+        void queueUpload(uint32_t size, const uint8_t *data, uint32_t at);
+
         UploadResult directUpload(uint32_t size, const uint8_t *data);
+
+        void directUpload(uint32_t size, const uint8_t *data, uint32_t at);
 
         Instance &mInstance;
         BufferConfiguration mConfig;
