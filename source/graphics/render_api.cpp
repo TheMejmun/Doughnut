@@ -33,10 +33,26 @@ VulkanAPI::VulkanAPI(Window &window) {
                 PipelineConfiguration{}
         );
     }
+
+    mVertexBuffer.emplace(
+            *mInstance,
+            BufferConfiguration{VERTEX, false}
+    );
+    mIndexBuffer.emplace(
+            *mInstance,
+            BufferConfiguration{INDEX, false}
+    );
+    mUniformBuffer.emplace(
+            *mInstance,
+            BufferConfiguration{UNIFORM, true}
+    );
 }
 
 VulkanAPI::~VulkanAPI() {
     log::d("Destroying VulkanAPI");
+    mUniformBuffer.reset();
+    mVertexBuffer.reset();
+    mIndexBuffer.reset();
     mPipeline.reset();
     mSwapchain.reset();
     mInstance.reset();

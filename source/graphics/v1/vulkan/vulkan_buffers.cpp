@@ -46,13 +46,13 @@ uint32_t indexCountToSet, vertexCountToSet;
 uint32_t meshBufferIndexToSet;
 
 void Buffers::create() {
-   log::d("Creating Buffers");
+    log::d("Creating Buffers");
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
 
     Buffers::maxAllocations = deviceProperties.limits.maxMemoryAllocationCount;
-   log::v("Maximum memory allocation count:", Buffers::maxAllocations);
+    log::v("Maximum memory allocation count:", Buffers::maxAllocations);
 
     vkGetPhysicalDeviceMemoryProperties(Devices::physical, &Buffers::memProperties);
 
@@ -79,7 +79,7 @@ void destroyStagingBuffers() {
 }
 
 void Buffers::destroy() {
-   log::d("Destroying Buffers");
+    log::d("Destroying Buffers");
 
     vkQueueWaitIdle(Buffers::transferQueue); // In case we are still uploading
     destroyStagingBuffers();

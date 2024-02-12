@@ -245,8 +245,9 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
     mDevice = mPhysicalDevice.createDevice(createInfo);
 
     // TODO multiple queues per family?
-    mGraphicsQueue = mDevice.getQueue(*mQueueFamilyIndices.graphicsFamily, 0);
-    mPresentQueue = mDevice.getQueue(*mQueueFamilyIndices.presentFamily, 0);
+    mGraphicsQueue = mDevice.getQueue(mQueueFamilyIndices.graphicsFamily.value(), 0);
+    mPresentQueue = mDevice.getQueue(mQueueFamilyIndices.presentFamily.value(), 0);
+    mTransferQueue = mDevice.getQueue(mQueueFamilyIndices.transferFamily.value(), 0);
 }
 
 Instance::Instance(Instance &&other) noexcept

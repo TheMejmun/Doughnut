@@ -13,6 +13,7 @@
 #include "graphics/vulkan/instance.h"
 #include "core/late_init.h"
 #include "graphics/vulkan/pipeline.h"
+#include "graphics/vulkan/buffer.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -30,6 +31,9 @@ namespace dn {
         LateInit<vulkan::Instance> mInstance{};
         LateInit<vulkan::Swapchain> mSwapchain{};
         LateInit<vulkan::Pipeline> mPipeline{};
+        LateInit<vulkan::Buffer> mVertexBuffer{};
+        LateInit<vulkan::Buffer> mIndexBuffer{};
+        LateInit<vulkan::Buffer> mUniformBuffer{};
     };
 }
 

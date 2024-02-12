@@ -34,6 +34,7 @@ namespace dn::vulkan {
         // TODO move Queue creation somewhere else?
         vk::Queue mGraphicsQueue = nullptr;
         vk::Queue mPresentQueue = nullptr;
+        vk::Queue mTransferQueue = nullptr;
 
         vulkan::OptionalFeatures mOptionalFeatures{};
         vulkan::QueueFamilyIndices mQueueFamilyIndices{};
