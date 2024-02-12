@@ -22,9 +22,11 @@ namespace dn::vulkan {
         bool hostDirectAccessible;
     };
 
+    // TODO consider memory alignment
     struct UploadResult {
         bool notEnoughSpace;
         uint32_t memoryIndex;
+        uint32_t size;
     };
 
     class Buffer {

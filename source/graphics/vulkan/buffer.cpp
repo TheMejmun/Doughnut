@@ -110,6 +110,7 @@ Buffer::Buffer(dn::vulkan::Buffer &&other) noexcept
 }
 
 UploadResult Buffer::calculateMemoryIndex(const uint32_t size) {
+    // TODO memory alignment requirements
     uint32_t insertIndex = 0;
     {
         std::lock_guard<std::mutex> guard{*mIsUsedMutex};
@@ -129,7 +130,7 @@ UploadResult Buffer::calculateMemoryIndex(const uint32_t size) {
 
         if (remainingSize != 0) {
             log::e("Data does not fit into this buffer!");
-            return {true, 0};
+            return {true, 0, 0};
         }
 
         for (uint32_t i = insertIndex; i < insertIndex + size; ++i) {
@@ -138,7 +139,7 @@ UploadResult Buffer::calculateMemoryIndex(const uint32_t size) {
 
         log::v("Data of size", size, "will be uploaded at buffer position", insertIndex);
     }
-    return {false, insertIndex};
+    return {false, insertIndex, size};
 }
 
 UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
@@ -146,9 +147,9 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
 
     trace_scope(("Upload Queueing of data size " + std::to_string(size)));
 
-    const auto [notEnoughSpace, index] = calculateMemoryIndex(size);
-    if (notEnoughSpace) {
-        return {true, 0};
+    const auto location = calculateMemoryIndex(size);
+    if (location.notEnoughSpace) {
+        return location;
     }
 
     awaitUpload();
@@ -196,7 +197,7 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
     // Upload vertices
     vk::BufferCopy copyRegion{
             0,
-            index,
+            location.memoryIndex,
             size
     };
     mTransferCommandBuffer.copyBuffer(mStagingBuffer, mBuffer, 1, &copyRegion);
@@ -217,18 +218,18 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
 
     mInstance.mTransferQueue.submit(submitInfo, mTransferFence);
 
-    return {false, index};
+    return location;
 }
 
 UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
     require(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
 
-    const auto [notEnoughSpace, index] = calculateMemoryIndex(size);
-    if (notEnoughSpace) {
-        return {true, 0};
+    const auto location = calculateMemoryIndex(size);
+    if (!location.notEnoughSpace) {
+        memcpy(mMappedBuffer + location.memoryIndex, data, size);
     }
 
-    memcpy(mMappedBuffer + index, data, size);
+    return location;
 }
 
 bool Buffer::isCurrentlyUploading() {
@@ -248,8 +249,8 @@ void Buffer::freeStagingMemory() {
     if (mStagingBufferMemory != nullptr) { mInstance.mDevice.free(mStagingBufferMemory); }
 }
 
-void Buffer::awaitUpload(){
-    if(!mConfig.hostDirectAccessible){
+void Buffer::awaitUpload() {
+    if (!mConfig.hostDirectAccessible) {
         auto result = mInstance.mDevice.waitForFences(mTransferFence, true, 30'000'000); // nanoseconds
         require(result == vk::Result::eSuccess || result == vk::Result::eTimeout, "An error has occurred while waiting for an upload to finish");
     }
