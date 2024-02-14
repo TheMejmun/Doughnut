@@ -10,9 +10,17 @@
 int main() {
     dn::log::init(true, false, false, true);
 
+#ifdef NDEBUG
+    // In case assert was used instead of dn::require
+    dn::log::i("Do not run tests in Release mode.");
+    return 1;
+#endif
+
     trace_scope("Unit Tests")
 
     dn::testEntityManager();
     dn::testSystemManager();
     dn::testScheduler();
+
+    return 0;
 }
