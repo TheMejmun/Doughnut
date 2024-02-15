@@ -75,6 +75,10 @@ Swapchain::Swapchain(
         Instance &instance,
         SwapchainConfiguration config
 ) : mConfig(config), mInstance(instance) {
+    create();
+}
+
+void Swapchain::create() {
     log::d("Creating Swapchain");
 
     SwapchainSupportDetails swapchainSupport = querySwapchainSupport(mInstance.mPhysicalDevice, mInstance.mSurface);
@@ -199,15 +203,26 @@ std::optional<uint32_t> Swapchain::acquireNextImage(Semaphore &semaphore) {
     auto result = mInstance.mDevice.acquireNextImageKHR(mSwapchain, std::numeric_limits<uint64_t>::max(), semaphore.mSemaphore, nullptr);
     // TODO are these really all okay results?
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkAcquireNextImageKHR.html
-    return (result.result == vk::Result::eSuccess ||
-            result.result == vk::Result::eTimeout ||
-            result.result == vk::Result::eNotReady ||
-            result.result == vk::Result::eSuboptimalKHR) ?
-           std::optional<uint32_t>{result.value} :
-           std::optional<uint32_t>{};
+    if (result.result == vk::Result::eSuccess
+        || result.result == vk::Result::eTimeout
+        || result.result == vk::Result::eNotReady) {
+        return {result.value};
+
+    } else if (result.result == vk::Result::eSuboptimalKHR) {
+        mNeedsNewSwapchain = true;
+        return {result.value};
+
+    } else {
+        mNeedsNewSwapchain = true;
+        return {};
+    }
 }
 
 Swapchain::~Swapchain() {
+    destroy();
+}
+
+void Swapchain::destroy() {
     log::d("Destroying Swapchain");
 
     mFramebuffers.clear();
@@ -220,4 +235,14 @@ Swapchain::~Swapchain() {
     mImageViews.clear();
 
     mInstance.mDevice.destroy(mSwapchain);
+}
+
+void Swapchain::recreate() {
+    destroy();
+    create();
+
+    // TODO
+    // if (success) {
+    //     Imgui::recalculateScale(state);
+    // }
 }

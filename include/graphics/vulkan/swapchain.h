@@ -47,7 +47,7 @@ namespace dn::vulkan {
 
         [[nodiscard]] bool shouldRecreate() const;
 
-        bool recreate();
+        void recreate();
 
         [[nodiscard]] uint32_t getWidth() const;
 
@@ -59,11 +59,15 @@ namespace dn::vulkan {
          * @param semaphore The semaphore to wait on
          * @return True, if an image was acquired
          */
-        std::optional<uint32_t> acquireNextImage(Semaphore& semaphore);
+        std::optional<uint32_t> acquireNextImage(Semaphore &semaphore);
 
         LateInit<RenderPass> mRenderPass{};
 
     private:
+        void create();
+
+        void destroy();
+
         SwapchainConfiguration mConfig;
         Instance &mInstance;
 
