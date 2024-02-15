@@ -32,7 +32,7 @@ DescriptorSet::DescriptorSet(Instance &instance,
         require(!reserveResult.notEnoughSpace, "Could not allocate descriptor set - Buffer too small!");
         vk::DescriptorBufferInfo bufferInfo{
                 uboBuffer.mBuffer,
-                reserveResult.memoryIndex,
+                reserveResult.position.memoryIndex,
                 config.uboSize
         };
 

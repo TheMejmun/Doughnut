@@ -30,13 +30,14 @@ namespace dn::vulkan {
 
         ~Pipeline();
 
-    private:
-        Instance &mInstance;
-        LateInit<DescriptorSetLayout> mDescriptorSetLayout{};
         vk::PipelineLayout mPipelineLayout = nullptr;
         vk::Pipeline mGraphicsPipeline = nullptr;
+
+        LateInit<DescriptorSetLayout> mDescriptorSetLayout{};
         LateInit<DescriptorPool> mDescriptorPool{};
         LateInit<DescriptorSet> mDescriptorSet{};
+    private:
+        Instance &mInstance;
     };
 }
 

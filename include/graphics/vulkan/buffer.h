@@ -24,11 +24,16 @@ namespace dn::vulkan {
         bool hostDirectAccessible;
     };
 
+    struct BufferPosition {
+        uint32_t memoryIndex;
+        uint32_t size;
+        uint32_t count;
+    };
+
     // TODO consider memory alignment
     struct UploadResult {
         bool notEnoughSpace;
-        uint32_t memoryIndex;
-        uint32_t size;
+        BufferPosition position;
     };
 
     class Buffer {
@@ -49,22 +54,26 @@ namespace dn::vulkan {
          */
         template<class T>
         UploadResult queueUpload(const std::vector<T> &data) {
-            return upload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()));
+            UploadResult result = queueUpload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()));
+            result.position.count = data.size();
+            return result;
         }
 
         template<class T>
         void queueUpload(const std::vector<T> &data, uint32_t at) {
-            return upload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()), at);
+            queueUpload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()), at);
         }
 
         template<class T>
         UploadResult directUpload(const std::vector<T> &data) {
-            return upload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()));
+            UploadResult result = directUpload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()));
+            result.position.count = data.size();
+            return result;
         }
 
         template<class T>
         void directUpload(const std::vector<T> &data, uint32_t at) {
-            return upload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()), at);
+            directUpload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()), at);
         }
 
         UploadResult reserve(uint32_t size);

@@ -351,11 +351,7 @@ void Renderer::recordCommandBuffer(EntityManagerSpec &ecs, VkCommandBuffer buffe
     vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->pipelineLayout, 0, 1,
                             &this->descriptorSets[vulkan::Buffers::uniformBufferIndex], 0, nullptr);
 
-#ifdef INSTANCED_RENDERING
-    vkCmdDrawIndexed(buffer, vulkan::Buffers::indexCount[vulkan::Buffers::meshBufferToUse], 25, 0, 0, 0);
-#else
     vkCmdDrawIndexed(buffer, vulkan::Buffers::indexCount[vulkan::Buffers::meshBufferToUse], 1, 0, 0, 0);
-#endif
 
     this->drawUi(ecs);
 

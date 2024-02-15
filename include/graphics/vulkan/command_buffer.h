@@ -22,6 +22,12 @@ namespace dn::vulkan {
 
         vk::CommandBuffer mCommandBuffer = nullptr;
 
+        void reset() const;
+
+        void startRecording() const;
+
+        void endRecording() const;
+
     private:
         Instance &mInstance;
     };

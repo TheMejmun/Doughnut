@@ -36,6 +36,10 @@ double Fence::await() const {
     return duration(beforeFence, afterFence);
 }
 
+void Fence::resetFence() const {
+    mInstance.mDevice.resetFences(mFence);
+}
+
 Fence::~Fence() {
     log::d("Destroying Fence");
     if (mFence != nullptr) { mInstance.mDevice.destroy(mFence); }

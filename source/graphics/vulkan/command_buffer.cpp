@@ -29,6 +29,25 @@ CommandBuffer::CommandBuffer(dn::vulkan::CommandBuffer &&other) noexcept
     log::d("Moving CommandBuffer");
 }
 
+void CommandBuffer::reset() const {
+    mCommandBuffer.reset();
+}
+
+void CommandBuffer::startRecording() const {
+    reset();
+
+    vk::CommandBufferBeginInfo beginInfo{
+            {},
+            nullptr
+    };
+
+    mCommandBuffer.begin(beginInfo);
+}
+
+void CommandBuffer::endRecording() const {
+    mCommandBuffer.end();
+}
+
 CommandBuffer::~CommandBuffer() {
     log::d("Destroying CommandBuffer");
 

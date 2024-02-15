@@ -36,7 +36,9 @@ Buffer::Buffer(dn::vulkan::Instance &instance, dn::vulkan::BufferConfiguration c
         };
         mTransferCommandBuffer = mInstance.mDevice.allocateCommandBuffers(transferBufferAllcateInfo)[0];
 
-        vk::FenceCreateInfo createInfo{};
+        vk::FenceCreateInfo createInfo{
+                vk::FenceCreateFlags{vk::FenceCreateFlagBits::eSignaled}
+        };
         mTransferFence = mInstance.mDevice.createFence(createInfo);
     }
 
@@ -149,11 +151,11 @@ UploadResult Buffer::reserve(uint32_t size) {
 UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
     debugRequire(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
 
-    trace_scope(("Upload Queueing of data size " + std::to_string(size)));
+    trace_scope("Upload Queueing");
 
     const auto location = calculateMemoryIndex(size);
     if (!location.notEnoughSpace) {
-        queueUpload(size, data, location.memoryIndex);
+        queueUpload(size, data, location.position.memoryIndex);
     }
 
     return location;
@@ -164,6 +166,8 @@ void Buffer::queueUpload(uint32_t size, const uint8_t *data, uint32_t at) {
 
     awaitUpload();
     freeStagingMemory();
+
+    mInstance.mDevice.resetFences(mTransferFence);
 
     // Transfer Buffer Creation
 
@@ -234,7 +238,7 @@ UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
 
     const auto location = calculateMemoryIndex(size);
     if (!location.notEnoughSpace) {
-        directUpload(size, data, location.memoryIndex);
+        directUpload(size, data, location.position.memoryIndex);
     }
 
     return location;
@@ -263,7 +267,7 @@ void Buffer::freeStagingMemory() {
 }
 
 void Buffer::awaitUpload() {
-    if (!mConfig.hostDirectAccessible) {
+    if (!mConfig.hostDirectAccessible && isCurrentlyUploading()) {
         auto result = mInstance.mDevice.waitForFences(mTransferFence, true, std::numeric_limits<uint64_t>::max()); // nanoseconds
         require(result == vk::Result::eSuccess || result == vk::Result::eTimeout, "An error has occurred while waiting for an upload to finish");
     }

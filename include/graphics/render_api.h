@@ -31,20 +31,36 @@ namespace dn {
 
         ~VulkanAPI();
 
+        bool nextImage();
+
+        void startRecording();
+
+        void beginRenderPass();
+
+        void recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
+                            const vulkan::BufferPosition &indexPosition);
+
+        void endRenderPass();
+
+        void endRecording();
+
         void drawFrame(double delta);
+
+        LateInit<vulkan::Buffer> mVertexBuffer{};
+        LateInit<vulkan::Buffer> mIndexBuffer{};
+        LateInit<vulkan::Buffer> mUniformBuffer{};
 
     private:
         LateInit<vulkan::Instance> mInstance{};
         LateInit<vulkan::Swapchain> mSwapchain{};
         LateInit<vulkan::Pipeline> mPipeline{};
-        LateInit<vulkan::Buffer> mVertexBuffer{};
-        LateInit<vulkan::Buffer> mIndexBuffer{};
-        LateInit<vulkan::Buffer> mUniformBuffer{};
         LateInit<vulkan::CommandPool> mCommandPool{};
-        LateInit<vulkan::CommandBuffer> mCommandBuffer{};
+        std::vector<vulkan::CommandBuffer> mCommandBuffers{};
         LateInit<vulkan::Semaphore> mImageAvailableSemaphore{};
         LateInit<vulkan::Semaphore> mRenderFinishedSemaphore{};
         LateInit<vulkan::Fence> mInFlightFence{};
+
+        std::optional<uint32_t> mCurrentSwapchainFramebuffer{};
     };
 }
 

@@ -218,8 +218,17 @@ std::optional<uint32_t> Swapchain::acquireNextImage(Semaphore &semaphore) {
     }
 }
 
+uint32_t Swapchain::getImageCount() {
+    return mImages.size();
+}
+
 Swapchain::~Swapchain() {
     destroy();
+}
+
+Framebuffer &Swapchain::getFramebuffer(uint32_t i) {
+    log::v("Returning framebuffer");
+    return mFramebuffers[i];
 }
 
 void Swapchain::destroy() {

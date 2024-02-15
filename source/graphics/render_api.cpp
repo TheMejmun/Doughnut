@@ -40,23 +40,26 @@ VulkanAPI::VulkanAPI(Window &window) {
             BufferConfiguration{UNIFORM, true}
     );
 
-    if (!(*mSwapchain).shouldRecreate()) {
-        // TODO do we need this condition?
-        mPipeline.emplace(
-                *mInstance,
-                *mSwapchain->mRenderPass,
-                *mUniformBuffer,
-                PipelineConfiguration{}
-        );
-    }
-
     mCommandPool.emplace(
             *mInstance
     );
-    mCommandBuffer.emplace(
+
+    // if (!(*mSwapchain).shouldRecreate()) {
+    // TODO do we need this condition?
+    mPipeline.emplace(
             *mInstance,
-            *mCommandPool
+            *mSwapchain->mRenderPass,
+            *mUniformBuffer,
+            PipelineConfiguration{}
     );
+
+    for (uint32_t i = 0; i < mSwapchain->getImageCount(); ++i) {
+        mCommandBuffers.emplace_back(
+                *mInstance,
+                *mCommandPool
+        );
+    }
+    // }
 
     mImageAvailableSemaphore.emplace(
             *mInstance
@@ -70,87 +73,172 @@ VulkanAPI::VulkanAPI(Window &window) {
     );
 }
 
-void VulkanAPI::drawFrame(double delta) {
+bool VulkanAPI::nextImage() {
+    mInFlightFence->await();
+
     if (mSwapchain->shouldRecreate()) {
-        bool success = mSwapchain->recreate();
-        if (success) {
-            log::d("Created new swapchain");
-            // TODO vulkan::Swapchain::needsNewSwapchain = false;
-        } else {
-            log::d("Failed to create new swapchain");
-            return;
-        }
+        log::d("Requesting swapchain recreation");
+        mSwapchain->recreate();
     }
 
+    auto acquireImageResult = mSwapchain->acquireNextImage(*mImageAvailableSemaphore);
+
+    if (!acquireImageResult.has_value()) {
+        log::d("No swapchain image was acquired. Skipping frame.");
+        mCurrentSwapchainFramebuffer.reset();
+        return false;
+    } else {
+        mCurrentSwapchainFramebuffer = acquireImageResult;
+        return true;
+    }
+}
+
+void VulkanAPI::startRecording() {
+    debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].startRecording();
+}
+
+void VulkanAPI::beginRenderPass() {
+    debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+
+    std::array<vk::ClearValue, 2> clearValues{
+            vk::ClearValue{{0.0f, 0.0f, 0.0f, 1.0f}},
+            vk::ClearValue{{1.0f, 0}}
+    };
+    vk::RenderPassBeginInfo renderPassInfo{
+            mSwapchain->mRenderPass->mRenderPass,
+            mSwapchain->getFramebuffer(*mCurrentSwapchainFramebuffer).mFramebuffer,
+            vk::Rect2D{
+                    {0,                      0},
+                    {mSwapchain->getWidth(), mSwapchain->getHeight()}
+            },
+            static_cast<uint32_t>(clearValues.size()),
+            clearValues.data()
+    };
+
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+}
+
+void VulkanAPI::endRenderPass() {
+    debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.endRenderPass();
+}
+
+void VulkanAPI::endRecording() {
+    debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].endRecording();
+}
+
+void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
+                               const vulkan::BufferPosition &indexPosition) {
+    debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline->mGraphicsPipeline);
+
+
+    std::array<vk::Buffer, 1> vertexBuffers{mVertexBuffer->mBuffer};
+    std::array<vk::DeviceSize, 1> offsets{0};
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindVertexBuffers(
+            0,
+            1,
+            vertexBuffers.data(),
+            offsets.data()
+    );
+
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindIndexBuffer(
+            mIndexBuffer->mBuffer,
+            0,
+            vk::IndexType::eUint32
+    );
+
+    vk::Viewport viewport{
+//            float x_ = {}, float y_ = {}, float width_ = {}, float height_ = {}, float minDepth_ = {}, float maxDepth_ = {}
+            0.0f,
+            0.0f,
+            static_cast<float>(mSwapchain->getWidth()),
+            static_cast<float>(mSwapchain->getHeight()),
+            0.0f,
+            1.0f
+    };
+
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.setViewport(
+            0,
+            1,
+            &viewport
+    );
+
+    vk::Rect2D scissor{
+            {0,                      0},
+            {mSwapchain->getWidth(), mSwapchain->getHeight()}
+    };
+
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.setScissor(
+            0,
+            1,
+            &scissor
+    );
+
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            mPipeline->mPipelineLayout,
+            0,
+            1,
+            mPipeline->mDescriptorSet->mDescriptorSets.data(), // TODO don't just pass all of this in here
+            0,
+            nullptr
+    );
+
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.drawIndexed(
+            indexPosition.count,
+            1,
+            indexPosition.memoryIndex,
+            vertexPosition.memoryIndex,
+            0
+    );
+
+    // TODO this->drawUi(ecs);
+}
+
+void VulkanAPI::drawFrame(double delta) {
+    debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not draw if no image has been acquired.");
 //    uploadRenderables(ecs);
 //    uploadSimplifiedMeshes(ecs);
 //    destroyRenderables(ecs);
 
-    mInFlightFence->await();
+    mInFlightFence->resetFence();
 
-    auto acquireImageResult = mSwapchain->acquireNextImage(*mImageAvailableSemaphore);
-    if (!acquireImageResult.has_value()) {
-        return;
-    }
+    // TODO updateUniformBuffer(delta, ecs);
 
-    // TODO WIP -------------------------------------------------------------------------------------------------
-
-    if (acquireImageResult == VK_ERROR_OUT_OF_DATE_KHR) {
-        log::d("Swapchain is out of date");
-        vulkan::Swapchain::recreateSwapchain(this->state);
-        return duration(beforeFence, afterFence); // Why not
-    } else if (acquireImageResult == VK_SUBOPTIMAL_KHR) {
-        log::d("Swapchain is suboptimal");
-        vulkan::Swapchain::needsNewSwapchain = true;
-
-    } else if (acquireImageResult != VK_SUCCESS) {
-        throw std::runtime_error("Failed to acquire swapchain image!");
-    }
-
-    // Avoid deadlock if recreating -> move to after success check
-    vkResetFences(vulkan::Devices::logical, 1, &this->inFlightFence);
-
-    auto commandBuffer = vulkan::Buffers::commandBuffer;
-
-    updateUniformBuffer(delta, ecs);
-
-    vkResetCommandBuffer(commandBuffer, 0); // I am not convinced this is necessary
-    recordCommandBuffer(ecs, commandBuffer, imageIndex);
-
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    VkSemaphore waitSemaphores[] = {this->imageAvailableSemaphore}; // index corresponding to wait stage
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT}; // Wait in fragment stage
     // or VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
 
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
+    std::array<vk::Semaphore, 1> waitSemaphores{mImageAvailableSemaphore->mSemaphore}; // index corresponding to wait stage
+    std::array<vk::PipelineStageFlags, 1> waitStages{vk::PipelineStageFlagBits::eColorAttachmentOutput}; // Wait in fragment stage
+    std::array<vk::Semaphore, 1> signalSemaphores{mRenderFinishedSemaphore->mSemaphore};
+    vk::SubmitInfo submitInfo{
+            static_cast<uint32_t>(waitSemaphores.size()),
+            waitSemaphores.data(),
+            waitStages.data(),
+            1,
+            &mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer,
+            static_cast<uint32_t>(signalSemaphores.size()),
+            signalSemaphores.data(),
+    };
 
-    VkSemaphore signalSemaphores[] = {this->renderFinishedSemaphore};
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
+    mInstance->mGraphicsQueue.submit(submitInfo, mInFlightFence->mFence);
 
-    if (vkQueueSubmit(vulkan::Devices::graphicsQueue, 1, &submitInfo, this->inFlightFence) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to submit draw command buffer!");
-    }
+    vk::PresentInfoKHR presentInfo{
+            static_cast<uint32_t>(signalSemaphores.size()),
+            signalSemaphores.data(),
+            1,
+            &mSwapchain->mSwapchain,
+            &(*mCurrentSwapchainFramebuffer),
+            nullptr
+    };
+    auto result = mInstance->mPresentQueue.presentKHR(presentInfo);
 
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    require(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR, "An error has occured while rendering");
 
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
-
-    VkSwapchainKHR swapchains[] = {vulkan::Swapchain::swapchain};
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapchains;
-    presentInfo.pImageIndices = &imageIndex;
-    presentInfo.pResults = nullptr; // Per swapchain acquireImageResult
-
-    vkQueuePresentKHR(vulkan::Devices::presentQueue, &presentInfo);
+    mCurrentSwapchainFramebuffer.reset();
 }
 
 VulkanAPI::~VulkanAPI() {
@@ -159,7 +247,7 @@ VulkanAPI::~VulkanAPI() {
     mImageAvailableSemaphore.reset();
     mRenderFinishedSemaphore.reset();
 
-    mCommandBuffer.reset();
+    mCommandBuffers.clear();
     mCommandPool.reset();
     mUniformBuffer.reset();
     mVertexBuffer.reset();

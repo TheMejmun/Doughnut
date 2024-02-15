@@ -30,6 +30,9 @@ namespace dn {
 
         ResourcePool<Texture> texturePool{};
         ResourcePool<Shader> shaderPool{};
+
+        vulkan::UploadResult indexPosition{};
+        vulkan::UploadResult vertexPosition{};
     };
 }
 

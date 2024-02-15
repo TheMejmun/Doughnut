@@ -61,7 +61,13 @@ namespace dn::vulkan {
          */
         std::optional<uint32_t> acquireNextImage(Semaphore &semaphore);
 
+        Framebuffer& getFramebuffer(uint32_t i);
+
         LateInit<RenderPass> mRenderPass{};
+
+        uint32_t getImageCount();
+
+        vk::SwapchainKHR mSwapchain = nullptr;
 
     private:
         void create();
@@ -75,7 +81,6 @@ namespace dn::vulkan {
         vk::Extent2D mExtent{};
         vk::SurfaceFormatKHR mSurfaceFormat{};
         vk::PresentModeKHR mPresentMode{};
-        vk::SwapchainKHR mSwapchain = nullptr;
         std::vector<Image> mImages{};
         std::vector<ImageView> mImageViews{};
         vk::Format mDepthFormat{};
