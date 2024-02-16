@@ -13,28 +13,16 @@ class Triangle {
 public:
     RenderMesh mesh{
             .vertices{
-                    {{0.f,   0.f,   0.5f},
-                            Color::fromRGB({1.0f, 1.0f, 1.0f}).setLumaLab(90).getLAB()},
-                    {{50.f,  -50.f, 0.5f},
+                    {{-1.f,   1.f,   0.5f},
+                            Color::fromRGB({0.0f, 1.0f, 0.0f}).setLumaLab(90).getLAB()},
+                    {{1.f,  -1.f, 0.5f},
                             Color::fromRGB({0.0f, 0.0f, 1.0f}).setLumaLab(40).getLAB()},
-                    {{50.f,  50.f,  0.5f},
-                            Color::fromRGB({1.0f, 0.0f, 0.0f}).setLumaLab(40).getLAB()},
-                    {{-50.f, -50.f, 0.5f},
-                            Color::fromRGB({1.0f, 0.0f, 0.0f}).setLumaLab(40).getLAB()},
-                    {{-50.f, 50.f,  0.5f},
-                            Color::fromRGB({0.0f, 0.0f, 1.0f}).setLumaLab(40).getLAB()}
+                    {{1.f,  1.f,  0.5f},
+                            Color::fromRGB({1.0f, 0.0f, 0.0f}).setLumaLab(40).getLAB()}
             },
             .indices{
-                    0, 3, 1,
                     0, 1, 2,
-                    0, 2, 4,
-                    0, 4, 3,
-
-                    // Backwards facing:
-                    0, 1, 3,
-                    0, 2, 1,
-                    0, 4, 2,
-                    0, 3, 4,
+                    0, 2, 1
             }};
 };
 

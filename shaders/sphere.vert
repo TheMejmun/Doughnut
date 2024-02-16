@@ -22,21 +22,28 @@ layout(location = 5) out mat4 modelTransform;
 
 //#define INSTANCED_RENDERING
 
+vec2 positions[3] = vec2[](
+    vec2(0.0, -0.5),
+    vec2(0.5, 0.5),
+    vec2(-0.5, 0.5)
+);
+
 void main() {
-    fragPos = vec4(inPosition.xyz, 1);
+    fragPos = vec4(inPosition.xy, 0.0f, 1.0f);
+    gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
     fragColor = inColor;
     return;
 
     mat4 model  = ubo.model;
 
-#ifdef INSTANCED_RENDERING
+    #ifdef INSTANCED_RENDERING
     model += mat4 (
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
     (gl_InstanceIndex / 5 - 2) * 5, (gl_InstanceIndex % 5 - 2) * 5, 0, 0
     );
-#endif
+    #endif
 
     vec4 posWS = model * vec4(inPosition, 1.0);
     vec4 posSS = ubo.proj * ubo.view * posWS;

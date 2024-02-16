@@ -105,7 +105,7 @@ void VulkanAPI::beginRenderPass() {
     debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
 
     std::array<vk::ClearValue, 2> clearValues{
-            vk::ClearValue{{1.0f, 0.0f, 0.0f, 1.0f}},
+            vk::ClearValue{{0.0f, 0.0f, 0.0f, 1.0f}},
             vk::ClearValue{{1.0f, 0}}
     };
     vk::RenderPassBeginInfo renderPassInfo{
@@ -179,7 +179,7 @@ void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
     );
 
     vk::Rect2D scissor{
-            {0, 0},
+            {0,                      0},
             {mSwapchain->getWidth(), mSwapchain->getHeight()}
     };
 
