@@ -13,11 +13,11 @@ class Triangle {
 public:
     RenderMesh mesh{
             .vertices{
-                    {{-1.f,   1.f,   0.5f},
+                    {{0.f,   -0.5f,   0.5f},
                             Color::fromRGB({0.0f, 1.0f, 0.0f}).setLumaLab(90).getLAB()},
-                    {{1.f,  -1.f, 0.5f},
+                    {{0.5f,  0.5f, 0.5f},
                             Color::fromRGB({0.0f, 0.0f, 1.0f}).setLumaLab(40).getLAB()},
-                    {{1.f,  1.f,  0.5f},
+                    {{-0.5f,  0.5f,  0.5f},
                             Color::fromRGB({1.0f, 0.0f, 0.0f}).setLumaLab(40).getLAB()}
             },
             .indices{
