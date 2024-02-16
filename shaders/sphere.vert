@@ -24,7 +24,6 @@ layout(location = 5) out mat4 modelTransform;
 
 void main() {
     fragPos = vec4(inPosition.xyz, 1);
-    fragWorldPos = vec4(inPosition.xyz, 1);
     fragColor = inColor;
     return;
 

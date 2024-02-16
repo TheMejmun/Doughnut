@@ -154,23 +154,23 @@ void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
             vk::IndexType::eUint32
     );
 
-    vk::Viewport viewport{
-            -1.0f,
-            -1.0f,
-            2.0f,
-            2.0f,
-            0.0f,
-            1.0f
-    };
-
 //    vk::Viewport viewport{
-//            0.0f,
-//            0.0f,
-//            static_cast<float>(mSwapchain->getWidth()),
-//            static_cast<float>(mSwapchain->getHeight()),
+//            -1.0f,
+//            -1.0f,
+//            2.0f,
+//            2.0f,
 //            0.0f,
 //            1.0f
 //    };
+
+    vk::Viewport viewport{
+            0.0f,
+            0.0f,
+            static_cast<float>(mSwapchain->getWidth()),
+            static_cast<float>(mSwapchain->getHeight()),
+            0.0f,
+            1.0f
+    };
 
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.setViewport(
             0,
@@ -207,14 +207,18 @@ void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
             0
     );
 
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.draw(
+            vertexPosition.count,
+            1,
+            0,
+            0
+    );
+
     // TODO this->drawUi(ecs);
 }
 
 void VulkanAPI::drawFrame(double delta) {
     debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not draw if no image has been acquired.");
-//    uploadRenderables(ecs);
-//    uploadSimplifiedMeshes(ecs);
-//    destroyRenderables(ecs);
 
     // mInFlightFence->resetFence();
 
