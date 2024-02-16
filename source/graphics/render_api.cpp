@@ -258,6 +258,8 @@ void VulkanAPI::drawFrame(double delta) {
 
 VulkanAPI::~VulkanAPI() {
     log::d("Destroying VulkanAPI");
+    mInFlightFence->await();
+
     mInFlightFence.reset();
     mImageAvailableSemaphore.reset();
     mRenderFinishedSemaphore.reset();

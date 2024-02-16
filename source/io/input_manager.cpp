@@ -18,6 +18,10 @@ InputController::InputController(GLFWwindow *w) {
     glfwSetKeyCallback(window, _callback);
 }
 
+void InputController::update() {
+    glfwPollEvents();
+}
+
 void InputController::update(double delta, EntityManagerSpec &entityManager) {
     InputController::handleKey(keySwitch(IM_CLOSE_WINDOW), -1);
     InputController::handleKey(keySwitch(IM_FULLSCREEN), -1);

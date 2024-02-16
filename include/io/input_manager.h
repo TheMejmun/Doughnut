@@ -19,7 +19,9 @@ public:
 
     ~InputController();
 
-    void update(double delta, EntityManagerSpec &entityManager) ;
+    void update();
+
+    void update(double delta, EntityManagerSpec &entityManager);
 
 private:
     static void _callback(GLFWwindow *window, int key, int scancode, int action, int mods);
