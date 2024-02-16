@@ -83,11 +83,14 @@ bool VulkanAPI::nextImage() {
 
     auto acquireImageResult = mSwapchain->acquireNextImage(*mImageAvailableSemaphore);
 
+    mInFlightFence->resetFence();
+
     if (!acquireImageResult.has_value()) {
         log::d("No swapchain image was acquired. Skipping frame.");
         mCurrentSwapchainFramebuffer.reset();
         return false;
     } else {
+        // log::d("mCurrentSwapchainFramebuffer", acquireImageResult.value());
         mCurrentSwapchainFramebuffer = acquireImageResult;
         return true;
     }
@@ -102,7 +105,7 @@ void VulkanAPI::beginRenderPass() {
     debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
 
     std::array<vk::ClearValue, 2> clearValues{
-            vk::ClearValue{{0.0f, 0.0f, 0.0f, 1.0f}},
+            vk::ClearValue{{1.0f, 0.0f, 0.0f, 1.0f}},
             vk::ClearValue{{1.0f, 0}}
     };
     vk::RenderPassBeginInfo renderPassInfo{
@@ -133,8 +136,8 @@ void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
                                const vulkan::BufferPosition &indexPosition) {
     debugRequire(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
 
+    // TODO put this somewhere reasonable
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline->mGraphicsPipeline);
-
 
     std::array<vk::Buffer, 1> vertexBuffers{mVertexBuffer->mBuffer};
     std::array<vk::DeviceSize, 1> offsets{0};
@@ -152,14 +155,22 @@ void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
     );
 
     vk::Viewport viewport{
-//            float x_ = {}, float y_ = {}, float width_ = {}, float height_ = {}, float minDepth_ = {}, float maxDepth_ = {}
-            0.0f,
-            0.0f,
-            static_cast<float>(mSwapchain->getWidth()),
-            static_cast<float>(mSwapchain->getHeight()),
+            -1.0f,
+            -1.0f,
+            2.0f,
+            2.0f,
             0.0f,
             1.0f
     };
+
+//    vk::Viewport viewport{
+//            0.0f,
+//            0.0f,
+//            static_cast<float>(mSwapchain->getWidth()),
+//            static_cast<float>(mSwapchain->getHeight()),
+//            0.0f,
+//            1.0f
+//    };
 
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.setViewport(
             0,
@@ -168,7 +179,7 @@ void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
     );
 
     vk::Rect2D scissor{
-            {0,                      0},
+            {0, 0},
             {mSwapchain->getWidth(), mSwapchain->getHeight()}
     };
 
@@ -191,8 +202,8 @@ void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.drawIndexed(
             indexPosition.count,
             1,
-            indexPosition.memoryIndex,
-            vertexPosition.memoryIndex,
+            indexPosition.memoryIndex / sizeof(uint32_t),
+            vertexPosition.memoryIndex / sizeof(uint32_t),
             0
     );
 
@@ -205,7 +216,7 @@ void VulkanAPI::drawFrame(double delta) {
 //    uploadSimplifiedMeshes(ecs);
 //    destroyRenderables(ecs);
 
-    mInFlightFence->resetFence();
+    // mInFlightFence->resetFence();
 
     // TODO updateUniformBuffer(delta, ecs);
 

@@ -67,12 +67,15 @@ vec3 labToXyz(const vec3 lab) {
 }
 
 void main() {
+    outColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    return;
+
     vec3 N = normalize((transpose(inverse(inModelTransform)) * vec4(inNormal, 1.0)).xyz);
     vec3 L = normalize(SUN_POS - inWorldPos.xyz);
     vec3 V = normalize(CAMERA_POS - inWorldPos.xyz);
 
     float brightness = dot(N, L);
-//    brightness = 1; // TODO
+    //    brightness = 1; // TODO
 
     float lightFac = pow(clamp(brightness, 0, 1), LIGHT_POWER_FACTOR);
     float shadowFac = pow(clamp(-brightness, 0, 1), LIGHT_POWER_FACTOR);
@@ -82,5 +85,5 @@ void main() {
     color = inColor * brightness;
 
     outColor = vec4(xyzToRgb(labToXyz(color)), 1.0f);
-//    outColor = vec4(inPos.xyz / inPos.w, 1.0f);
+    //    outColor = vec4(inPos.xyz / inPos.w, 1.0f);
 }

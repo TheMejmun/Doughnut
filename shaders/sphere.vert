@@ -23,6 +23,11 @@ layout(location = 5) out mat4 modelTransform;
 //#define INSTANCED_RENDERING
 
 void main() {
+    fragPos = vec4(inPosition.xyz, 1);
+    fragWorldPos = vec4(inPosition.xyz, 1);
+    fragColor = inColor;
+    return;
+
     mat4 model  = ubo.model;
 
 #ifdef INSTANCED_RENDERING
