@@ -11,13 +11,10 @@
 #include <memory>
 #include <string>
 
-const int32_t DEFAULT_WIDTH = 1920;
-const int32_t DEFAULT_HEIGHT = 1080;
-
 namespace dn {
     class Window {
     public:
-        explicit Window(const std::string &title);
+        explicit Window(std::string title, int32_t width = 640, int32_t height = 400);
 
         ~Window();
 
@@ -38,7 +35,7 @@ namespace dn {
         void pollPosition();
 
         bool mIsMaximized = false;
-        int32_t mWidth = DEFAULT_WIDTH, mHeight = DEFAULT_HEIGHT;
+        int32_t mWidth, mHeight;
         int mWindowPosX = 0, mWindowPosY = 0;
 
         GLFWmonitor *mMonitor = nullptr;

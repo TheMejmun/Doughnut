@@ -4,15 +4,19 @@
 
 #include "io/window.h"
 #include "io/logger.h"
+#include "util/require.h"
 
 #include <iostream>
+#include <utility>
 
 using namespace dn;
 
-Window::Window(const std::string &t) {
+Window::Window(std::string title, int32_t width, int32_t height)
+        : mTitle(std::move(title)),
+          mWidth(width),
+          mHeight(height) {
+    require(mWidth > 0 && mHeight > 0, "Can not create a window with negative dimensions");
     dn::log::d("Creating Window");
-
-    mTitle = t;
 
     glfwInit();
 
