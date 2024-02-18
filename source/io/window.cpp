@@ -11,7 +11,7 @@
 
 using namespace dn;
 
-Window::Window(std::string title, int32_t width, int32_t height)
+Window::Window(std::string title, int32_t width, int32_t height, bool resizable)
         : mTitle(std::move(title)),
           mWidth(width),
           mHeight(height) {
@@ -24,6 +24,7 @@ Window::Window(std::string title, int32_t width, int32_t height)
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     mGlfwWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), nullptr, nullptr);
+    glfwSetWindowAttrib(mGlfwWindow, GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
     mMonitor = glfwGetPrimaryMonitor();
     pollMonitorResolution();
 }

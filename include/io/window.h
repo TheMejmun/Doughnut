@@ -14,7 +14,7 @@
 namespace dn {
     class Window {
     public:
-        explicit Window(std::string title, int32_t width = 640, int32_t height = 400);
+        explicit Window(std::string title, int32_t width = 640, int32_t height = 400, bool resizable = true);
 
         ~Window();
 
