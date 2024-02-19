@@ -132,7 +132,7 @@ UploadResult Buffer::reserve(uint32_t size) {
 }
 
 UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
-    debugRequire(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
+    dnAssert(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
 
     const auto location = calculateMemoryIndex(size);
     if (!location.notEnoughSpace) {
@@ -143,7 +143,7 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
 }
 
 void Buffer::queueUpload(uint32_t size, const uint8_t *data, uint32_t at) {
-    debugRequire(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
+    dnAssert(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
 
     trace_scope("Upload Queueing");
 
@@ -158,7 +158,7 @@ void Buffer::queueUpload(uint32_t size, const uint8_t *data, uint32_t at) {
 }
 
 UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
-    debugRequire(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
+    dnAssert(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
 
     const auto location = calculateMemoryIndex(size);
     if (!location.notEnoughSpace) {
@@ -169,7 +169,7 @@ UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
 }
 
 void Buffer::directUpload(uint32_t size, const uint8_t *data, uint32_t at) {
-    debugRequire(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
+    dnAssert(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
 
     trace_scope("Direct Upload");
 
