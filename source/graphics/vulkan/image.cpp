@@ -67,7 +67,7 @@ Image::Image(Instance &instance,
             {},
             vk::ImageType::e2D,
             format,
-            vk::Extent3D{config.width, config.height, 1},
+            vk::Extent3D{config.extent.width, config.extent.height, 1},
             1,
             1,
             vk::SampleCountFlagBits::e1,
@@ -106,12 +106,13 @@ void Image::upload(const dn::Texture &texture) {
             mInstance,
             StagingBufferConfiguration{}
     );
-    mStagingBuffer->upload(
-            static_cast<uint32_t>( texture.size()),
-            texture.mData,
-            target,
-            0
-    );
+    // TODO
+//    mStagingBuffer->upload(
+//            static_cast<uint32_t>( texture.size()),
+//            texture.mData,
+//            target,
+//            0
+//    );
 }
 
 void Image::awaitUpload() {

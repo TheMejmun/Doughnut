@@ -54,5 +54,6 @@ bool Fence::isWaiting() const {
 
 Fence::~Fence() {
     log::d("Destroying Fence");
+    await();
     if (mFence != nullptr) { mInstance.mDevice.destroy(mFence); }
 }

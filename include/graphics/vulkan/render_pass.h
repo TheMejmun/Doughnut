@@ -12,7 +12,6 @@
 namespace dn::vulkan {
     struct RenderPassConfiguration {
         vk::Format surfaceFormat;
-        vk::Format depthFormat;
     };
 
     class RenderPass {

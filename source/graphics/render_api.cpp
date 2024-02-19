@@ -41,7 +41,8 @@ VulkanAPI::VulkanAPI(Window &window) {
     );
 
     mCommandPool.emplace(
-            *mInstance
+            *mInstance,
+            CommandPoolConfiguration{*mInstance->mQueueFamilyIndices.graphicsFamily}
     );
 
     // if (!(*mSwapchain).shouldRecreate()) {

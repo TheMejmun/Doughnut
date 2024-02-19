@@ -25,7 +25,7 @@ Buffer::Buffer(dn::vulkan::Instance &instance, dn::vulkan::BufferConfiguration c
     if (!mConfig.hostDirectAccessible) {
         mStagingBuffer.emplace(
                 mInstance,
-                {}
+                StagingBufferConfiguration{}
         );
     }
 
@@ -127,7 +127,7 @@ UploadResult Buffer::calculateMemoryIndex(const uint32_t size) {
     return {false, insertIndex, size};
 }
 
-UploadResult Buffer::reserve(uint32_t size) {
+UploadResult Buffer::reserve(const uint32_t size) {
     return calculateMemoryIndex(size);
 }
 
@@ -142,14 +142,12 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
     return location;
 }
 
-void Buffer::queueUpload(uint32_t size, const uint8_t *data, uint32_t at) {
+void Buffer::queueUpload(const uint32_t size,const uint8_t *data, const uint32_t at) {
     dnAssert(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
-
-    trace_scope("Upload Queueing");
 
     awaitUpload();
 
-    mStagingBuffer.upload(
+    mStagingBuffer->upload(
             size,
             data,
             mBuffer,
@@ -168,7 +166,7 @@ UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
     return location;
 }
 
-void Buffer::directUpload(uint32_t size, const uint8_t *data, uint32_t at) {
+void Buffer::directUpload(const uint32_t size, const uint8_t *data,const uint32_t at) {
     dnAssert(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
 
     trace_scope("Direct Upload");
@@ -176,16 +174,16 @@ void Buffer::directUpload(uint32_t size, const uint8_t *data, uint32_t at) {
     memcpy(mMappedBuffer + at, data, size);
 }
 
-bool Buffer::isCurrentlyUploading() const {
-        return !mConfig.hostDirectAccessible && mStagingBuffer.isCurrentlyUploading();
+bool Buffer::isCurrentlyUploading() {
+    return !mConfig.hostDirectAccessible && mStagingBuffer->isCurrentlyUploading();
 }
 
 void Buffer::freeStagingMemory() {
-    mStagingBuffer.freeStagingMemory();
+    if (mStagingBuffer.has_value())mStagingBuffer->freeStagingMemory();
 }
 
 void Buffer::awaitUpload() {
-    mStagingBuffer.awaitUpload();
+    if (mStagingBuffer.has_value())mStagingBuffer->awaitUpload();
 }
 
 Buffer::~Buffer() {

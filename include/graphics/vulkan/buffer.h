@@ -9,6 +9,7 @@
 #include "graphics/vertex.h"
 #include "core/scheduler.h"
 #include "staging_buffer.h"
+#include "core/late_init.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -80,7 +81,7 @@ namespace dn::vulkan {
 
         UploadResult reserve(uint32_t size);
 
-        bool isCurrentlyUploading() const;
+        bool isCurrentlyUploading();
 
         void freeStagingMemory();
 

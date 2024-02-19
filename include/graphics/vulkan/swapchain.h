@@ -83,7 +83,6 @@ namespace dn::vulkan {
         vk::PresentModeKHR mPresentMode{};
         std::vector<Image> mImages{};
         std::vector<ImageView> mImageViews{};
-        vk::Format mDepthFormat{};
         LateInit<Image> mDepthImage{};
         LateInit<ImageView> mDepthImageView{};
         std::vector<Framebuffer> mFramebuffers{};

@@ -21,8 +21,7 @@ namespace dn::vulkan {
     vk::Format findDepthFormat(vk::PhysicalDevice physicalDevice);
 
     struct ImageConfiguration {
-        uint32_t width;
-        uint32_t height;
+        vk::Extent2D extent;
         bool isDepthImage;
         bool isTextureImage;
         bool isTransferDestination;

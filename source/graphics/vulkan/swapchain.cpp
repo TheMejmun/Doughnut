@@ -143,8 +143,7 @@ void Swapchain::create() {
     mDepthImage.emplace(
             mInstance,
             ImageConfiguration{
-                    mExtent.width,
-                    mExtent.height,
+                    mExtent,
                     true,
                     false
             }
@@ -152,14 +151,13 @@ void Swapchain::create() {
     mDepthImageView.emplace(
             mInstance,
             *mDepthImage,
-            ImageViewConfiguration{mExtent, mDepthFormat, vk::ImageAspectFlagBits::eDepth}
+            ImageViewConfiguration{mExtent, findDepthFormat(mInstance.mPhysicalDevice), vk::ImageAspectFlagBits::eDepth}
     );
 
     mRenderPass.emplace(
             mInstance,
             RenderPassConfiguration{
-                    mSurfaceFormat.format,
-                    mDepthFormat
+                    mSurfaceFormat.format
             }
     );
 
