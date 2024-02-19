@@ -5,10 +5,12 @@
 #ifndef DOUGHNUTSANDBOX_BUFFER_H
 #define DOUGHNUTSANDBOX_BUFFER_H
 
-#include <vulkan/vulkan.hpp>
 #include "instance.h"
 #include "graphics/vertex.h"
 #include "core/scheduler.h"
+#include "staging_buffer.h"
+
+#include <vulkan/vulkan.hpp>
 
 // TODO use new semaphore, fence, command buffer classes
 
@@ -78,7 +80,7 @@ namespace dn::vulkan {
 
         UploadResult reserve(uint32_t size);
 
-        bool isCurrentlyUploading();
+        bool isCurrentlyUploading() const;
 
         void freeStagingMemory();
 
@@ -100,12 +102,7 @@ namespace dn::vulkan {
         Instance &mInstance;
         BufferConfiguration mConfig;
 
-        vk::CommandPool mTransferCommandPool = nullptr;
-        vk::CommandBuffer mTransferCommandBuffer = nullptr;
-        vk::Fence mTransferFence = nullptr;
-
-        vk::Buffer mStagingBuffer = nullptr;
-        vk::DeviceMemory mStagingBufferMemory = nullptr;
+        LateInit<StagingBuffer> mStagingBuffer{};
 
         vk::DeviceMemory mBufferMemory = nullptr;
         uint8_t *mMappedBuffer = nullptr;

@@ -17,12 +17,12 @@ namespace dn {
 
         ~Texture();
 
-        size_t size();
+        [[nodiscard]] size_t size() const;
 
-    private:
+        stbi_uc *mData = nullptr;
+
         int mWidth = 0, mHeight = 0, mChannels = 0;
         bool mHasAlpha = false;
-        stbi_uc *mData = nullptr;
     };
 }
 

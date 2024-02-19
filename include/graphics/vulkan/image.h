@@ -6,6 +6,9 @@
 #define DOUGHNUTSANDBOX_IMAGE_H
 
 #include "instance.h"
+#include "graphics/texture.h"
+#include "staging_buffer.h"
+#include "core/late_init.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -20,10 +23,9 @@ namespace dn::vulkan {
     struct ImageConfiguration {
         uint32_t width;
         uint32_t height;
-        vk::Format format;
-        vk::ImageTiling tiling;
-        vk::ImageUsageFlags usage;
-        vk::MemoryPropertyFlags properties;
+        bool isDepthImage;
+        bool isTextureImage;
+        bool isTransferDestination;
     };
 
     class Image {
@@ -35,9 +37,15 @@ namespace dn::vulkan {
               vk::Image image,
               vk::DeviceMemory memory);
 
-        Image(Image &&other)  noexcept ;
+        Image(Image &&other) noexcept;
 
         ~Image();
+
+        void upload(const Texture &texture);
+
+        bool isCurrentlyUploading();
+
+        void awaitUpload();
 
         vk::Image mImage;
         vk::DeviceMemory mMemory;
@@ -45,6 +53,8 @@ namespace dn::vulkan {
     private:
         Instance &mInstance;
         bool mLocallyConstructed;
+
+        LateInit<StagingBuffer> mStagingBuffer{};
     };
 }
 

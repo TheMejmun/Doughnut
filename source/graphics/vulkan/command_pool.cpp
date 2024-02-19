@@ -8,14 +8,14 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-CommandPool::CommandPool(Instance &instance)
+CommandPool::CommandPool(Instance &instance, CommandPoolConfiguration config)
         : mInstance(instance) {
     log::d("Creating CommandPool");
 
     // Use VK_COMMAND_POOL_CREATE_TRANSIENT_BIT if buffer is very short-lived
     vk::CommandPoolCreateInfo poolInfo{
             {vk::CommandPoolCreateFlagBits::eResetCommandBuffer},
-            *mInstance.mQueueFamilyIndices.graphicsFamily
+            config.queueFamilyIndex
     };
 
     mCommandPool = mInstance.mDevice.createCommandPool(poolInfo);

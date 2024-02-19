@@ -5,6 +5,7 @@
 #include "graphics/vulkan/image.h"
 #include "graphics/vulkan/memory.h"
 #include "io/logger.h"
+#include "util/require.h"
 
 using namespace dn;
 using namespace dn::vulkan;
@@ -44,16 +45,34 @@ Image::Image(Instance &instance,
         : mInstance(instance), mLocallyConstructed(true) {
     log::v("Creating Image");
 
+    vk::Format format{};
+    if (config.isTextureImage) {
+        format = vk::Format::eR8G8B8A8Srgb;
+    } else if (config.isDepthImage) {
+        format = findDepthFormat(mInstance.mPhysicalDevice);
+    }
+
+    vk::ImageUsageFlags usageFlags{};
+    if (config.isTextureImage) {
+        usageFlags |= vk::ImageUsageFlagBits::eSampled;
+    } else if (config.isDepthImage) {
+        usageFlags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    }
+
+    if (config.isTransferDestination) {
+        usageFlags |= vk::ImageUsageFlagBits::eTransferDst;
+    }
+
     vk::ImageCreateInfo createInfo{
             {},
             vk::ImageType::e2D,
-            config.format,
+            format,
             vk::Extent3D{config.width, config.height, 1},
             1,
             1,
             vk::SampleCountFlagBits::e1,
-            config.tiling,
-            config.usage,
+            vk::ImageTiling::eOptimal,
+            usageFlags,
             vk::SharingMode::eExclusive,
             0, // Ignored if not concurrent
             nullptr, // Ignored if not concurrent
@@ -63,9 +82,11 @@ Image::Image(Instance &instance,
     mImage = mInstance.mDevice.createImage(createInfo);
     vk::MemoryRequirements memoryRequirements = mInstance.mDevice.getImageMemoryRequirements(mImage);
 
+    vk::MemoryPropertyFlags properties{vk::MemoryPropertyFlagBits::eDeviceLocal};
+
     vk::MemoryAllocateInfo allocateInfo{
             memoryRequirements.size,
-            findMemoryType(mInstance.mPhysicalDevice, memoryRequirements.memoryTypeBits, config.properties)
+            findMemoryType(mInstance.mPhysicalDevice, memoryRequirements.memoryTypeBits, properties)
     };
 
     mMemory = mInstance.mDevice.allocateMemory(allocateInfo);
@@ -78,6 +99,27 @@ Image::Image(dn::vulkan::Image &&other) noexcept
           mInstance(other.mInstance),
           mLocallyConstructed(other.mLocallyConstructed) {
     log::v("Moving Image");
+}
+
+void Image::upload(const dn::Texture &texture) {
+    mStagingBuffer.emplace(
+            mInstance,
+            StagingBufferConfiguration{}
+    );
+    mStagingBuffer->upload(
+            static_cast<uint32_t>( texture.size()),
+            texture.mData,
+            target,
+            0
+    );
+}
+
+void Image::awaitUpload() {
+    mStagingBuffer.reset();
+}
+
+bool Image::isCurrentlyUploading() {
+    return mStagingBuffer.has_value() && mStagingBuffer->isCurrentlyUploading();
 }
 
 Image::~Image() {

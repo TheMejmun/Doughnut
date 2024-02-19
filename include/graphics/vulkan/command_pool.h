@@ -10,9 +10,13 @@
 #include <vulkan/vulkan.hpp>
 
 namespace dn::vulkan {
+    struct CommandPoolConfiguration {
+        uint32_t queueFamilyIndex;
+    };
+
     class CommandPool {
     public:
-        CommandPool(Instance &instance);
+        CommandPool(Instance &instance, CommandPoolConfiguration config);
 
         CommandPool(CommandPool &&other) noexcept;
 

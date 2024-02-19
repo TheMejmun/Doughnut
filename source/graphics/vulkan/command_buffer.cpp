@@ -4,6 +4,7 @@
 
 #include "graphics/vulkan/command_buffer.h"
 #include "io/logger.h"
+#include "util/require.h"
 
 using namespace dn;
 using namespace dn::vulkan;
@@ -33,7 +34,9 @@ void CommandBuffer::reset() const {
     mCommandBuffer.reset();
 }
 
-void CommandBuffer::startRecording() const {
+void CommandBuffer::startRecording() {
+    dnAssert(!mIsRecording, "Can not start recording a command buffer that is already recording");
+
     reset();
 
     vk::CommandBufferBeginInfo beginInfo{
@@ -42,10 +45,15 @@ void CommandBuffer::startRecording() const {
     };
 
     mCommandBuffer.begin(beginInfo);
+
+    mIsRecording = true;
 }
 
-void CommandBuffer::endRecording() const {
+void CommandBuffer::endRecording() {
+    dnAssert(mIsRecording, "Can not end recording a command buffer that is not recording");
+
     mCommandBuffer.end();
+    mIsRecording = false;
 }
 
 CommandBuffer::~CommandBuffer() {

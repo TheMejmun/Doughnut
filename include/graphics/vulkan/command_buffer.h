@@ -24,9 +24,11 @@ namespace dn::vulkan {
 
         void reset() const;
 
-        void startRecording() const;
+        void startRecording();
 
-        void endRecording() const;
+        void endRecording();
+
+        bool mIsRecording = false;
 
     private:
         Instance &mInstance;

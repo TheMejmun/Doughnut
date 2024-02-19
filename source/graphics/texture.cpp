@@ -26,7 +26,7 @@ Texture::Texture(const std::string &filename) {
     }
 }
 
-size_t Texture::size() {
+size_t Texture::size() const {
     // stbi_load loads 8 bit always, hence 1 byte per channel
     return mWidth * mHeight * mChannels;
 }

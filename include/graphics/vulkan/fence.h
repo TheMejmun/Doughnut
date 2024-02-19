@@ -27,6 +27,8 @@ namespace dn::vulkan {
 
         void resetFence() const;
 
+        [[nodiscard]] bool isWaiting() const;
+
         vk::Fence mFence = nullptr;
 
     private:

@@ -140,16 +140,13 @@ void Swapchain::create() {
         mImageViews.emplace_back(mInstance, mImages.back(), ImageViewConfiguration{mExtent, mSurfaceFormat.format});
     }
 
-    mDepthFormat = findDepthFormat(mInstance.mPhysicalDevice);
     mDepthImage.emplace(
             mInstance,
             ImageConfiguration{
                     mExtent.width,
                     mExtent.height,
-                    mDepthFormat,
-                    vk::ImageTiling::eOptimal,
-                    vk::ImageUsageFlagBits::eDepthStencilAttachment,
-                    vk::MemoryPropertyFlagBits::eDeviceLocal
+                    true,
+                    false
             }
     );
     mDepthImageView.emplace(
