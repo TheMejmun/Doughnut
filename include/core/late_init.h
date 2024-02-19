@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-11.
 //
 
-#ifndef DOUGHNUTSANDBOX_LATE_INIT_H
-#define DOUGHNUTSANDBOX_LATE_INIT_H
+#ifndef DOUGHNUT_LATE_INIT_H
+#define DOUGHNUT_LATE_INIT_H
 
 #include <optional>
 
@@ -23,4 +23,4 @@ namespace dn {
         }
     };
 }
-#endif //DOUGHNUTSANDBOX_LATE_INIT_H
+#endif //DOUGHNUT_LATE_INIT_H

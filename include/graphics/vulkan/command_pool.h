@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-12.
 //
 
-#ifndef DOUGHNUTSANDBOX_COMMAND_POOL_H
-#define DOUGHNUTSANDBOX_COMMAND_POOL_H
+#ifndef DOUGHNUT_COMMAND_POOL_H
+#define DOUGHNUT_COMMAND_POOL_H
 
 #include "instance.h"
 
@@ -29,4 +29,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_COMMAND_POOL_H
+#endif //DOUGHNUT_COMMAND_POOL_H

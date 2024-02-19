@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-09.
 //
 
-#ifndef DOUGHNUTSANDBOX_IMAGE_H
-#define DOUGHNUTSANDBOX_IMAGE_H
+#ifndef DOUGHNUT_IMAGE_H
+#define DOUGHNUT_IMAGE_H
 
 #include "instance.h"
 #include "graphics/texture.h"
@@ -57,4 +57,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_IMAGE_H
+#endif //DOUGHNUT_IMAGE_H

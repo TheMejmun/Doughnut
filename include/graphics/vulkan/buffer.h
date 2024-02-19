@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-11.
 //
 
-#ifndef DOUGHNUTSANDBOX_BUFFER_H
-#define DOUGHNUTSANDBOX_BUFFER_H
+#ifndef DOUGHNUT_BUFFER_H
+#define DOUGHNUT_BUFFER_H
 
 #include "instance.h"
 #include "graphics/vertex.h"
@@ -113,4 +113,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_BUFFER_H
+#endif //DOUGHNUT_BUFFER_H

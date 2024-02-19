@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-12.
 //
 
-#ifndef DOUGHNUTSANDBOX_DESCRIPTOR_POOL_H
-#define DOUGHNUTSANDBOX_DESCRIPTOR_POOL_H
+#ifndef DOUGHNUT_DESCRIPTOR_POOL_H
+#define DOUGHNUT_DESCRIPTOR_POOL_H
 
 #include <vulkan/vulkan.hpp>
 #include <vector>
@@ -29,4 +29,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_DESCRIPTOR_POOL_H
+#endif //DOUGHNUT_DESCRIPTOR_POOL_H

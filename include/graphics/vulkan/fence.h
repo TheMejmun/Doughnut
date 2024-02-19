@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-12.
 //
 
-#ifndef DOUGHNUTSANDBOX_FENCE_H
-#define DOUGHNUTSANDBOX_FENCE_H
+#ifndef DOUGHNUT_FENCE_H
+#define DOUGHNUT_FENCE_H
 
 #include "graphics/vulkan/instance.h"
 
@@ -36,4 +36,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_FENCE_H
+#endif //DOUGHNUT_FENCE_H

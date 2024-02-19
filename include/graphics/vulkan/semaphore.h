@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-12.
 //
 
-#ifndef DOUGHNUTSANDBOX_SEMAPHORE_H
-#define DOUGHNUTSANDBOX_SEMAPHORE_H
+#ifndef DOUGHNUT_SEMAPHORE_H
+#define DOUGHNUT_SEMAPHORE_H
 
 #include "graphics/vulkan/instance.h"
 
@@ -25,4 +25,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_SEMAPHORE_H
+#endif //DOUGHNUT_SEMAPHORE_H

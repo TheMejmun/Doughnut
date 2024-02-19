@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-11.
 //
 
-#ifndef DOUGHNUTSANDBOX_PIPELINE_H
-#define DOUGHNUTSANDBOX_PIPELINE_H
+#ifndef DOUGHNUT_PIPELINE_H
+#define DOUGHNUT_PIPELINE_H
 
 #include "descriptor_set_layout.h"
 #include "core/late_init.h"
@@ -41,4 +41,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_PIPELINE_H
+#endif //DOUGHNUT_PIPELINE_H
