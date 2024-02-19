@@ -87,7 +87,7 @@ void StagingBuffer::uploadCommand(uint32_t size, void *data, vk::Buffer target, 
 }
 
 bool StagingBuffer::isCurrentlyUploading() {
-    mFence.isWaiting();
+    return mFence.isWaiting();
 }
 
 void StagingBuffer::freeStagingMemory() {
