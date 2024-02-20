@@ -1,9 +1,9 @@
 //
-// Created by Sam on 2024-02-18.
+// Created by Sam on 2024-02-19.
 //
 
-#ifndef DOUGHNUT_STAGING_BUFFER_H
-#define DOUGHNUT_STAGING_BUFFER_H
+#ifndef DOUGHNUTSANDBOX_IMAGE_STAGING_BUFFER_H
+#define DOUGHNUTSANDBOX_IMAGE_STAGING_BUFFER_H
 
 #include <vulkan/vulkan.hpp>
 #include "instance.h"
@@ -13,21 +13,22 @@
 #include "command_buffer.h"
 #include "core/late_init.h"
 #include "fence.h"
+#include "graphics/texture.h"
 
 namespace dn::vulkan {
-    struct StagingBufferConfiguration {
+    struct ImageStagingBufferConfiguration {
     };
 
-    class StagingBuffer {
+    class ImageStagingBuffer {
     public:
-        StagingBuffer(Instance &instance,
-                      StagingBufferConfiguration config);
+        ImageStagingBuffer(Instance &instance,
+                           ImageStagingBufferConfiguration config);
 
-        StagingBuffer(StagingBuffer &&other) noexcept;
+        ImageStagingBuffer(ImageStagingBuffer &&other) noexcept;
 
-        ~StagingBuffer();
+        ~ImageStagingBuffer();
 
-        void upload(uint32_t size, const void *data, vk::Buffer target, uint32_t at);
+        void upload(const Texture& texture, vk::Buffer target);
 
         bool isCurrentlyUploading();
 
@@ -37,7 +38,7 @@ namespace dn::vulkan {
 
     private:
         Instance &mInstance;
-        StagingBufferConfiguration mConfig;
+        ImageStagingBufferConfiguration mConfig;
 
         LateInit<CommandPool> mCommandPool;
         LateInit<CommandBuffer> mCommandBuffer;
@@ -47,4 +48,4 @@ namespace dn::vulkan {
         vk::DeviceMemory mStagingBufferMemory = nullptr;
     };
 }
-#endif //DOUGHNUT_STAGING_BUFFER_H
+#endif //DOUGHNUTSANDBOX_IMAGE_STAGING_BUFFER_H

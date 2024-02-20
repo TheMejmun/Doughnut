@@ -19,7 +19,6 @@ Texture::Texture(const std::string &filename) {
 
     if (!mData) {
         dn::log::e("Failed to load texture", filename);
-        dn::log::flush();
         throw std::runtime_error("Failed to load texture!");
     } else {
         dn::log::i("Loaded", filename);
