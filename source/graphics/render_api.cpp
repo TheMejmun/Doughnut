@@ -5,6 +5,7 @@
 #include "graphics/render_api.h"
 #include "io/logger.h"
 #include "util/require.h"
+#include "graphics/vulkan/image_staging_buffer.h"
 
 #include <stdexcept>
 #include <vector>
@@ -72,6 +73,31 @@ VulkanAPI::VulkanAPI(Window &window) {
             *mInstance,
             FenceConfiguration{true}
     );
+
+
+    Image image{
+            *mInstance,
+            ImageConfiguration{
+                    {4096, 2048},
+                    false,
+                    true,
+                    true,
+                    false
+            }
+    };
+
+    ImageStagingBuffer stagingBuffer{
+            *mInstance,
+            {}
+    };
+
+    Texture texture{"resources/textures/planet-albedo.png"};
+
+    stagingBuffer.upload(
+            texture,
+            image.mImage
+    );
+    stagingBuffer.awaitUpload();
 }
 
 bool VulkanAPI::nextImage() {

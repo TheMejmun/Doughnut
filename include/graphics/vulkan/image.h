@@ -25,6 +25,7 @@ namespace dn::vulkan {
         bool isDepthImage;
         bool isTextureImage;
         bool isTransferDestination;
+        bool hasAlpha;
     };
 
     class Image {

@@ -18,11 +18,11 @@ const std::vector<const char *> REQUIRED_DEVICE_EXTENSIONS = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
 const std::string PORTABILITY_EXTENSION = "VK_KHR_portability_subset";
-#ifdef NDEBUG
-#define ENABLE_VALIDATION_LAYERS false
-#else
-#define ENABLE_VALIDATION_LAYERS true
+
+#ifndef NDEBUG
+#define ENABLE_VALIDATION_LAYERS
 #endif
+
 const std::vector<const char *> VALIDATION_LAYERS = {
         "VK_LAYER_KHRONOS_validation"
 };
@@ -158,13 +158,13 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
     );
 
     // Validation layers
-    if (ENABLE_VALIDATION_LAYERS) {
-        if (!checkValidationLayerSupport())
-            throw std::runtime_error("Validation layers not available!");
+#ifdef ENABLE_VALIDATION_LAYERS
+    if (!checkValidationLayerSupport())
+        throw std::runtime_error("Validation layers not available!");
 
-        instanceCreateInfo.enabledLayerCount = VALIDATION_LAYERS.size();
-        instanceCreateInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
-    }
+    instanceCreateInfo.enabledLayerCount = VALIDATION_LAYERS.size();
+    instanceCreateInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
+#endif
 
     mInstance = vk::createInstance(instanceCreateInfo);
 
@@ -256,7 +256,8 @@ Instance::Instance(Instance &&other) noexcept
           mSurface(std::exchange(other.mSurface, nullptr)),
           mPhysicalDevice(other.mPhysicalDevice),
           mDevice(std::exchange(other.mDevice, nullptr)) {
-    log::d("Moving Instance");}
+    log::d("Moving Instance");
+}
 
 Instance::~Instance() {
     log::d("Destroying Instance");

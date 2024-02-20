@@ -21,7 +21,7 @@ namespace dn {
 
         stbi_uc *mData = nullptr;
 
-        int mWidth = 0, mHeight = 0, mChannels = 0;
+        int mWidth = 0, mHeight = 0, mChannels = 4, mOriginalChannels = 0;
         bool mHasAlpha = false;
     };
 }

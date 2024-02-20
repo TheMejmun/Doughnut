@@ -28,7 +28,7 @@ namespace dn::vulkan {
 
         ~ImageStagingBuffer();
 
-        void upload(const Texture& texture, vk::Buffer target);
+        void upload(const Texture& texture, vk::Image target);
 
         bool isCurrentlyUploading();
 

@@ -17,7 +17,7 @@ ImageStagingBuffer::ImageStagingBuffer(dn::vulkan::Instance &instance, dn::vulka
     log::d("Creating ImageStagingBuffer");
 
     mCommandPool.emplace(mInstance,
-                         CommandPoolConfiguration{*mInstance.mQueueFamilyIndices.transferFamily});
+                         CommandPoolConfiguration{*mInstance.mQueueFamilyIndices.graphicsFamily});
     mCommandBuffer.emplace(mInstance,
                            *mCommandPool);
     mFence.emplace(mInstance,
@@ -35,12 +35,14 @@ ImageStagingBuffer::ImageStagingBuffer(dn::vulkan::ImageStagingBuffer &&other) n
     log::d("Moving ImageStagingBuffer");
 }
 
-void ImageStagingBuffer::upload(const Texture& texture, vk::Buffer target) {
+void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
     trace_scope("Upload Queueing");
 
     awaitUpload();
     mFence->resetFence();
     mCommandBuffer->startRecording();
+
+    // -------------------- STAGING --------------------
 
     // Transfer Buffer Creation
     std::array<uint32_t, 2> queueFamilyIndices{
@@ -57,7 +59,7 @@ void ImageStagingBuffer::upload(const Texture& texture, vk::Buffer target) {
     };
     mStagingBuffer = mInstance.mDevice.createBuffer(bufferInfo);
 
-    vk::MemoryRequirements memoryRequirements = mInstance.mDevice.getBufferMemoryRequirements(target);
+    vk::MemoryRequirements memoryRequirements = mInstance.mDevice.getBufferMemoryRequirements(mStagingBuffer);
     vk::MemoryAllocateInfo allocInfo{
             memoryRequirements.size,
             findMemoryType(mInstance.mPhysicalDevice, memoryRequirements.memoryTypeBits,
@@ -72,13 +74,93 @@ void ImageStagingBuffer::upload(const Texture& texture, vk::Buffer target) {
     memcpy(mappedMemory, texture.mData, texture.size());
     mInstance.mDevice.unmapMemory(mStagingBufferMemory);
 
-    // To final buffer
-    vk::BufferCopy copyRegion{
-            0,
-            0,
-            texture.size()
+    // -------------------- TRANSITION --------------------
+
+    vk::ImageMemoryBarrier barrier{
+            vk::AccessFlagBits::eNone,
+            vk::AccessFlagBits::eTransferWrite,
+            vk::ImageLayout::eUndefined,
+            vk::ImageLayout::eTransferDstOptimal,
+            vk::QueueFamilyIgnored,
+            vk::QueueFamilyIgnored,
+            target,
+            vk::ImageSubresourceRange{
+                    {vk::ImageAspectFlagBits::eColor},
+                    0,
+                    1,
+                    0,
+                    1
+            }
     };
-    mCommandBuffer->mCommandBuffer.copyBuffer(mStagingBuffer, target, 1, &copyRegion);
+
+    // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
+    mCommandBuffer->mCommandBuffer.pipelineBarrier(
+            {vk::PipelineStageFlagBits::eTopOfPipe},
+            {vk::PipelineStageFlagBits::eTransfer},
+            {}, // VK_DEPENDENCY_BY_REGION_BIT https://stackoverflow.com/questions/65471677/the-meaning-and-implications-of-vk-dependency-by-region-bit
+            0, nullptr,
+            0, nullptr,
+            1, &barrier
+    );
+
+    // -------------------- COPY --------------------
+
+    vk::BufferImageCopy region{
+            0,
+            0,
+            0,
+            vk::ImageSubresourceLayers{
+                    {vk::ImageAspectFlagBits::eColor},
+                    0,
+                    0,
+                    1,
+            },
+            {0, 0, 0},
+            {static_cast<uint32_t>(texture.mWidth),
+             static_cast<uint32_t>(texture.mHeight),
+             1}
+    };
+
+    mCommandBuffer->mCommandBuffer.copyBufferToImage(
+            mStagingBuffer,
+            target,
+            vk::ImageLayout::eTransferDstOptimal,
+            1,
+            &region);
+
+    // -------------------- TRANSITION --------------------
+
+
+    vk::ImageMemoryBarrier barrier2{
+            vk::AccessFlagBits::eTransferWrite,
+            vk::AccessFlagBits::eShaderRead,
+            vk::ImageLayout::eTransferDstOptimal,
+            vk::ImageLayout::eShaderReadOnlyOptimal,
+            vk::QueueFamilyIgnored,
+            vk::QueueFamilyIgnored,
+            target,
+            vk::ImageSubresourceRange{
+                    {vk::ImageAspectFlagBits::eColor},
+                    0,
+                    1,
+                    0,
+                    1
+            }
+    };
+
+    // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
+    mCommandBuffer->mCommandBuffer.pipelineBarrier(
+            {vk::PipelineStageFlagBits::eTransfer},
+            {vk::PipelineStageFlagBits::eFragmentShader},
+            {}, // VK_DEPENDENCY_BY_REGION_BIT https://stackoverflow.com/questions/65471677/the-meaning-and-implications-of-vk-dependency-by-region-bit
+            0, nullptr,
+            0, nullptr,
+            1, &barrier2
+    );
+
+//    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+//    copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+    // -------------------- TODO --------------------
 
     mCommandBuffer->endRecording();
 
@@ -91,7 +173,7 @@ void ImageStagingBuffer::upload(const Texture& texture, vk::Buffer target) {
             0,
             nullptr,
     };
-    mInstance.mTransferQueue.submit(submitInfo, mFence->mFence);
+    mInstance.mGraphicsQueue.submit(submitInfo, mFence->mFence);
 }
 
 bool ImageStagingBuffer::isCurrentlyUploading() {

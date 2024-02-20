@@ -7,6 +7,7 @@
 #include "util/timer.h"
 
 #include <stb_image.h>
+#include <filesystem>
 
 using namespace dn;
 
@@ -14,14 +15,24 @@ Texture::Texture(const std::string &filename) {
     // STBI_rgb_alpha for alpha in the future
     {
         trace_scope("Texture load")
-        mData = stbi_load(filename.c_str(), &mWidth, &mHeight, &mChannels, STBI_rgb);
+        std::string localFilename = "external/Doughnut/";
+        localFilename.append(filename);
+        if (std::filesystem::exists(filename)) {
+            mData = stbi_load(filename.c_str(), &mWidth, &mHeight, &mOriginalChannels, STBI_rgb_alpha);
+        } else if (std::filesystem::exists(localFilename)) {
+            mData = stbi_load(localFilename.c_str(), &mWidth, &mHeight, &mOriginalChannels, STBI_rgb_alpha);
+        } else {
+            auto message = filename;
+            message.append(" could not be found");
+            throw std::runtime_error(message);
+        }
     }
 
     if (!mData) {
         dn::log::e("Failed to load texture", filename);
         throw std::runtime_error("Failed to load texture!");
     } else {
-        dn::log::i("Loaded", filename);
+        dn::log::i("Loaded", filename, "with", mWidth, "*", mHeight, "and", mChannels, "channels");
     }
 }
 

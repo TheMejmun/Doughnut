@@ -47,6 +47,7 @@ Image::Image(Instance &instance,
 
     vk::Format format{};
     if (config.isTextureImage) {
+        // TODO format = config.hasAlpha ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8Srgb;
         format = vk::Format::eR8G8B8A8Srgb;
     } else if (config.isDepthImage) {
         format = findDepthFormat(mInstance.mPhysicalDevice);
