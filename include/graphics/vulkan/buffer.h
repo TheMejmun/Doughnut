@@ -79,6 +79,20 @@ namespace dn::vulkan {
             directUpload(sizeof(T) * data.size(), reinterpret_cast<const uint8_t *>(data.data()), at);
         }
 
+        void clear(uint32_t at, uint32_t byteSize);
+
+        inline void clear(){
+            clear(0, mIsUsed.size());
+        }
+
+        inline void clear(const BufferPosition &position) {
+            clear(position.memoryIndex, position.size);
+        }
+
+        inline void clear(const UploadResult &position) {
+            clear(position.position.memoryIndex, position.position.size);
+        }
+
         UploadResult reserve(uint32_t size);
 
         bool isCurrentlyUploading();

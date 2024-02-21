@@ -142,7 +142,7 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
     return location;
 }
 
-void Buffer::queueUpload(const uint32_t size,const uint8_t *data, const uint32_t at) {
+void Buffer::queueUpload(const uint32_t size, const uint8_t *data, const uint32_t at) {
     dnAssert(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
 
     awaitUpload();
@@ -166,12 +166,20 @@ UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
     return location;
 }
 
-void Buffer::directUpload(const uint32_t size, const uint8_t *data,const uint32_t at) {
+void Buffer::directUpload(const uint32_t size, const uint8_t *data, const uint32_t at) {
     dnAssert(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
 
     trace_scope("Direct Upload");
 
     memcpy(mMappedBuffer + at, data, size);
+}
+
+void Buffer::clear(uint32_t at, uint32_t byteSize) {
+    std::lock_guard<std::mutex> guard{*mIsUsedMutex};
+
+    for (uint32_t i = at; i < (at + byteSize); ++i) {
+        mIsUsed[i] = false;
+    }
 }
 
 bool Buffer::isCurrentlyUploading() {
