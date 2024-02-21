@@ -13,8 +13,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-// TODO use new semaphore, fence, command buffer classes
-
 namespace dn::vulkan {
     enum BufferType {
         INDEX,
@@ -47,8 +45,6 @@ namespace dn::vulkan {
         Buffer(Buffer &&other) noexcept;
 
         ~Buffer();
-
-        // TODO Function to delete data
 
         /**
          * This function will wait for existing uploads to finish first.
