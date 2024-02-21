@@ -45,35 +45,33 @@ Image::Image(Instance &instance,
         : mInstance(instance), mLocallyConstructed(true) {
     log::v("Creating Image");
 
-    vk::Format format{};
     if (config.isTextureImage) {
         // TODO format = config.hasAlpha ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8Srgb;
-        format = vk::Format::eR8G8B8A8Srgb;
+        mFormat = vk::Format::eR8G8B8A8Srgb;
     } else if (config.isDepthImage) {
-        format = findDepthFormat(mInstance.mPhysicalDevice);
+        mFormat = findDepthFormat(mInstance.mPhysicalDevice);
     }
 
-    vk::ImageUsageFlags usageFlags{};
     if (config.isTextureImage) {
-        usageFlags |= vk::ImageUsageFlagBits::eSampled;
+        mUsageFlags |= vk::ImageUsageFlagBits::eSampled;
     } else if (config.isDepthImage) {
-        usageFlags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+        mUsageFlags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
     }
 
     if (config.isTransferDestination) {
-        usageFlags |= vk::ImageUsageFlagBits::eTransferDst;
+        mUsageFlags |= vk::ImageUsageFlagBits::eTransferDst;
     }
 
     vk::ImageCreateInfo createInfo{
             {},
             vk::ImageType::e2D,
-            format,
+            mFormat,
             vk::Extent3D{config.extent.width, config.extent.height, 1},
             1,
             1,
             vk::SampleCountFlagBits::e1,
             vk::ImageTiling::eOptimal,
-            usageFlags,
+            mUsageFlags,
             vk::SharingMode::eExclusive,
             0, // Ignored if not concurrent
             nullptr, // Ignored if not concurrent
@@ -102,11 +100,11 @@ Image::Image(dn::vulkan::Image &&other) noexcept
     log::v("Moving Image");
 }
 
-void Image::upload(const dn::Texture &texture) {
-    mStagingBuffer.emplace(
-            mInstance,
-            StagingBufferConfiguration{}
-    );
+//void Image::upload(const dn::Texture &texture) {
+//    mStagingBuffer.emplace(
+//            mInstance,
+//            StagingBufferConfiguration{}
+//    );
     // TODO
 //    mStagingBuffer->upload(
 //            static_cast<uint32_t>( texture.size()),
@@ -114,15 +112,15 @@ void Image::upload(const dn::Texture &texture) {
 //            target,
 //            0
 //    );
-}
+//}
 
-void Image::awaitUpload() {
-    mStagingBuffer.reset();
-}
-
-bool Image::isCurrentlyUploading() {
-    return mStagingBuffer.has_value() && mStagingBuffer->isCurrentlyUploading();
-}
+//void Image::awaitUpload() {
+//    mStagingBuffer.reset();
+//}
+//
+//bool Image::isCurrentlyUploading() {
+//    return mStagingBuffer.has_value() && mStagingBuffer->isCurrentlyUploading();
+//}
 
 Image::~Image() {
     if (mLocallyConstructed) {

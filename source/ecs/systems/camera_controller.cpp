@@ -10,7 +10,7 @@
 
 void CameraController::update(const double delta, EntityManagerSpec &entityManager) {
     const auto inputState = entityManager.template getArchetype<InputState>()[0].components;
-    const auto cameras = entityManager.template getArchetype<Projector, Transformer4>();
+    const auto cameras = entityManager.template getArchetype<Projector, dn::Transform>();
 
     for (const auto &camera: cameras) {
         if (camera.get<Projector>()->isMainCamera) {
@@ -25,7 +25,7 @@ void CameraController::update(const double delta, EntityManagerSpec &entityManag
                 move -= 1;
             }
 
-            camera.get<Transformer4>()->translate(glm::vec3(0, 0, delta * move));
+            camera.get<dn::Transform>()->translate(glm::vec3(0, 0, delta * move));
         }
     }
 }

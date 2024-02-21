@@ -5,6 +5,7 @@
 #include "graphics/texture.h"
 #include "io/logger.h"
 #include "util/timer.h"
+#include "util/importer.h"
 
 #include <stb_image.h>
 #include <filesystem>
@@ -15,17 +16,8 @@ Texture::Texture(const std::string &filename) {
     // STBI_rgb_alpha for alpha in the future
     {
         trace_scope("Texture load")
-        std::string localFilename = "external/Doughnut/";
-        localFilename.append(filename);
-        if (std::filesystem::exists(filename)) {
-            mData = stbi_load(filename.c_str(), &mWidth, &mHeight, &mOriginalChannels, STBI_rgb_alpha);
-        } else if (std::filesystem::exists(localFilename)) {
-            mData = stbi_load(localFilename.c_str(), &mWidth, &mHeight, &mOriginalChannels, STBI_rgb_alpha);
-        } else {
-            auto message = filename;
-            message.append(" could not be found");
-            throw std::runtime_error(message);
-        }
+        std::string localFilename = doughnutLocal(filename);
+        mData = stbi_load(localFilename.c_str(), &mWidth, &mHeight, &mOriginalChannels, STBI_rgb_alpha);
     }
 
     if (!mData) {

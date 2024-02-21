@@ -27,14 +27,13 @@ VulkanAPI::VulkanAPI(Window &window) {
             SwapchainConfiguration{false}
     );
 
-    mVertexBuffer.emplace(
-            *mInstance,
-            BufferConfiguration{VERTEX, false}
+    mMeshes.emplace(
+            *mInstance
     );
-    mIndexBuffer.emplace(
-            *mInstance,
-            BufferConfiguration{INDEX, false}
+    mTextures.emplace(
+            *mInstance
     );
+
     // TODO one per frame in flight
     mUniformBuffer.emplace(
             *mInstance,
@@ -48,11 +47,11 @@ VulkanAPI::VulkanAPI(Window &window) {
 
     // if (!(*mSwapchain).shouldRecreate()) {
     // TODO do we need this condition?
-    mPipeline.emplace(
+
+    mPipelines.emplace(
             *mInstance,
             *mSwapchain->mRenderPass,
-            *mUniformBuffer,
-            PipelineConfiguration{}
+            *mUniformBuffer
     );
 
     for (uint32_t i = 0; i < mSwapchain->getImageCount(); ++i) {
@@ -73,31 +72,6 @@ VulkanAPI::VulkanAPI(Window &window) {
             *mInstance,
             FenceConfiguration{true}
     );
-
-
-    Image image{
-            *mInstance,
-            ImageConfiguration{
-                    {4096, 2048},
-                    false,
-                    true,
-                    true,
-                    false
-            }
-    };
-
-    ImageStagingBuffer stagingBuffer{
-            *mInstance,
-            {}
-    };
-
-    Texture texture{"resources/textures/planet-albedo.png"};
-
-    stagingBuffer.upload(
-            texture,
-            image.mImage
-    );
-    stagingBuffer.awaitUpload();
 }
 
 bool VulkanAPI::nextImage() {
@@ -132,7 +106,7 @@ void VulkanAPI::beginRenderPass() {
     dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
 
     std::array<vk::ClearValue, 2> clearValues{
-            vk::ClearValue{{0.0f, 0.0f, 0.0f, 1.0f}},
+            vk::ClearValue{{0.1f, 0.1f, 0.1f, 1.0f}},
             vk::ClearValue{{1.0f, 0}}
     };
     vk::RenderPassBeginInfo renderPassInfo{
@@ -159,14 +133,22 @@ void VulkanAPI::endRecording() {
     mCommandBuffers[*mCurrentSwapchainFramebuffer].endRecording();
 }
 
-void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
-                               const vulkan::BufferPosition &indexPosition) {
+void VulkanAPI::recordDraw(const Renderable &renderable) {
     dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
 
+    auto &pipeline = mPipelines->get({
+                                             renderable.vertexShader,
+                                             renderable.fragmentShader
+                                     });
     // TODO put this somewhere reasonable
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline->mGraphicsPipeline);
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics,
+                                                                               pipeline.mGraphicsPipeline);
 
-    std::array<vk::Buffer, 1> vertexBuffers{mVertexBuffer->mBuffer};
+    auto &mesh = mMeshes->get(renderable.model);
+
+    // TODO set offsets
+    // TODO do indices need to be offset by their in-buffer position?
+    std::array<vk::Buffer, 1> vertexBuffers{mesh.vertexBuffer};
     std::array<vk::DeviceSize, 1> offsets{0};
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindVertexBuffers(
             0,
@@ -176,19 +158,10 @@ void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
     );
 
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindIndexBuffer(
-            mIndexBuffer->mBuffer,
+            mesh.indexBuffer,
             0,
             vk::IndexType::eUint32
     );
-
-//    vk::Viewport viewport{
-//            -1.0f,
-//            -1.0f,
-//            2.0f,
-//            2.0f,
-//            0.0f,
-//            1.0f
-//    };
 
     vk::Viewport viewport{
             0.0f,
@@ -218,24 +191,24 @@ void VulkanAPI::recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
 
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
-            mPipeline->mPipelineLayout,
+            pipeline.mPipelineLayout,
             0,
             1,
-            mPipeline->mDescriptorSet->mDescriptorSets.data(), // TODO don't just pass all of this in here
+            pipeline.mDescriptorSet->mDescriptorSets.data(), // TODO don't just pass all of this in here
             0,
             nullptr
     );
 
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.drawIndexed(
-            indexPosition.count,
+            mesh.indexPosition.count,
             1,
-            indexPosition.memoryIndex / sizeof(uint32_t),
-            vertexPosition.memoryIndex / sizeof(uint32_t),
+            mesh.indexPosition.memoryIndex / sizeof(uint32_t),
+            static_cast<int32_t>(mesh.vertexPosition.memoryIndex / sizeof(uint32_t)),
             0
     );
 
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.draw(
-            vertexPosition.count,
+            mesh.vertexPosition.count,
             1,
             0,
             0
@@ -294,9 +267,9 @@ VulkanAPI::~VulkanAPI() {
     mCommandBuffers.clear();
     mCommandPool.reset();
     mUniformBuffer.reset();
-    mVertexBuffer.reset();
-    mIndexBuffer.reset();
-    mPipeline.reset();
+    mMeshes.reset();
+    mTextures.reset();
+    mPipelines.reset();
     mSwapchain.reset();
     mInstance.reset();
 }

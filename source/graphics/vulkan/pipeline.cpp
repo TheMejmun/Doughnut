@@ -16,7 +16,7 @@ using namespace dn::vulkan;
 Pipeline::Pipeline(Instance &instance,
                    RenderPass &renderPass,
                    Buffer &uboBuffer,
-                   PipelineConfiguration config)
+                   const PipelineConfiguration& config)
         : mInstance(instance) {
     log::d("Creating Pipeline");
 
@@ -32,8 +32,8 @@ Pipeline::Pipeline(Instance &instance,
     );
 
     // TODO pull these out of here
-    ShaderModule vertexShader = ShaderModule{mInstance, "resources/shaders/sphere.vert.spv"};
-    ShaderModule fragmentShader = ShaderModule{mInstance, "resources/shaders/sphere.frag.spv"};
+    ShaderModule vertexShader = ShaderModule{mInstance, config.vertexShader};
+    ShaderModule fragmentShader = ShaderModule{mInstance, config.fragmentShader};
 
     vk::PipelineShaderStageCreateInfo vertexShaderStageInfo{
             {},

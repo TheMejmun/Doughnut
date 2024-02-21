@@ -49,12 +49,12 @@ namespace dn::vulkan {
 
         vk::Image mImage;
         vk::DeviceMemory mMemory;
+        vk::Format mFormat{};
+        vk::ImageUsageFlags mUsageFlags{};
 
     private:
         Instance &mInstance;
         bool mLocallyConstructed;
-
-        LateInit<StagingBuffer> mStagingBuffer{};
     };
 }
 

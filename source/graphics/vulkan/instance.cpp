@@ -237,10 +237,10 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
             &deviceFeatures
     );
 
-    if (ENABLE_VALIDATION_LAYERS) {
+#ifdef ENABLE_VALIDATION_LAYERS
         createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
         createInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
-    }
+#endif
 
     mDevice = mPhysicalDevice.createDevice(createInfo);
 

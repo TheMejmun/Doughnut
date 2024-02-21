@@ -10,23 +10,13 @@ using namespace dn;
 
 RendererV2::RendererV2(Window &window) : mAPI(window) {
     log::d("Creating RendererV2");
-
-    // TODO upload a triangle
-    Triangle triangle{};
-    indexPosition = mAPI.mIndexBuffer->queueUpload(triangle.mesh.indices);
-    mAPI.mIndexBuffer->awaitUpload();
-    vertexPosition = mAPI.mVertexBuffer->queueUpload(triangle.mesh.vertices);
-    mAPI.mVertexBuffer->awaitUpload();
 }
 
 void RendererV2::drawFrame(double delta) {
     mAPI.nextImage();
     mAPI.startRecording();
     mAPI.beginRenderPass();
-    mAPI.recordMeshDraw(
-            vertexPosition.position,
-            indexPosition.position
-    );
+    mAPI.recordDraw(mEarth);
     mAPI.endRenderPass();
     mAPI.endRecording();
     mAPI.drawFrame(delta);

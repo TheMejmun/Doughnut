@@ -19,7 +19,7 @@ typedef dn::EntityManager<
         UiState,
         RenderMesh,
         RenderMeshSimplifiable,
-        Transformer4,
+        dn::Transform,
         Projector,
         RotatingSphere
 > EntityManagerSpec;

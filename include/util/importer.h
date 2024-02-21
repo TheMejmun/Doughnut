@@ -12,10 +12,12 @@
 #include <string>
 
 namespace dn {
-    struct Mesh{
+    struct Mesh {
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
     };
+
+    std::string doughnutLocal(const std::string &filename);
 
     std::vector<char> readFile(const std::string &filename);
 
