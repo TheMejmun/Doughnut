@@ -72,6 +72,13 @@ VulkanAPI::VulkanAPI(Window &window) {
             *mInstance,
             FenceConfiguration{true}
     );
+
+    mSampler.emplace(
+            *mInstance,
+            SamplerConfiguration{
+                    CLAMP
+            }
+    );
 }
 
 bool VulkanAPI::nextImage() {
@@ -261,6 +268,7 @@ VulkanAPI::~VulkanAPI() {
     log::d("Destroying VulkanAPI");
     mInFlightFence->await();
 
+    mSampler.reset();
     mInFlightFence.reset();
     mImageAvailableSemaphore.reset();
     mRenderFinishedSemaphore.reset();

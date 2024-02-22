@@ -205,6 +205,7 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
 
     vk::PhysicalDeviceFeatures features = mPhysicalDevice.getFeatures();
     mOptionalFeatures.supportsWireframeMode = features.fillModeNonSolid;
+    mOptionalFeatures.supportsAnisotropicFiltering = features.samplerAnisotropy;
 
     // LOGICAL
 
@@ -223,6 +224,7 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
     // Define the features we will use as queried in isPhysicalDeviceSuitable
     vk::PhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.fillModeNonSolid = mOptionalFeatures.supportsWireframeMode;
+    deviceFeatures.samplerAnisotropy = mOptionalFeatures.supportsAnisotropicFiltering;
 
     std::vector<const char *> requiredDeviceExtensions = REQUIRED_DEVICE_EXTENSIONS;
     if (checkPortabilityMode(mPhysicalDevice)) {
@@ -238,8 +240,8 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
     );
 
 #ifdef ENABLE_VALIDATION_LAYERS
-        createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
-        createInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
+    createInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
 #endif
 
     mDevice = mPhysicalDevice.createDevice(createInfo);

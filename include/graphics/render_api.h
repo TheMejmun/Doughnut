@@ -22,6 +22,7 @@
 #include "graphics/vulkan/mesh_cache.h"
 #include "graphics/vulkan/texture_cache.h"
 #include "renderable.h"
+#include "graphics/vulkan/sampler.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -60,6 +61,7 @@ namespace dn {
         LateInit<vulkan::Semaphore> mImageAvailableSemaphore{};
         LateInit<vulkan::Semaphore> mRenderFinishedSemaphore{};
         LateInit<vulkan::Fence> mInFlightFence{};
+        LateInit<vulkan::Sampler> mSampler{};
 
         std::optional<uint32_t> mCurrentSwapchainFramebuffer{};
 

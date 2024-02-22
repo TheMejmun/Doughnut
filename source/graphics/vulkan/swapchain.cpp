@@ -222,7 +222,6 @@ Swapchain::~Swapchain() {
 }
 
 Framebuffer &Swapchain::getFramebuffer(uint32_t i) {
-    log::v("Returning framebuffer");
     return mFramebuffers[i];
 }
 
