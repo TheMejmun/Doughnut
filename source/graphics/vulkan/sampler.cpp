@@ -38,8 +38,8 @@ Sampler::Sampler(dn::vulkan::Instance &instance, const dn::vulkan::SamplerConfig
 
     vk::SamplerCreateInfo samplerInfo{
             {},
-            vk::Filter::eCubicEXT, // TODO check if this needs some extension to be enabled
-            vk::Filter::eCubicEXT, // TODO check if this needs some extension to be enabled
+            vk::Filter::eLinear, // TODO check if eCubicEXT needs some extension to be enabled
+            vk::Filter::eLinear, // TODO check if eCubicEXT needs some extension to be enabled
             vk::SamplerMipmapMode::eLinear,
             addressMode, addressMode, addressMode,
             0.0f,
