@@ -18,6 +18,7 @@ namespace dn::vulkan {
     struct PipelineConfiguration {
         std::string vertexShader;
         std::string fragmentShader;
+        bool wireFrameMode = false;
     };
 
     class Pipeline {
@@ -25,7 +26,7 @@ namespace dn::vulkan {
         Pipeline(Instance &instance,
                  RenderPass &renderPass,
                  Buffer &uboBuffer,
-                 const PipelineConfiguration& config);
+                 const PipelineConfiguration &config);
 
         Pipeline(Pipeline &&other) noexcept;
 

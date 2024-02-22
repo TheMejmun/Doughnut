@@ -41,7 +41,7 @@ namespace dn {
 
         void beginRenderPass();
 
-        void recordDraw(const Renderable&renderable);
+        void recordDraw(const Renderable &renderable);
 
         void endRenderPass();
 

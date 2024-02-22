@@ -34,11 +34,11 @@ namespace dn {
         vulkan::UploadResult indexPosition{};
         vulkan::UploadResult vertexPosition{};
 
-        Renderable mEarth{
+        Renderable mRenderable{
                 "resources/textures/planet-albedo.png",
                 "resources/shaders/sphere.vert.spv",
                 "resources/shaders/sphere.frag.spv",
-                "resources/models/cube.glb",
+                "resources/models/quad.glb",
                 {}
         };
     };

@@ -13,8 +13,7 @@
 
 #include <thread>
 
-//#define WIREFRAME_MODE
-//#define INSTANCED_RENDERING
+#define WIREFRAME_MODE
 
 // TODO https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Frames_in_flight
 

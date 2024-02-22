@@ -18,7 +18,8 @@ PipelineCache::PipelineCache(Instance &instance,
 }
 
 Pipeline &PipelineCache::get(const dn::vulkan::PipelineConfiguration &config) {
-    const std::string key = config.vertexShader + config.fragmentShader;
+    // TODO find a more elegant algorithm
+    const std::string key = config.vertexShader + config.fragmentShader + std::to_string(config.wireFrameMode);
     std::lock_guard<std::mutex> guard{mCreatePipelineMutex};
 
     if (!mPipelines.contains(key)) {
@@ -27,10 +28,7 @@ Pipeline &PipelineCache::get(const dn::vulkan::PipelineConfiguration &config) {
                            Pipeline{mInstance,
                                     mRenderPass,
                                     mUboBuffer,
-                                    PipelineConfiguration{
-                                            config.vertexShader,
-                                            config.fragmentShader
-                                    }
+                                    config
                            }
         );
     }

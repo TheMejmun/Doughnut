@@ -138,7 +138,8 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
 
     auto &pipeline = mPipelines->get({
                                              renderable.vertexShader,
-                                             renderable.fragmentShader
+                                             renderable.fragmentShader,
+                                             false
                                      });
     // TODO put this somewhere reasonable
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics,

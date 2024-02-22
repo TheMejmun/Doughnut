@@ -16,7 +16,7 @@ using namespace dn::vulkan;
 Pipeline::Pipeline(Instance &instance,
                    RenderPass &renderPass,
                    Buffer &uboBuffer,
-                   const PipelineConfiguration& config)
+                   const PipelineConfiguration &config)
         : mInstance(instance) {
     log::d("Creating Pipeline");
 
@@ -95,11 +95,9 @@ Pipeline::Pipeline(Instance &instance,
             {},
             vk::False,
             vk::False,
-#ifdef WIREFRAME_MODE
-            mInstance.mOptionalFeatures.supportsWireframeMode?  vk::PolygonMode::eLine:vk::PolygonMode::eFill
-#else
-            vk::PolygonMode::eFill,
-#endif
+            (mInstance.mOptionalFeatures.supportsWireframeMode && config.wireFrameMode)
+            ? vk::PolygonMode::eLine
+            : vk::PolygonMode::eFill,
             vk::CullModeFlags{vk::CullModeFlagBits::eBack},
             vk::FrontFace::eCounterClockwise,
             vk::False,
