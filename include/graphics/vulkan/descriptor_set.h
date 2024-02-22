@@ -5,26 +5,31 @@
 #ifndef DOUGHNUT_DESCRIPTOR_SET_H
 #define DOUGHNUT_DESCRIPTOR_SET_H
 
-#include <vulkan/vulkan.hpp>
-#include <vector>
 #include "instance.h"
 #include "descriptor_set_layout.h"
 #include "descriptor_pool.h"
 #include "buffer.h"
+#include "sampler.h"
+#include "image_view.h"
+
+#include <vulkan/vulkan.hpp>
+#include <vector>
 
 namespace dn::vulkan {
     struct DescriptorSetConfiguration {
         uint32_t setCount;
         uint32_t uboSize;
+        Buffer &uboBuffer;
+        Sampler &sampler;
+        ImageView &imageView;
     };
 
     class DescriptorSet {
     public:
         DescriptorSet(Instance &instance,
-                      Buffer &uboBuffer,
                       DescriptorSetLayout &layout,
                       DescriptorPool &pool,
-                      DescriptorSetConfiguration config);
+                      const DescriptorSetConfiguration &config);
 
         DescriptorSet(DescriptorSet &&other) noexcept;
 
@@ -35,7 +40,7 @@ namespace dn::vulkan {
 
     private:
         Instance &mInstance;
-        Buffer &mUboBuffer;
+        DescriptorSetConfiguration mConfig;
     };
 }
 

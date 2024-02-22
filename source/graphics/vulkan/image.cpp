@@ -35,8 +35,16 @@ vk::Format vulkan::findDepthFormat(vk::PhysicalDevice physicalDevice) {
     );
 }
 
-Image::Image(Instance &instance, vk::Image image, vk::DeviceMemory memory)
-        : mInstance(instance), mImage(image), mMemory(memory), mLocallyConstructed(false) {
+Image::Image(Instance &instance,
+             vk::Image image,
+             vk::Format format,
+             vk::DeviceMemory memory)
+        : mInstance(instance),
+          mImage(image),
+          mMemory(memory),
+          mFormat(format),
+          mUsageFlags(),
+          mLocallyConstructed(false) {
     log::v("Creating Image from existing vk::Image");
 }
 
@@ -95,6 +103,8 @@ Image::Image(Instance &instance,
 Image::Image(dn::vulkan::Image &&other) noexcept
         : mImage(std::exchange(other.mImage, nullptr)),
           mMemory(std::exchange(other.mMemory, nullptr)),
+          mFormat(other.mFormat),
+          mUsageFlags(other.mUsageFlags),
           mInstance(other.mInstance),
           mLocallyConstructed(other.mLocallyConstructed) {
     log::v("Moving Image");
@@ -105,7 +115,7 @@ Image::Image(dn::vulkan::Image &&other) noexcept
 //            mInstance,
 //            StagingBufferConfiguration{}
 //    );
-    // TODO
+// TODO
 //    mStagingBuffer->upload(
 //            static_cast<uint32_t>( texture.size()),
 //            texture.mData,

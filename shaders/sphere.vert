@@ -32,6 +32,7 @@ void main() {
     fragPos = vec4(inPosition.xy, 0.0f, 1.0f);
     gl_Position = fragPos;
     fragColor = inColor;
+    fragUVW = inUVW;
     return;
 
     mat4 model  = ubo.model;

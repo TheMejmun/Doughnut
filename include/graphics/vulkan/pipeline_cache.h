@@ -8,11 +8,15 @@
 #include "pipeline.h"
 
 namespace dn::vulkan {
+    struct PipelineCacheConfiguration{
+        uint32_t maxFramesInFlight; // TODO is this needed? The 'get' function already contains this info
+    };
+
     class PipelineCache {
     public:
         PipelineCache(Instance &instance,
                       RenderPass &renderPass,
-                      Buffer &uboBuffer);
+                      const PipelineCacheConfiguration& config);
 
         ~PipelineCache();
 
@@ -21,7 +25,7 @@ namespace dn::vulkan {
     private:
         Instance &mInstance;
         RenderPass &mRenderPass;
-        Buffer &mUboBuffer;
+        PipelineCacheConfiguration mConfig;
 
         std::unordered_map<std::string, Pipeline> mPipelines{};
         std::mutex mCreatePipelineMutex{};

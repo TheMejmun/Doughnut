@@ -10,10 +10,10 @@ using namespace dn::vulkan;
 
 PipelineCache::PipelineCache(Instance &instance,
                              RenderPass &renderPass,
-                             Buffer &uboBuffer)
+                             const PipelineCacheConfiguration &config)
         : mInstance(instance),
           mRenderPass(renderPass),
-          mUboBuffer(uboBuffer) {
+          mConfig(config) {
     log::d("Creating PipelineCache");
 }
 
@@ -27,7 +27,6 @@ Pipeline &PipelineCache::get(const dn::vulkan::PipelineConfiguration &config) {
         mPipelines.emplace(key,
                            Pipeline{mInstance,
                                     mRenderPass,
-                                    mUboBuffer,
                                     config
                            }
         );

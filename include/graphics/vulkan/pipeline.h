@@ -15,9 +15,11 @@
 #include <optional>
 
 namespace dn::vulkan {
+    // Warning: buffer and texture references are not kept track of inside PipelineCache
     struct PipelineConfiguration {
         std::string vertexShader;
         std::string fragmentShader;
+        DescriptorSetConfiguration descriptorSetConfig;
         bool wireFrameMode = false;
     };
 
@@ -25,7 +27,6 @@ namespace dn::vulkan {
     public:
         Pipeline(Instance &instance,
                  RenderPass &renderPass,
-                 Buffer &uboBuffer,
                  const PipelineConfiguration &config);
 
         Pipeline(Pipeline &&other) noexcept;

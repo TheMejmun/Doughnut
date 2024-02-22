@@ -136,7 +136,7 @@ void Swapchain::create() {
 
     std::vector<vk::Image> images = mInstance.mDevice.getSwapchainImagesKHR(mSwapchain);
     for (const vk::Image image: images) {
-        mImages.emplace_back(mInstance, image, nullptr);
+        mImages.emplace_back(mInstance, image, mSurfaceFormat.format, nullptr);
         mImageViews.emplace_back(mInstance, mImages.back(), ImageViewConfiguration{mExtent, mSurfaceFormat.format});
     }
 

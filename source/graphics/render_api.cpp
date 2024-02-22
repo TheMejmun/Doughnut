@@ -6,6 +6,7 @@
 #include "io/logger.h"
 #include "util/require.h"
 #include "graphics/vulkan/image_staging_buffer.h"
+#include "graphics/v1/uniform_buffer_object.h"
 
 #include <stdexcept>
 #include <vector>
@@ -51,7 +52,7 @@ VulkanAPI::VulkanAPI(Window &window) {
     mPipelines.emplace(
             *mInstance,
             *mSwapchain->mRenderPass,
-            *mUniformBuffer
+            PipelineCacheConfiguration{1u}
     );
 
     for (uint32_t i = 0; i < mSwapchain->getImageCount(); ++i) {
@@ -146,6 +147,13 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
     auto &pipeline = mPipelines->get({
                                              renderable.vertexShader,
                                              renderable.fragmentShader,
+                                             DescriptorSetConfiguration{
+                                                     1u,
+                                                     sizeof(UniformBufferObject),
+                                                     *mUniformBuffer,
+                                                     *mSampler,
+                                                     mTextures->getImageView(renderable.texture)
+                                             },
                                              false
                                      });
     // TODO put this somewhere reasonable

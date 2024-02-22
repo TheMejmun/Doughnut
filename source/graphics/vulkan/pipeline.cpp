@@ -15,7 +15,6 @@ using namespace dn::vulkan;
 
 Pipeline::Pipeline(Instance &instance,
                    RenderPass &renderPass,
-                   Buffer &uboBuffer,
                    const PipelineConfiguration &config)
         : mInstance(instance) {
     log::d("Creating Pipeline");
@@ -206,13 +205,9 @@ Pipeline::Pipeline(Instance &instance,
 
     mDescriptorSet.emplace(
             mInstance,
-            uboBuffer,
             *mDescriptorSetLayout,
             *mDescriptorPool,
-            DescriptorSetConfiguration{
-                    2,
-                    sizeof(UniformBufferObject)
-            }
+            config.descriptorSetConfig
     );
 }
 

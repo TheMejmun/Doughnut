@@ -35,22 +35,17 @@ namespace dn::vulkan {
 
         Image(Instance &instance,
               vk::Image image,
+              vk::Format format,
               vk::DeviceMemory memory);
 
         Image(Image &&other) noexcept;
 
         ~Image();
 
-        void upload(const Texture &texture);
-
-        bool isCurrentlyUploading();
-
-        void awaitUpload();
-
         vk::Image mImage;
         vk::DeviceMemory mMemory;
-        vk::Format mFormat{};
-        vk::ImageUsageFlags mUsageFlags{};
+        vk::Format mFormat;
+        vk::ImageUsageFlags mUsageFlags;
 
     private:
         Instance &mInstance;

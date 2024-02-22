@@ -11,7 +11,7 @@
 
 namespace dn::vulkan {
     struct DescriptorPoolConfiguration {
-        uint32_t size;
+        uint32_t maxFramesInFlight; // TODO set to Frames in flight
     };
 
     class DescriptorPool {

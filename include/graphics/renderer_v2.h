@@ -35,7 +35,7 @@ namespace dn {
         vulkan::UploadResult vertexPosition{};
 
         Renderable mRenderable{
-                "resources/textures/planet-albedo.png",
+                "resources/textures/debug.png",
                 "resources/shaders/sphere.vert.spv",
                 "resources/shaders/sphere.frag.spv",
                 "resources/models/quad.glb",

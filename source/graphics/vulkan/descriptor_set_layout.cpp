@@ -23,6 +23,13 @@ DescriptorSetLayout::DescriptorSetLayout(Instance &instance, dn::vulkan::Descrip
             vk::ShaderStageFlagBits::eVertex, // Can also be all shader stages: VK_SHADER_STAGE_ALL_GRAPHICS
             nullptr // Relevant for image sampling
     );
+    layoutBindings.emplace_back(
+            1,
+            vk::DescriptorType::eCombinedImageSampler,
+            1,
+            vk::ShaderStageFlagBits::eFragment, // Can also be all shader stages: VK_SHADER_STAGE_ALL_GRAPHICS
+            nullptr // Relevant for image sampling
+    );
 
     vk::DescriptorSetLayoutCreateInfo createInfo{
             {},
