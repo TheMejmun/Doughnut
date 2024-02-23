@@ -15,8 +15,7 @@ using namespace dn::vulkan;
 
 Pipeline::Pipeline(Instance &instance,
                    RenderPass &renderPass,
-                   Buffer &uboBuffer,
-                   PipelineConfiguration config)
+                   const PipelineConfiguration &config)
         : mInstance(instance) {
     log::d("Creating Pipeline");
 
@@ -32,8 +31,8 @@ Pipeline::Pipeline(Instance &instance,
     );
 
     // TODO pull these out of here
-    ShaderModule vertexShader = ShaderModule{mInstance, "resources/shaders/sphere.vert.spv"};
-    ShaderModule fragmentShader = ShaderModule{mInstance, "resources/shaders/sphere.frag.spv"};
+    ShaderModule vertexShader = ShaderModule{mInstance, config.vertexShader};
+    ShaderModule fragmentShader = ShaderModule{mInstance, config.fragmentShader};
 
     vk::PipelineShaderStageCreateInfo vertexShaderStageInfo{
             {},
@@ -95,11 +94,9 @@ Pipeline::Pipeline(Instance &instance,
             {},
             vk::False,
             vk::False,
-#ifdef WIREFRAME_MODE
-            mInstance.mOptionalFeatures.supportsWireframeMode?  vk::PolygonMode::eLine:vk::PolygonMode::eFill
-#else
-            vk::PolygonMode::eFill,
-#endif
+            (mInstance.mOptionalFeatures.supportsWireframeMode && config.wireFrameMode)
+            ? vk::PolygonMode::eLine
+            : vk::PolygonMode::eFill,
             vk::CullModeFlags{vk::CullModeFlagBits::eBack},
             vk::FrontFace::eCounterClockwise,
             vk::False,
@@ -208,13 +205,9 @@ Pipeline::Pipeline(Instance &instance,
 
     mDescriptorSet.emplace(
             mInstance,
-            uboBuffer,
             *mDescriptorSetLayout,
             *mDescriptorPool,
-            DescriptorSetConfiguration{
-                    2,
-                    sizeof(UniformBufferObject)
-            }
+            config.descriptorSetConfig
     );
 }
 

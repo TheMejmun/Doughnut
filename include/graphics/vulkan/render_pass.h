@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-11.
 //
 
-#ifndef DOUGHNUTSANDBOX_RENDER_PASS_H
-#define DOUGHNUTSANDBOX_RENDER_PASS_H
+#ifndef DOUGHNUT_RENDER_PASS_H
+#define DOUGHNUT_RENDER_PASS_H
 
 #include "graphics/vulkan/instance.h"
 
@@ -12,7 +12,6 @@
 namespace dn::vulkan {
     struct RenderPassConfiguration {
         vk::Format surfaceFormat;
-        vk::Format depthFormat;
     };
 
     class RenderPass {
@@ -31,4 +30,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_RENDER_PASS_H
+#endif //DOUGHNUT_RENDER_PASS_H

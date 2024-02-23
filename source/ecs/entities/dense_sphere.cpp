@@ -21,7 +21,7 @@ void DenseSphere::upload(EntityManagerSpec &em) {
 
     em.template insertComponent<RenderMeshSimplifiable>(id);
 
-    Transformer4 transform{};
+    dn::Transform transform{};
     em.insertComponent(transform, id);
 
     RotatingSphere rotatingSphereComponent{};

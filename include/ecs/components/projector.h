@@ -21,7 +21,7 @@ struct Projector {
 
     [[nodiscard]] glm::mat4 getProjection(float aspectRatio) const;
 
-    [[nodiscard]] glm::mat4 getView(const Transformer4 &eye) const;
+    [[nodiscard]] glm::mat4 getView(const dn::Transform &eye) const;
 };
 
 #endif //DOUGHNUT_PROJECTOR_H

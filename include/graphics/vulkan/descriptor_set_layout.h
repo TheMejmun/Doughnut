@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-11.
 //
 
-#ifndef DOUGHNUTSANDBOX_DESCRIPTOR_SET_LAYOUT_H
-#define DOUGHNUTSANDBOX_DESCRIPTOR_SET_LAYOUT_H
+#ifndef DOUGHNUT_DESCRIPTOR_SET_LAYOUT_H
+#define DOUGHNUT_DESCRIPTOR_SET_LAYOUT_H
 
 #include <vulkan/vulkan.hpp>
 #include <vector>
@@ -28,4 +28,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_DESCRIPTOR_SET_LAYOUT_H
+#endif //DOUGHNUT_DESCRIPTOR_SET_LAYOUT_H

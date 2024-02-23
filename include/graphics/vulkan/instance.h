@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-10.
 //
 
-#ifndef DOUGHNUTSANDBOX_INSTANCE_H
-#define DOUGHNUTSANDBOX_INSTANCE_H
+#ifndef DOUGHNUT_INSTANCE_H
+#define DOUGHNUT_INSTANCE_H
 
 #include "io/window.h"
 #include "optional_features.h"
@@ -41,4 +41,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_INSTANCE_H
+#endif //DOUGHNUT_INSTANCE_H

@@ -147,10 +147,10 @@ std::vector<uint32_t> makeIndexRange(uint32_t untilInclusive) {
 
 
 void simplify(const Projector &cameraProjector,
-              const Transformer4 &cameraTransform,
+              const dn::Transform &cameraTransform,
               const RenderMesh &from,
               RenderMeshSimplifiable &to,
-              const Transformer4 &transform) {
+              const dn::Transform &transform) {
     // Init
     const auto model = transform.forward;
     const auto normalModel = glm::transpose(transform.inverse);
@@ -293,8 +293,8 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
             uiState->meshSimplifierFramesTaken = simplifiedMeshCalculationThreadFrameCounter;
         }
     } else if (uiState->runMeshSimplifier) {
-        auto entities = entityManager.getArchetype<RenderMesh, RenderMeshSimplifiable, Transformer4>();
-        auto cameras = entityManager.getArchetype<Projector, Transformer4>();
+        auto entities = entityManager.getArchetype<RenderMesh, RenderMeshSimplifiable, dn::Transform>();
+        auto cameras = entityManager.getArchetype<Projector, dn::Transform>();
         uint32_t mainCameraIndex;
         for (uint32_t i = 0; i < cameras.size(); ++i) {
             if (cameras[i].get<Projector>()->isMainCamera) {
@@ -312,12 +312,12 @@ void MeshSimplifierController::update(double delta, EntityManagerSpec &entityMan
                 for (const auto & entity : entities) {
                     const auto renderMesh = entity.get<RenderMesh>();
                     const auto renderMeshSimplifiable =entity.get<RenderMeshSimplifiable>();
-                    const auto transformer = entity.get<Transformer4>();
+                    const auto transformer = entity.get<dn::Transform>();
                     if (renderMeshSimplifiable->simplifiedMeshMutex->try_lock()) {
                         PerformanceLogging::meshCalculationStarted();
                         simplify(
                                 *cameras[mainCameraIndex].get<Projector>(),
-                                *cameras[mainCameraIndex].get<Transformer4>(),
+                                *cameras[mainCameraIndex].get<dn::Transform>(),
                                 *renderMesh,
                                 *renderMeshSimplifiable,
                                 *transformer

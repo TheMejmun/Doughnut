@@ -136,33 +136,28 @@ void Swapchain::create() {
 
     std::vector<vk::Image> images = mInstance.mDevice.getSwapchainImagesKHR(mSwapchain);
     for (const vk::Image image: images) {
-        mImages.emplace_back(mInstance, image, nullptr);
+        mImages.emplace_back(mInstance, image, mSurfaceFormat.format, nullptr);
         mImageViews.emplace_back(mInstance, mImages.back(), ImageViewConfiguration{mExtent, mSurfaceFormat.format});
     }
 
-    mDepthFormat = findDepthFormat(mInstance.mPhysicalDevice);
     mDepthImage.emplace(
             mInstance,
             ImageConfiguration{
-                    mExtent.width,
-                    mExtent.height,
-                    mDepthFormat,
-                    vk::ImageTiling::eOptimal,
-                    vk::ImageUsageFlagBits::eDepthStencilAttachment,
-                    vk::MemoryPropertyFlagBits::eDeviceLocal
+                    mExtent,
+                    true,
+                    false
             }
     );
     mDepthImageView.emplace(
             mInstance,
             *mDepthImage,
-            ImageViewConfiguration{mExtent, mDepthFormat, vk::ImageAspectFlagBits::eDepth}
+            ImageViewConfiguration{mExtent, findDepthFormat(mInstance.mPhysicalDevice), vk::ImageAspectFlagBits::eDepth}
     );
 
     mRenderPass.emplace(
             mInstance,
             RenderPassConfiguration{
-                    mSurfaceFormat.format,
-                    mDepthFormat
+                    mSurfaceFormat.format
             }
     );
 
@@ -227,7 +222,6 @@ Swapchain::~Swapchain() {
 }
 
 Framebuffer &Swapchain::getFramebuffer(uint32_t i) {
-    log::v("Returning framebuffer");
     return mFramebuffers[i];
 }
 

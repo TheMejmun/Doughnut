@@ -4,6 +4,7 @@
 
 #include "graphics/vulkan/render_pass.h"
 #include "io/logger.h"
+#include "graphics/vulkan/image.h"
 
 using namespace dn;
 using namespace dn::vulkan;
@@ -32,7 +33,7 @@ RenderPass::RenderPass(Instance &instance, dn::vulkan::RenderPassConfiguration c
     // Depth attachment
     vk::AttachmentDescription depthAttachment{
             {},
-            config.depthFormat,
+            findDepthFormat(mInstance.mPhysicalDevice),
             vk::SampleCountFlagBits::e1, // MSAA
             vk::AttachmentLoadOp::eClear,
             vk::AttachmentStoreOp::eDontCare,

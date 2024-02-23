@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-07.
 //
 
-#ifndef DOUGHNUTSANDBOX_SWAPCHAIN_H
-#define DOUGHNUTSANDBOX_SWAPCHAIN_H
+#ifndef DOUGHNUT_SWAPCHAIN_H
+#define DOUGHNUT_SWAPCHAIN_H
 
 #include "io/window.h"
 #include "graphics/vulkan/queue_family_indices.h"
@@ -83,11 +83,10 @@ namespace dn::vulkan {
         vk::PresentModeKHR mPresentMode{};
         std::vector<Image> mImages{};
         std::vector<ImageView> mImageViews{};
-        vk::Format mDepthFormat{};
         LateInit<Image> mDepthImage{};
         LateInit<ImageView> mDepthImageView{};
         std::vector<Framebuffer> mFramebuffers{};
     };
 }
 
-#endif //DOUGHNUTSANDBOX_SWAPCHAIN_H
+#endif //DOUGHNUT_SWAPCHAIN_H

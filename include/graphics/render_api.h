@@ -18,6 +18,11 @@
 #include "graphics/vulkan/command_buffer.h"
 #include "graphics/vulkan/semaphore.h"
 #include "graphics/vulkan/fence.h"
+#include "graphics/vulkan/pipeline_cache.h"
+#include "graphics/vulkan/mesh_cache.h"
+#include "graphics/vulkan/texture_cache.h"
+#include "renderable.h"
+#include "graphics/vulkan/sampler.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -37,8 +42,7 @@ namespace dn {
 
         void beginRenderPass();
 
-        void recordMeshDraw(const vulkan::BufferPosition &vertexPosition,
-                            const vulkan::BufferPosition &indexPosition);
+        void recordDraw(const Renderable &renderable);
 
         void endRenderPass();
 
@@ -46,21 +50,23 @@ namespace dn {
 
         void drawFrame(double delta);
 
-        LateInit<vulkan::Buffer> mVertexBuffer{};
-        LateInit<vulkan::Buffer> mIndexBuffer{};
         LateInit<vulkan::Buffer> mUniformBuffer{};
 
     private:
         LateInit<vulkan::Instance> mInstance{};
         LateInit<vulkan::Swapchain> mSwapchain{};
-        LateInit<vulkan::Pipeline> mPipeline{};
+        LateInit<vulkan::PipelineCache> mPipelines{};
         LateInit<vulkan::CommandPool> mCommandPool{};
         std::vector<vulkan::CommandBuffer> mCommandBuffers{};
         LateInit<vulkan::Semaphore> mImageAvailableSemaphore{};
         LateInit<vulkan::Semaphore> mRenderFinishedSemaphore{};
         LateInit<vulkan::Fence> mInFlightFence{};
+        LateInit<vulkan::Sampler> mSampler{};
 
         std::optional<uint32_t> mCurrentSwapchainFramebuffer{};
+
+        LateInit<vulkan::MeshCache> mMeshes{};
+        LateInit<vulkan::TextureCache> mTextures{};
     };
 }
 

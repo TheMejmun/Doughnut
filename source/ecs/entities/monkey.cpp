@@ -20,7 +20,7 @@ void Monkey::upload(EntityManagerSpec &em) {
 
     em.template insertComponent<RenderMeshSimplifiable>(id);
 
-    Transformer4 transform{};
+    dn::Transform transform{};
     transform.rotate(glm::radians(180.0), glm::vec3(0, 1, 0));
     em.insertComponent(transform, id);
 

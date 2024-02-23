@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-11.
 //
 
-#ifndef DOUGHNUTSANDBOX_LATE_INIT_H
-#define DOUGHNUTSANDBOX_LATE_INIT_H
+#ifndef DOUGHNUT_LATE_INIT_H
+#define DOUGHNUT_LATE_INIT_H
 
 #include <optional>
 
@@ -13,10 +13,14 @@ namespace dn {
     public:
         // allow nullptr assignment to reset this optional
         // for use with std::exchange
-        LateInit<T>& operator=(void* null){
+        LateInit<T> &operator=(void *null) {
             this->reset();
             return *this;
         }
+
+        void clear() {
+            this->reset();
+        }
     };
 }
-#endif //DOUGHNUTSANDBOX_LATE_INIT_H
+#endif //DOUGHNUT_LATE_INIT_H

@@ -5,8 +5,10 @@
 #include "graphics/texture.h"
 #include "io/logger.h"
 #include "util/timer.h"
+#include "util/importer.h"
 
 #include <stb_image.h>
+#include <filesystem>
 
 using namespace dn;
 
@@ -14,19 +16,19 @@ Texture::Texture(const std::string &filename) {
     // STBI_rgb_alpha for alpha in the future
     {
         trace_scope("Texture load")
-        mData = stbi_load(filename.c_str(), &mWidth, &mHeight, &mChannels, STBI_rgb);
+        std::string localFilename = doughnutLocal(filename);
+        mData = stbi_load(localFilename.c_str(), &mWidth, &mHeight, &mOriginalChannels, STBI_rgb_alpha);
     }
 
     if (!mData) {
         dn::log::e("Failed to load texture", filename);
-        dn::log::flush();
         throw std::runtime_error("Failed to load texture!");
     } else {
-        dn::log::i("Loaded", filename);
+        dn::log::i("Loaded", filename, "with", mWidth, "*", mHeight, "and", mChannels, "channels");
     }
 }
 
-size_t Texture::size() {
+size_t Texture::size() const {
     // stbi_load loads 8 bit always, hence 1 byte per channel
     return mWidth * mHeight * mChannels;
 }

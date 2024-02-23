@@ -40,7 +40,20 @@ void Fence::resetFence() const {
     mInstance.mDevice.resetFences(mFence);
 }
 
+bool Fence::isWaiting() const {
+    auto result = mInstance.mDevice.getFenceStatus(mFence);
+    switch (result) {
+        case vk::Result::eSuccess:
+            return false;
+        case vk::Result::eNotReady:
+            return true;
+        default:
+            throw std::runtime_error("Upload fence returned a bad status");
+    }
+}
+
 Fence::~Fence() {
     log::d("Destroying Fence");
+    await();
     if (mFence != nullptr) { mInstance.mDevice.destroy(mFence); }
 }

@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-12.
 //
 
-#ifndef DOUGHNUTSANDBOX_COMMAND_BUFFER_H
-#define DOUGHNUTSANDBOX_COMMAND_BUFFER_H
+#ifndef DOUGHNUT_COMMAND_BUFFER_H
+#define DOUGHNUT_COMMAND_BUFFER_H
 
 #include "instance.h"
 #include "command_pool.h"
@@ -24,13 +24,15 @@ namespace dn::vulkan {
 
         void reset() const;
 
-        void startRecording() const;
+        void startRecording();
 
-        void endRecording() const;
+        void endRecording();
+
+        bool mIsRecording = false;
 
     private:
         Instance &mInstance;
     };
 }
 
-#endif //DOUGHNUTSANDBOX_COMMAND_BUFFER_H
+#endif //DOUGHNUT_COMMAND_BUFFER_H

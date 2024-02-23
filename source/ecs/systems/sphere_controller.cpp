@@ -12,11 +12,11 @@ void SphereController::update(double delta, EntityManagerSpec &entityManager) {
     }
 
     if (mDoSphereRotation) {
-        auto spheres = entityManager.getArchetype<RotatingSphere, Transformer4>();
+        auto spheres = entityManager.getArchetype<RotatingSphere, dn::Transform>();
 
         for (auto &sphere: spheres) {
             if (sphere.get<RotatingSphere>()->isRotatingSphere) { // Kinda redundant check
-                sphere.get<Transformer4>()->rotate(
+                sphere.get<dn::Transform>()->rotate(
                         glm::radians(15.0f * static_cast<float >(delta)),
                         glm::vec3(0, 1, 0));
             }

@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-11.
 //
 
-#ifndef DOUGHNUTSANDBOX_PIPELINE_H
-#define DOUGHNUTSANDBOX_PIPELINE_H
+#ifndef DOUGHNUT_PIPELINE_H
+#define DOUGHNUT_PIPELINE_H
 
 #include "descriptor_set_layout.h"
 #include "core/late_init.h"
@@ -15,16 +15,19 @@
 #include <optional>
 
 namespace dn::vulkan {
+    // Warning: buffer and texture references are not kept track of inside PipelineCache
     struct PipelineConfiguration {
-
+        std::string vertexShader;
+        std::string fragmentShader;
+        DescriptorSetConfiguration descriptorSetConfig;
+        bool wireFrameMode = false;
     };
 
     class Pipeline {
     public:
         Pipeline(Instance &instance,
                  RenderPass &renderPass,
-                 Buffer &uboBuffer,
-                 PipelineConfiguration config);
+                 const PipelineConfiguration &config);
 
         Pipeline(Pipeline &&other) noexcept;
 
@@ -41,4 +44,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_PIPELINE_H
+#endif //DOUGHNUT_PIPELINE_H

@@ -72,19 +72,19 @@ void Renderer::destroyRenderables(EntityManagerSpec &ecs) {
 }
 
 void Renderer::updateUniformBuffer(const double &delta, EntityManagerSpec &ecs) {
-    const auto entities = ecs.getArchetype<RenderMesh, Transformer4>();
+    const auto entities = ecs.getArchetype<RenderMesh, dn::Transform>();
 
     // TODO not just for one object
     UniformBufferObject ubo{};
-    const auto &transformer = entities[0].get<Transformer4>();
+    const auto &transformer = entities[0].get<dn::Transform>();
     ubo.model = transformer->forward;
 
-    const auto cameras = ecs.getArchetype<Projector, Transformer4>();
-    Transformer4 *cameraTransform;
+    const auto cameras = ecs.getArchetype<Projector, dn::Transform>();
+    dn::Transform *cameraTransform;
     Projector *cameraProjector;
     for (auto &camera: cameras) {
         if (camera.get<Projector>()->isMainCamera) {
-            cameraTransform = camera.get<Transformer4>();
+            cameraTransform = camera.get<dn::Transform>();
             cameraProjector = camera.get<Projector>();
             break;
         }

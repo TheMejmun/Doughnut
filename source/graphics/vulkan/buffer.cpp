@@ -23,23 +23,10 @@ Buffer::Buffer(dn::vulkan::Instance &instance, dn::vulkan::BufferConfiguration c
     log::v("Maximum memory allocation count:", mInstance.mPhysicalDevice.getProperties().limits.maxMemoryAllocationCount);
 
     if (!mConfig.hostDirectAccessible) {
-        vk::CommandPoolCreateInfo transferPoolInfo{
-                vk::CommandPoolCreateFlags{vk::CommandPoolCreateFlagBits::eResetCommandBuffer},
-                mInstance.mQueueFamilyIndices.transferFamily.value()
-        };
-        mTransferCommandPool = mInstance.mDevice.createCommandPool(transferPoolInfo);
-
-        vk::CommandBufferAllocateInfo transferBufferAllcateInfo{
-                mTransferCommandPool,
-                vk::CommandBufferLevel::ePrimary,
-                1
-        };
-        mTransferCommandBuffer = mInstance.mDevice.allocateCommandBuffers(transferBufferAllcateInfo)[0];
-
-        vk::FenceCreateInfo createInfo{
-                vk::FenceCreateFlags{vk::FenceCreateFlagBits::eSignaled}
-        };
-        mTransferFence = mInstance.mDevice.createFence(createInfo);
+        mStagingBuffer.emplace(
+                mInstance,
+                StagingBufferConfiguration{}
+        );
     }
 
     vk::BufferUsageFlags usage;
@@ -99,11 +86,7 @@ Buffer::Buffer(dn::vulkan::Instance &instance, dn::vulkan::BufferConfiguration c
 Buffer::Buffer(dn::vulkan::Buffer &&other) noexcept
         : mInstance(other.mInstance),
           mConfig(other.mConfig),
-          mTransferCommandPool(std::exchange(other.mTransferCommandPool, nullptr)),
-          mTransferCommandBuffer(std::exchange(other.mTransferCommandBuffer, nullptr)),
-          mTransferFence(std::exchange(other.mTransferFence, nullptr)),
           mStagingBuffer(std::exchange(other.mStagingBuffer, nullptr)),
-          mStagingBufferMemory(std::exchange(other.mStagingBufferMemory, nullptr)),
           mBuffer(std::exchange(other.mBuffer, nullptr)),
           mBufferMemory(std::exchange(other.mBufferMemory, nullptr)),
           mIsUsed(std::exchange(other.mIsUsed, {})),
@@ -144,14 +127,12 @@ UploadResult Buffer::calculateMemoryIndex(const uint32_t size) {
     return {false, insertIndex, size};
 }
 
-UploadResult Buffer::reserve(uint32_t size) {
+UploadResult Buffer::reserve(const uint32_t size) {
     return calculateMemoryIndex(size);
 }
 
 UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
-    debugRequire(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
-
-    trace_scope("Upload Queueing");
+    dnAssert(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
 
     const auto location = calculateMemoryIndex(size);
     if (!location.notEnoughSpace) {
@@ -161,80 +142,21 @@ UploadResult Buffer::queueUpload(const uint32_t size, const uint8_t *data) {
     return location;
 }
 
-void Buffer::queueUpload(uint32_t size, const uint8_t *data, uint32_t at) {
-    debugRequire(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
+void Buffer::queueUpload(const uint32_t size, const uint8_t *data, const uint32_t at) {
+    dnAssert(!mConfig.hostDirectAccessible, "Can not queue uploads to a host accessible buffer");
 
     awaitUpload();
-    freeStagingMemory();
 
-    mInstance.mDevice.resetFences(mTransferFence);
-
-    // Transfer Buffer Creation
-
-    std::array<uint32_t, 2> queueFamilyIndices{
-            mInstance.mQueueFamilyIndices.graphicsFamily.value(),
-            mInstance.mQueueFamilyIndices.transferFamily.value()
-    };
-    vk::BufferCreateInfo bufferInfo{
-            {},
+    mStagingBuffer->upload(
             size,
-            {vk::BufferUsageFlagBits::eTransferSrc},
-            mInstance.mQueueFamilyIndices.hasUniqueTransferQueue() ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive,
-            mInstance.mQueueFamilyIndices.hasUniqueTransferQueue() ? 2u : 1u,
-            queueFamilyIndices.data()
-    };
-    mStagingBuffer = mInstance.mDevice.createBuffer(bufferInfo);
-
-    vk::MemoryRequirements memoryRequirements = mInstance.mDevice.getBufferMemoryRequirements(mBuffer);
-    vk::MemoryAllocateInfo allocInfo{
-            memoryRequirements.size,
-            findMemoryType(mInstance.mPhysicalDevice, memoryRequirements.memoryTypeBits,
-                           {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent})
-    };
-    mStagingBufferMemory = mInstance.mDevice.allocateMemory(allocInfo);
-
-    mInstance.mDevice.bindBufferMemory(mStagingBuffer, mStagingBufferMemory, 0);
-
-    // Upload To Transfer Buffer
-
-    void *mappedMemory = mInstance.mDevice.mapMemory(mStagingBufferMemory, 0, size, {});
-    memcpy(mappedMemory, data, size);
-    mInstance.mDevice.unmapMemory(mStagingBufferMemory);
-
-    // To final buffer
-
-    vk::CommandBufferBeginInfo beginInfo{
-            {vk::CommandBufferUsageFlagBits::eOneTimeSubmit}
-    };
-    mTransferCommandBuffer.begin(beginInfo);
-
-    // Upload vertices
-    vk::BufferCopy copyRegion{
-            0,
-            at,
-            size
-    };
-    mTransferCommandBuffer.copyBuffer(mStagingBuffer, mBuffer, 1, &copyRegion);
-
-    mTransferCommandBuffer.end();
-
-    // Submit
-
-    vk::SubmitInfo submitInfo{
-            0,
-            nullptr,
-            nullptr,
-            1,
-            &mTransferCommandBuffer,
-            0,
-            nullptr,
-    };
-
-    mInstance.mTransferQueue.submit(submitInfo, mTransferFence);
+            data,
+            mBuffer,
+            at
+    );
 }
 
 UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
-    debugRequire(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
+    dnAssert(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
 
     const auto location = calculateMemoryIndex(size);
     if (!location.notEnoughSpace) {
@@ -244,49 +166,39 @@ UploadResult Buffer::directUpload(const uint32_t size, const uint8_t *data) {
     return location;
 }
 
-void Buffer::directUpload(uint32_t size, const uint8_t *data, uint32_t at) {
-    debugRequire(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
+void Buffer::directUpload(const uint32_t size, const uint8_t *data, const uint32_t at) {
+    dnAssert(mConfig.hostDirectAccessible, "Can only access host accessible buffers directly");
+
+    trace_scope("Direct Upload");
+
     memcpy(mMappedBuffer + at, data, size);
 }
 
-bool Buffer::isCurrentlyUploading() {
-    auto result = mInstance.mDevice.getFenceStatus(mTransferFence);
-    switch (result) {
-        case vk::Result::eSuccess:
-            return false;
-        case vk::Result::eNotReady:
-            return true;
-        default:
-            throw std::runtime_error("Upload fence returned a bad status");
+void Buffer::clear(uint32_t at, uint32_t byteSize) {
+    std::lock_guard<std::mutex> guard{*mIsUsedMutex};
+
+    for (uint32_t i = at; i < (at + byteSize); ++i) {
+        mIsUsed[i] = false;
     }
+}
+
+bool Buffer::isCurrentlyUploading() {
+    return !mConfig.hostDirectAccessible && mStagingBuffer->isCurrentlyUploading();
 }
 
 void Buffer::freeStagingMemory() {
-    if (mStagingBuffer != nullptr) { mInstance.mDevice.destroy(mStagingBuffer); }
-    if (mStagingBufferMemory != nullptr) { mInstance.mDevice.free(mStagingBufferMemory); }
+    if (mStagingBuffer.has_value())mStagingBuffer->freeStagingMemory();
 }
 
 void Buffer::awaitUpload() {
-    if (!mConfig.hostDirectAccessible && isCurrentlyUploading()) {
-        auto result = mInstance.mDevice.waitForFences(mTransferFence, true, std::numeric_limits<uint64_t>::max()); // nanoseconds
-        require(result == vk::Result::eSuccess || result == vk::Result::eTimeout, "An error has occurred while waiting for an upload to finish");
-    }
-    // Else noop
+    if (mStagingBuffer.has_value())mStagingBuffer->awaitUpload();
 }
 
 Buffer::~Buffer() {
     log::d("Destroying Buffer");
 
-    if (mTransferFence != nullptr) {
-        awaitUpload();
-        mInstance.mDevice.destroy(mTransferFence);
-    }
-
-    freeStagingMemory();
+    mStagingBuffer.reset();
 
     if (mBuffer != nullptr) { mInstance.mDevice.destroy(mBuffer); }
     if (mBufferMemory != nullptr) { mInstance.mDevice.free(mBufferMemory); }
-
-    if (mTransferCommandBuffer != nullptr) { mInstance.mDevice.free(mTransferCommandPool, mTransferCommandBuffer); }
-    if (mTransferCommandPool != nullptr) { mInstance.mDevice.destroy(mTransferCommandPool); }
 }

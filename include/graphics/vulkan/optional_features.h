@@ -8,7 +8,7 @@
 namespace dn::vulkan {
     struct OptionalFeatures {
         bool supportsWireframeMode = false;
-        bool physicalDeviceFeatures2 = false;
+        bool supportsAnisotropicFiltering = false;
     };
 }
 

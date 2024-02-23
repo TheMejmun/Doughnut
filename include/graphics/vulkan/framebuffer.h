@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-10.
 //
 
-#ifndef DOUGHNUTSANDBOX_FRAMEBUFFER_H
-#define DOUGHNUTSANDBOX_FRAMEBUFFER_H
+#ifndef DOUGHNUT_FRAMEBUFFER_H
+#define DOUGHNUT_FRAMEBUFFER_H
 
 #include "image_view.h"
 #include "instance.h"
@@ -28,4 +28,4 @@ namespace dn::vulkan {
         Instance &mInstance;
     };
 }
-#endif //DOUGHNUTSANDBOX_FRAMEBUFFER_H
+#endif //DOUGHNUT_FRAMEBUFFER_H

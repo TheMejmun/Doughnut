@@ -7,7 +7,7 @@
 void Camera::upload(EntityManagerSpec &em) {
     auto id = em.makeEntity();
 
-    Transformer4 transform{};
+    dn::Transform transform{};
     transform.translate(glm::vec3(0, 0, -2.65));
     em.insertComponent(transform, id);
 

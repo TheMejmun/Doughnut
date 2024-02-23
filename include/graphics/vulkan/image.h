@@ -2,10 +2,13 @@
 // Created by Sam on 2024-02-09.
 //
 
-#ifndef DOUGHNUTSANDBOX_IMAGE_H
-#define DOUGHNUTSANDBOX_IMAGE_H
+#ifndef DOUGHNUT_IMAGE_H
+#define DOUGHNUT_IMAGE_H
 
 #include "instance.h"
+#include "graphics/texture.h"
+#include "staging_buffer.h"
+#include "core/late_init.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -18,12 +21,11 @@ namespace dn::vulkan {
     vk::Format findDepthFormat(vk::PhysicalDevice physicalDevice);
 
     struct ImageConfiguration {
-        uint32_t width;
-        uint32_t height;
-        vk::Format format;
-        vk::ImageTiling tiling;
-        vk::ImageUsageFlags usage;
-        vk::MemoryPropertyFlags properties;
+        vk::Extent2D extent;
+        bool isDepthImage;
+        bool isTextureImage;
+        bool isTransferDestination;
+        bool hasAlpha;
     };
 
     class Image {
@@ -33,14 +35,17 @@ namespace dn::vulkan {
 
         Image(Instance &instance,
               vk::Image image,
+              vk::Format format,
               vk::DeviceMemory memory);
 
-        Image(Image &&other)  noexcept ;
+        Image(Image &&other) noexcept;
 
         ~Image();
 
         vk::Image mImage;
         vk::DeviceMemory mMemory;
+        vk::Format mFormat;
+        vk::ImageUsageFlags mUsageFlags;
 
     private:
         Instance &mInstance;
@@ -48,4 +53,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_IMAGE_H
+#endif //DOUGHNUT_IMAGE_H

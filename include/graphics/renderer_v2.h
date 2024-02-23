@@ -33,6 +33,14 @@ namespace dn {
 
         vulkan::UploadResult indexPosition{};
         vulkan::UploadResult vertexPosition{};
+
+        Renderable mRenderable{
+                "resources/textures/debug.png",
+                "resources/shaders/sphere.vert.spv",
+                "resources/shaders/sphere.frag.spv",
+                "resources/models/quad.glb",
+                {}
+        };
     };
 }
 

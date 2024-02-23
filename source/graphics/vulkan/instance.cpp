@@ -18,11 +18,11 @@ const std::vector<const char *> REQUIRED_DEVICE_EXTENSIONS = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
 const std::string PORTABILITY_EXTENSION = "VK_KHR_portability_subset";
-#ifdef NDEBUG
-#define ENABLE_VALIDATION_LAYERS false
-#else
-#define ENABLE_VALIDATION_LAYERS true
+
+#ifndef NDEBUG
+#define ENABLE_VALIDATION_LAYERS
 #endif
+
 const std::vector<const char *> VALIDATION_LAYERS = {
         "VK_LAYER_KHRONOS_validation"
 };
@@ -158,13 +158,13 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
     );
 
     // Validation layers
-    if (ENABLE_VALIDATION_LAYERS) {
-        if (!checkValidationLayerSupport())
-            throw std::runtime_error("Validation layers not available!");
+#ifdef ENABLE_VALIDATION_LAYERS
+    if (!checkValidationLayerSupport())
+        throw std::runtime_error("Validation layers not available!");
 
-        instanceCreateInfo.enabledLayerCount = VALIDATION_LAYERS.size();
-        instanceCreateInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
-    }
+    instanceCreateInfo.enabledLayerCount = VALIDATION_LAYERS.size();
+    instanceCreateInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
+#endif
 
     mInstance = vk::createInstance(instanceCreateInfo);
 
@@ -205,6 +205,7 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
 
     vk::PhysicalDeviceFeatures features = mPhysicalDevice.getFeatures();
     mOptionalFeatures.supportsWireframeMode = features.fillModeNonSolid;
+    mOptionalFeatures.supportsAnisotropicFiltering = features.samplerAnisotropy;
 
     // LOGICAL
 
@@ -223,6 +224,7 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
     // Define the features we will use as queried in isPhysicalDeviceSuitable
     vk::PhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.fillModeNonSolid = mOptionalFeatures.supportsWireframeMode;
+    deviceFeatures.samplerAnisotropy = mOptionalFeatures.supportsAnisotropicFiltering;
 
     std::vector<const char *> requiredDeviceExtensions = REQUIRED_DEVICE_EXTENSIONS;
     if (checkPortabilityMode(mPhysicalDevice)) {
@@ -237,10 +239,10 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
             &deviceFeatures
     );
 
-    if (ENABLE_VALIDATION_LAYERS) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
-        createInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
-    }
+#ifdef ENABLE_VALIDATION_LAYERS
+    createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
+    createInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
+#endif
 
     mDevice = mPhysicalDevice.createDevice(createInfo);
 
@@ -256,7 +258,8 @@ Instance::Instance(Instance &&other) noexcept
           mSurface(std::exchange(other.mSurface, nullptr)),
           mPhysicalDevice(other.mPhysicalDevice),
           mDevice(std::exchange(other.mDevice, nullptr)) {
-    log::d("Moving Instance");}
+    log::d("Moving Instance");
+}
 
 Instance::~Instance() {
     log::d("Destroying Instance");

@@ -1,5 +1,7 @@
 #version 450
 
+layout(binding = 1) uniform sampler2D texSampler;
+
 layout(location = 0) in vec4 inPos;
 layout(location = 1) in vec4 inWorldPos;
 layout(location = 2) in vec3 inColor;
@@ -80,5 +82,6 @@ void main() {
 //    color = mix(SHADOW_COLOR_LAB, color, shadowFac);
 //    color = inColor * brightness;
 
-    outColor = vec4(xyzToRgb(labToXyz(inColor)), 1.0f);
+    outColor = texture(texSampler, inUVW.xy);
+//    outColor = vec4(inUVW, 1.0f);
 }

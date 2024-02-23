@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-11.
 //
 
-#ifndef DOUGHNUTSANDBOX_SHADER_MODULE_H
-#define DOUGHNUTSANDBOX_SHADER_MODULE_H
+#ifndef DOUGHNUT_SHADER_MODULE_H
+#define DOUGHNUT_SHADER_MODULE_H
 
 #include "graphics/vulkan/instance.h"
 
@@ -26,4 +26,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_SHADER_MODULE_H
+#endif //DOUGHNUT_SHADER_MODULE_H

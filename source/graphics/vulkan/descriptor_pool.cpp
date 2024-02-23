@@ -13,19 +13,23 @@ DescriptorPool::DescriptorPool(dn::vulkan::Instance &instance, dn::vulkan::Descr
         : mInstance(instance) {
     log::d("Creating DescriptorPool");
     // Can have multiple pools, with multiple buffers each
-    vk::DescriptorPoolSize poolSize{
-            vk::DescriptorType::eUniformBuffer,
-            config.size
-    };
+    std::vector<vk::DescriptorPoolSize> poolSizes{};
+
+    poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer,
+                           1
+    );
+    poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler,
+                           1
+    );
 
     vk::DescriptorPoolCreateInfo poolInfo{
             {}, // Investigate VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT
             // Would mean that Descriptor sets could individually be freed to their pools
             // Would allow vkFreeDescriptorSets
             // Otherwise only vkAllocateDescriptorSets and vkResetDescriptorPool
-            config.size,
-            1,
-            &poolSize
+            config.maxFramesInFlight, // TODO
+            static_cast<uint32_t>(poolSizes.size()),
+            poolSizes.data()
     };
 
     mDescriptorPool = mInstance.mDevice.createDescriptorPool(poolInfo);
