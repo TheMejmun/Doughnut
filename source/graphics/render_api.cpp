@@ -148,7 +148,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
                                              renderable.vertexShader,
                                              renderable.fragmentShader,
                                              DescriptorSetConfiguration{
-                                                     1u,
+                                                     1u, // TODO this must not be higher than maxFramesInFlight of Descriptor Pool! Crashes otherwise
                                                      sizeof(UniformBufferObject),
                                                      *mUniformBuffer,
                                                      *mSampler,
