@@ -11,8 +11,10 @@
 #include <chrono>
 #include <cmath>
 #include <deque>
+#include <source_location>
 
-#define trace_scope(name) auto _tracer = dn::ScopeTracer(name);
+#define trace_scope(name) dn::ScopeTracer _scope_tracer(name);
+#define trace_func dn::ScopeTracer _func_tracer(std::source_location::current().function_name());
 
 namespace dn {
     using Clock = std::chrono::steady_clock;

@@ -7,6 +7,7 @@
 #include "util/require.h"
 #include "graphics/vulkan/image_staging_buffer.h"
 #include "graphics/v1/uniform_buffer_object.h"
+#include "util/timer.h"
 
 #include <stdexcept>
 #include <vector>
@@ -16,6 +17,8 @@ using namespace dn;
 using namespace dn::vulkan;
 
 VulkanAPI::VulkanAPI(Window &window) {
+    trace_func
+
     log::d("Creating VulkanAPI");
 
     mInstance.emplace(
