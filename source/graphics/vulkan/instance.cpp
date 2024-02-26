@@ -179,9 +179,9 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
     require(!availableDevices.empty(), "Failed to find GPUs with  support!");
 
     std::stringstream stream{};
-    stream << "Available physical devices:\n";
+    stream << "Available physical devices:";
     for (const vk::PhysicalDevice &device: availableDevices) {
-        stream << "\t" << device.getProperties().deviceName << "\n";
+        stream << "\n\t" << device.getProperties().deviceName;
     }
     log::d(stream.str());
 

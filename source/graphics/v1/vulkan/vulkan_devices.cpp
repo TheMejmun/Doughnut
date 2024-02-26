@@ -42,14 +42,14 @@ void Devices::printAvailablePhysicalDevices() {
     vkEnumeratePhysicalDevices(Instance::instance, &deviceCount, devices.data());
 
     std::stringstream stream{};
-    stream << "Available physical devices:\n";
+    stream << "Available physical devices:";
 
     for (const auto &device: devices) {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        stream << "\t" << deviceProperties.deviceName << "\n";
+        stream << "\n\t" << deviceProperties.deviceName;
     }
-   log::v(stream.str());
+    log::v(stream.str());
 }
 
 void Devices::pickPhysical() {
@@ -77,7 +77,7 @@ void Devices::pickPhysical() {
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(Devices::physical, &deviceProperties);
-   log::i("Picked physical device: ", deviceProperties.deviceName);
+    log::i("Picked physical device: ", deviceProperties.deviceName);
 
     if (Devices::physical == VK_NULL_HANDLE) {
         throw std::runtime_error("Failed to find a suitable GPU!");
@@ -138,7 +138,7 @@ bool Devices::checkExtensionSupport(VkPhysicalDevice device) {
         stream << '\t' << extension.extensionName << "\n";
         requiredExtensions.erase(extension.extensionName);
     }
-   log::v(stream.str());
+    log::v(stream.str());
 
     return requiredExtensions.empty();
 }
@@ -272,13 +272,13 @@ bool Devices::QueueFamilyIndices::hasUniqueTransferQueue() const {
 }
 
 void Devices::QueueFamilyIndices::print() {
-   log::v(
+    log::v(
             "QueueFamilyIndices: Graphics:", this->graphicsFamily.value(), "Present:", this->presentFamily.value(), "Transfer:", this->transferFamily.value()
     );
 }
 
 void Devices::destroy() {
-   log::d("Destroying Devices");
+    log::d("Destroying Devices");
 
     vkDestroyDevice(Devices::logical, nullptr);
 }
