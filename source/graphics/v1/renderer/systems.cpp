@@ -3,7 +3,7 @@
 //
 
 #include "graphics/v1/renderer.h"
-#include "graphics/v1/uniform_buffer_object.h"
+#include "graphics/uniform_buffer_object.h"
 #include "graphics/v1/vulkan/vulkan_swapchain.h"
 #include "util/performance_logging.h"
 #include "graphics/v1/vulkan/vulkan_buffers.h"

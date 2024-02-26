@@ -8,7 +8,8 @@
 #include "graphics/vulkan/shader_module.h"
 #include "util/require.h"
 #include "graphics/vulkan/buffer.h"
-#include "graphics/v1/uniform_buffer_object.h"
+#include "graphics/uniform_buffer_object.h"
+#include "graphics/push_constants_object.h"
 
 using namespace dn;
 using namespace dn::vulkan;
@@ -148,13 +149,19 @@ Pipeline::Pipeline(Instance &instance,
             },
     };
 
+    vk::PushConstantRange pushConstantRange{
+            vk::ShaderStageFlagBits::eAll,
+            0,
+            sizeof(PushConstantsObject)
+    };
+
     // Define uniforms
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{
             {},
             1,
             &mDescriptorSetLayout->mLayout,
-            0,
-            nullptr,
+            1,
+            &pushConstantRange,
     };
 
     mPipelineLayout = mInstance.mDevice.createPipelineLayout(pipelineLayoutInfo);

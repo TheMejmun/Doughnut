@@ -3,7 +3,7 @@
 //
 
 #include "graphics/v1/vulkan/vulkan_buffers.h"
-#include "graphics/v1/uniform_buffer_object.h"
+#include "graphics/uniform_buffer_object.h"
 #include "graphics/v1/vulkan/vulkan_memory.h"
 #include "graphics/v1/vulkan/vulkan_devices.h"
 #include "util/timer.h"

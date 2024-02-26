@@ -6,8 +6,9 @@
 #include "io/logger.h"
 #include "util/require.h"
 #include "graphics/vulkan/image_staging_buffer.h"
-#include "graphics/v1/uniform_buffer_object.h"
+#include "graphics/uniform_buffer_object.h"
 #include "util/timer.h"
+#include "graphics/push_constants_object.h"
 
 #include <stdexcept>
 #include <vector>
@@ -216,6 +217,17 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
             pipeline.mDescriptorSet->mDescriptorSets.data(), // TODO don't just pass all of this in here
             0,
             nullptr
+    );
+
+    PushConstantsObject pushConstants{
+            {mSwapchain->getWidth(), mSwapchain->getHeight()}
+    };
+    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.pushConstants(
+            pipeline.mPipelineLayout,
+            vk::ShaderStageFlagBits::eAll,
+            0,
+            sizeof(PushConstantsObject),
+            &pushConstants
     );
 
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.drawIndexed(

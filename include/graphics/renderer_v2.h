@@ -36,8 +36,8 @@ namespace dn {
 
         Renderable mRenderable{
                 "resources/textures/debug.png",
-                "resources/shaders/sphere.vert.spv",
-                "resources/shaders/sphere.frag.spv",
+                "resources/shaders/quad.vert.spv",
+                "resources/shaders/quad.frag.spv",
                 "resources/models/quad.glb",
                 {}
         };
