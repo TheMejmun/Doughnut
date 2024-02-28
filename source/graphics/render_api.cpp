@@ -59,7 +59,7 @@ VulkanAPI::VulkanAPI(Window &window) {
             PipelineCacheConfiguration{1u}
     );
 
-    for (uint32_t i = 0; i < mSwapchain->getImageCount(); ++i) {
+    for (uint32_t i = 0; i < mSwapchain->mImageCount; ++i) {
         mCommandBuffers.emplace_back(
                 *mInstance,
                 *mCommandPool
@@ -82,6 +82,16 @@ VulkanAPI::VulkanAPI(Window &window) {
             *mInstance,
             SamplerConfiguration{
                     CLAMP
+            }
+    );
+
+    mGui.emplace(
+            *mInstance,
+            window,
+            *mSwapchain->mRenderPass,
+            GUIConfiguration{
+                    mSwapchain->mMinImageCount,
+                    mSwapchain->mImageCount
             }
     );
 }
@@ -125,8 +135,8 @@ void VulkanAPI::beginRenderPass() {
             mSwapchain->mRenderPass->mRenderPass,
             mSwapchain->getFramebuffer(*mCurrentSwapchainFramebuffer).mFramebuffer,
             vk::Rect2D{
-                    {0,                      0},
-                    {mSwapchain->getWidth(), mSwapchain->getHeight()}
+                    {0, 0},
+                    mSwapchain->mExtent
             },
             static_cast<uint32_t>(clearValues.size()),
             clearValues.data()
@@ -186,8 +196,8 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
     vk::Viewport viewport{
             0.0f,
             0.0f,
-            static_cast<float>(mSwapchain->getWidth()),
-            static_cast<float>(mSwapchain->getHeight()),
+            static_cast<float>(mSwapchain->mExtent.width),
+            static_cast<float>(mSwapchain->mExtent.height),
             0.0f,
             1.0f
     };
@@ -199,8 +209,8 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
     );
 
     vk::Rect2D scissor{
-            {0,                      0},
-            {mSwapchain->getWidth(), mSwapchain->getHeight()}
+            {0, 0},
+            mSwapchain->mExtent
     };
 
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.setScissor(
@@ -220,7 +230,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
     );
 
     PushConstantsObject pushConstants{
-            {mSwapchain->getWidth(), mSwapchain->getHeight()}
+            {mSwapchain->mExtent.width, mSwapchain->mExtent.height}
     };
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.pushConstants(
             pipeline.mPipelineLayout,
@@ -246,6 +256,11 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
     );
 
     // TODO this->drawUi(ecs);
+}
+
+void VulkanAPI::recordUiDraw() {
+    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    mGui->recordDraw(mCommandBuffers[*mCurrentSwapchainFramebuffer]);
 }
 
 void VulkanAPI::drawFrame(double delta) {
@@ -290,6 +305,8 @@ void VulkanAPI::drawFrame(double delta) {
 VulkanAPI::~VulkanAPI() {
     log::d("Destroying VulkanAPI");
     mInFlightFence->await();
+
+    mGui.reset();
 
     mSampler.reset();
     mInFlightFence.reset();

@@ -94,12 +94,12 @@ void Swapchain::create() {
     }
 
     // One more image than the minimum to avoid stalling if the driver is still working on the image
-    uint32_t minImageCount = swapchainSupport.capabilities.minImageCount + 1;
+    mMinImageCount = swapchainSupport.capabilities.minImageCount + 1;
     if (swapchainSupport.capabilities.maxImageCount > 0 &&
-        minImageCount > swapchainSupport.capabilities.maxImageCount) {
-        minImageCount = swapchainSupport.capabilities.maxImageCount;
+        mMinImageCount > swapchainSupport.capabilities.maxImageCount) {
+        mMinImageCount = swapchainSupport.capabilities.maxImageCount;
     }
-    log::d("Creating the swapchain with at least", minImageCount, "images");
+    log::d("Creating the swapchain with at least", mMinImageCount, "images");
 
     const std::array<uint32_t, 2> queueIndices{
             *mInstance.mQueueFamilyIndices.graphicsFamily,
@@ -116,7 +116,7 @@ void Swapchain::create() {
     vk::SwapchainCreateInfoKHR createInfo{
             {},
             mInstance.mSurface,
-            minImageCount,
+            mMinImageCount,
             mSurfaceFormat.format,
             mSurfaceFormat.colorSpace,
             mExtent,
@@ -135,6 +135,7 @@ void Swapchain::create() {
     mSwapchain = mInstance.mDevice.createSwapchainKHR(createInfo);
 
     std::vector<vk::Image> images = mInstance.mDevice.getSwapchainImagesKHR(mSwapchain);
+    mImageCount = images.size();
     for (const vk::Image image: images) {
         mImages.emplace_back(mInstance, image, mSurfaceFormat.format, nullptr);
         mImageViews.emplace_back(mInstance, mImages.back(), ImageViewConfiguration{mExtent, mSurfaceFormat.format});
@@ -174,14 +175,6 @@ void Swapchain::create() {
     mNeedsNewSwapchain = false;
 }
 
-uint32_t Swapchain::getWidth() const {
-    return mExtent.width;
-}
-
-uint32_t Swapchain::getHeight() const {
-    return mExtent.height;
-}
-
 float Swapchain::getAspectRatio() const {
     return static_cast<float>(mExtent.width) / static_cast<float>(mExtent.height);
 }
@@ -211,10 +204,6 @@ std::optional<uint32_t> Swapchain::acquireNextImage(Semaphore &semaphore) {
         mNeedsNewSwapchain = true;
         return {};
     }
-}
-
-uint32_t Swapchain::getImageCount() {
-    return mImages.size();
 }
 
 Swapchain::~Swapchain() {

@@ -17,6 +17,7 @@ void RendererV2::drawFrame(double delta) {
     mAPI.startRecording();
     mAPI.beginRenderPass();
     mAPI.recordDraw(mRenderable);
+    mAPI.recordUiDraw();
     mAPI.endRenderPass();
     mAPI.endRecording();
     mAPI.drawFrame(delta);

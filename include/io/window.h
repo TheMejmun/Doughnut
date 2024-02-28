@@ -12,6 +12,14 @@
 #include <string>
 
 namespace dn {
+    struct Size{
+        uint32_t windowWidth;
+        uint32_t windowHeight;
+        uint32_t framebufferWidth;
+        uint32_t framebufferHeight;
+        float scale;
+    };
+    
     class Window {
     public:
         explicit Window(std::string title, int32_t width = 640, int32_t height = 400, bool resizable = true);
@@ -26,6 +34,8 @@ namespace dn {
 
         void toggleFullscreen();
 
+        Size getSize() const;
+        
         GLFWwindow *mGlfwWindow = nullptr;
         std::string mTitle;
 

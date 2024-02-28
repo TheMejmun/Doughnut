@@ -206,7 +206,11 @@ Pipeline::Pipeline(Instance &instance,
     mDescriptorPool.emplace(
             mInstance,
             DescriptorPoolConfiguration{
-                    2u
+                    2u,
+                    {
+                            {UNIFORM_BUFFER, 1},
+                            {SAMPLER, 1}
+                    }
             }
     );
 

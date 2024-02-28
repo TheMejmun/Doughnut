@@ -15,15 +15,28 @@ DescriptorPool::DescriptorPool(dn::vulkan::Instance &instance, dn::vulkan::Descr
     // Can have multiple pools, with multiple buffers each
     std::vector<vk::DescriptorPoolSize> poolSizes{};
 
-    poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer,
-                           1
-    );
-    poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler,
-                           1
-    );
+    for (const auto &size: config.sizes) {
+        vk::DescriptorType type;
+        switch (size.type) {
+            case UNIFORM_BUFFER:
+                type = vk::DescriptorType::eUniformBuffer;
+                break;
+            case SAMPLER:
+                type = vk::DescriptorType::eCombinedImageSampler;
+                break;
+        }
+        poolSizes.emplace_back(type,
+                               size.count
+        );
+    }
+
+    vk::DescriptorPoolCreateFlags flags;
+    if (config.freeable) {
+        flags |= vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+    }
 
     vk::DescriptorPoolCreateInfo poolInfo{
-            {}, // Investigate VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT
+            flags, // Investigate VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT
             // Would mean that Descriptor sets could individually be freed to their pools
             // Would allow vkFreeDescriptorSets
             // Otherwise only vkAllocateDescriptorSets and vkResetDescriptorPool

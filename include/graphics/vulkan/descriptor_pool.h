@@ -10,8 +10,20 @@
 #include "instance.h"
 
 namespace dn::vulkan {
+    enum DescriptorType{
+        UNIFORM_BUFFER,
+        SAMPLER // eCombinedImageSampler TODO differentiate different sampler types
+    };
+
+    struct DescriptorPoolSize{
+        DescriptorType type;
+        uint32_t count;
+    };
+
     struct DescriptorPoolConfiguration {
         uint32_t maxFramesInFlight; // TODO set to Frames in flight
+        std::vector<DescriptorPoolSize> sizes;
+        bool freeable = false;
     };
 
     class DescriptorPool {

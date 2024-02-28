@@ -82,6 +82,21 @@ void Window::pollPosition() {
     glfwGetWindowPos(mGlfwWindow, &mWindowPosX, &mWindowPosY);
 }
 
+Size Window::getSize() const {
+    int fbWidth, fbHeight, wWidth, wHeight;
+    glfwGetFramebufferSize(mGlfwWindow, &fbWidth, &fbHeight);
+    glfwGetWindowSize(mGlfwWindow, &wWidth, &wHeight);
+
+    float scale = (static_cast<float>(fbWidth) / static_cast<float>(wWidth));
+    return {
+            static_cast<uint32_t>(wWidth),
+            static_cast<uint32_t>(wHeight),
+            static_cast<uint32_t>(fbWidth),
+            static_cast<uint32_t>(fbHeight),
+            scale
+    };
+}
+
 Window::~Window() {
     dn::log::d("Destroying Window");
 

@@ -23,6 +23,7 @@
 #include "graphics/vulkan/texture_cache.h"
 #include "renderable.h"
 #include "graphics/vulkan/sampler.h"
+#include "graphics/vulkan/imgui.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -43,6 +44,8 @@ namespace dn {
         void beginRenderPass();
 
         void recordDraw(const Renderable &renderable);
+
+        void recordUiDraw();
 
         void endRenderPass();
 
@@ -67,6 +70,8 @@ namespace dn {
 
         LateInit<vulkan::MeshCache> mMeshes{};
         LateInit<vulkan::TextureCache> mTextures{};
+
+        LateInit<vulkan::GUI> mGui{};
     };
 }
 

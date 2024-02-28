@@ -49,10 +49,6 @@ namespace dn::vulkan {
 
         void recreate();
 
-        [[nodiscard]] uint32_t getWidth() const;
-
-        [[nodiscard]] uint32_t getHeight() const;
-
         [[nodiscard]] float getAspectRatio() const;
 
         /**
@@ -65,9 +61,11 @@ namespace dn::vulkan {
 
         LateInit<RenderPass> mRenderPass{};
 
-        uint32_t getImageCount();
-
         vk::SwapchainKHR mSwapchain = nullptr;
+
+        uint32_t mMinImageCount;
+        uint32_t mImageCount;
+        vk::Extent2D mExtent{};
 
     private:
         void create();
@@ -78,7 +76,6 @@ namespace dn::vulkan {
         Instance &mInstance;
 
         bool mNeedsNewSwapchain;
-        vk::Extent2D mExtent{};
         vk::SurfaceFormatKHR mSurfaceFormat{};
         vk::PresentModeKHR mPresentMode{};
         std::vector<Image> mImages{};
