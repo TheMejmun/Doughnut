@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-28.
 //
 
-#include "graphics/vulkan/imgui.h"
+#include "graphics/vulkan/gui.h"
 #include "io/logger.h"
 
 #include <imgui.h>
@@ -22,10 +22,10 @@ void checkVkResult(VkResult err) {
     }
 }
 
-GUI::GUI(Instance &instance,
+Gui::Gui(Instance &instance,
          Window &window,
          RenderPass &renderPass,
-         const GUIConfiguration &config)
+         const GuiConfiguration &config)
         : mInstance(instance),
           mWindow(window),
           mConfig(config),
@@ -137,7 +137,7 @@ GUI::GUI(Instance &instance,
 ////    ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
-void GUI::recordDraw(CommandBuffer& commandBuffer) {
+void Gui::recordDraw(CommandBuffer& commandBuffer) {
     auto size = mWindow.getSize();
     ImVec2 scale =  {size.scale, size.scale};
     ImGui::GetIO().DisplaySize = {static_cast<float>(size.windowWidth),
@@ -158,7 +158,7 @@ void GUI::recordDraw(CommandBuffer& commandBuffer) {
     ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer.mCommandBuffer);
 }
 
-GUI::~GUI() {
+Gui::~Gui() {
     log::d("Destroying GUI");
 
     ImGui_ImplVulkan_Shutdown();

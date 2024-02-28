@@ -23,7 +23,7 @@
 #include "graphics/vulkan/texture_cache.h"
 #include "renderable.h"
 #include "graphics/vulkan/sampler.h"
-#include "graphics/vulkan/imgui.h"
+#include "graphics/vulkan/gui.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -71,7 +71,7 @@ namespace dn {
         LateInit<vulkan::MeshCache> mMeshes{};
         LateInit<vulkan::TextureCache> mTextures{};
 
-        LateInit<vulkan::GUI> mGui{};
+        LateInit<vulkan::Gui> mGui{};
     };
 }
 

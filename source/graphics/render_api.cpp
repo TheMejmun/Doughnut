@@ -89,7 +89,7 @@ VulkanAPI::VulkanAPI(Window &window) {
             *mInstance,
             window,
             *mSwapchain->mRenderPass,
-            GUIConfiguration{
+            GuiConfiguration{
                     mSwapchain->mMinImageCount,
                     mSwapchain->mImageCount
             }
