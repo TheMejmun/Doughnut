@@ -137,25 +137,33 @@ Gui::Gui(Instance &instance,
 ////    ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
-void Gui::recordDraw(CommandBuffer& commandBuffer) {
+// TODO consider not calculating size twice per frame
+void Gui::beginFrame() {
     auto size = mWindow.getSize();
-    ImVec2 scale =  {size.scale, size.scale};
+    ImVec2 scale = {size.scale, size.scale};
     ImGui::GetIO().DisplaySize = {static_cast<float>(size.windowWidth),
                                   static_cast<float>(size.windowHeight)};
-    ImGui::GetIO().DisplayFramebufferScale =scale;
+    ImGui::GetIO().DisplayFramebufferScale = scale;
 
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+}
 
-    ImGui::ShowDemoWindow();
+void Gui::endFrame(CommandBuffer &commandBuffer) {
+    // ImGui::EndFrame(); // Automatically called by Render()
+    // ImGui::UpdatePlatformWindows(); // For Viewports
 
     ImGui::Render();
     ImDrawData *draw_data = ImGui::GetDrawData();
-    const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
+    const bool isMinimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
 
-    draw_data->FramebufferScale = scale;
-    ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer.mCommandBuffer);
+    if (!isMinimized) {
+        auto size = mWindow.getSize();
+        ImVec2 scale = {size.scale, size.scale};
+        draw_data->FramebufferScale = scale;
+        ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer.mCommandBuffer);
+    }
 }
 
 Gui::~Gui() {

@@ -5,6 +5,7 @@
 #include "graphics/renderer_v2.h"
 #include "io/logger.h"
 #include "graphics/triangle.h"
+#include "imgui.h"
 
 using namespace dn;
 
@@ -17,6 +18,7 @@ void RendererV2::drawFrame(double delta) {
     mAPI.startRecording();
     mAPI.beginRenderPass();
     mAPI.recordDraw(mRenderable);
+    ImGui::ShowDemoWindow();
     mAPI.recordUiDraw();
     mAPI.endRenderPass();
     mAPI.endRecording();

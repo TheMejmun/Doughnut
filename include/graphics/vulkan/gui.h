@@ -25,7 +25,9 @@ namespace dn::vulkan {
 
         ~Gui();
 
-        void recordDraw(CommandBuffer& commandBuffer);
+        void beginFrame();
+
+        void endFrame(CommandBuffer &commandBuffer);
 
     private:
         Instance &mInstance;
