@@ -23,7 +23,9 @@ namespace dn::vulkan {
         StagingBuffer(Instance &instance,
                       StagingBufferConfiguration config);
 
-        StagingBuffer(StagingBuffer &&other) noexcept;
+        StagingBuffer(const StagingBuffer &other) = delete;
+
+        StagingBuffer(StagingBuffer &&other) = default;
 
         ~StagingBuffer();
 
@@ -39,9 +41,9 @@ namespace dn::vulkan {
         Instance &mInstance;
         StagingBufferConfiguration mConfig;
 
-        LateInit<CommandPool> mCommandPool;
-        LateInit<CommandBuffer> mCommandBuffer;
-        LateInit<Fence> mFence;
+        CommandPool mCommandPool;
+        CommandBuffer mCommandBuffer;
+        Fence mFence;
 
         vk::Buffer mStagingBuffer = nullptr;
         vk::DeviceMemory mStagingBufferMemory = nullptr;
