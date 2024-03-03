@@ -24,11 +24,13 @@ namespace dn::vulkan {
         ImageStagingBuffer(Instance &instance,
                            ImageStagingBufferConfiguration config);
 
-        ImageStagingBuffer(ImageStagingBuffer &&other) noexcept;
+        ImageStagingBuffer(const ImageStagingBuffer &other) = delete;
+
+        ImageStagingBuffer(ImageStagingBuffer &&other) = default;
 
         ~ImageStagingBuffer();
 
-        void upload(const Texture& texture, vk::Image target);
+        void upload(const Texture &texture, vk::Image target);
 
         bool isCurrentlyUploading();
 
@@ -40,9 +42,9 @@ namespace dn::vulkan {
         Instance &mInstance;
         ImageStagingBufferConfiguration mConfig;
 
-        LateInit<CommandPool> mCommandPool;
-        LateInit<CommandBuffer> mCommandBuffer;
-        LateInit<Fence> mFence;
+        CommandPool mCommandPool;
+        CommandBuffer mCommandBuffer;
+        Fence mFence;
 
         vk::Buffer mStagingBuffer = nullptr;
         vk::DeviceMemory mStagingBufferMemory = nullptr;

@@ -13,34 +13,19 @@ using namespace dn::vulkan;
 
 ImageStagingBuffer::ImageStagingBuffer(dn::vulkan::Instance &instance, dn::vulkan::ImageStagingBufferConfiguration config)
         : mInstance(instance),
-          mConfig(config) {
+          mConfig(config),
+          mCommandPool(mInstance,CommandPoolConfiguration{*mInstance.mQueueFamilyIndices.graphicsFamily}),
+          mCommandBuffer(mInstance,mCommandPool),
+          mFence(mInstance,FenceConfiguration{true}){
     log::d("Creating ImageStagingBuffer");
 
-    mCommandPool.emplace(mInstance,
-                         CommandPoolConfiguration{*mInstance.mQueueFamilyIndices.graphicsFamily});
-    mCommandBuffer.emplace(mInstance,
-                           *mCommandPool);
-    mFence.emplace(mInstance,
-                   FenceConfiguration{true});
 }
-
-ImageStagingBuffer::ImageStagingBuffer(dn::vulkan::ImageStagingBuffer &&other) noexcept
-        : mInstance(other.mInstance),
-          mConfig(other.mConfig),
-          mCommandPool(std::exchange(other.mCommandPool, nullptr)),
-          mCommandBuffer(std::exchange(other.mCommandBuffer, nullptr)),
-          mFence(std::exchange(other.mFence, nullptr)),
-          mStagingBuffer(std::exchange(other.mStagingBuffer, nullptr)),
-          mStagingBufferMemory(std::exchange(other.mStagingBufferMemory, nullptr)) {
-    log::d("Moving ImageStagingBuffer");
-}
-
 void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
     trace_scope("Upload Queueing");
 
     awaitUpload();
-    mFence->resetFence();
-    mCommandBuffer->startRecording();
+    mFence.resetFence();
+    mCommandBuffer.startRecording();
 
     // -------------------- STAGING --------------------
 
@@ -94,7 +79,7 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
     };
 
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
-    mCommandBuffer->mCommandBuffer.pipelineBarrier(
+    mCommandBuffer.mCommandBuffer.pipelineBarrier(
             {vk::PipelineStageFlagBits::eTopOfPipe},
             {vk::PipelineStageFlagBits::eTransfer},
             {}, // VK_DEPENDENCY_BY_REGION_BIT https://stackoverflow.com/questions/65471677/the-meaning-and-implications-of-vk-dependency-by-region-bit
@@ -121,7 +106,7 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
              1}
     };
 
-    mCommandBuffer->mCommandBuffer.copyBufferToImage(
+    mCommandBuffer.mCommandBuffer.copyBufferToImage(
             mStagingBuffer,
             target,
             vk::ImageLayout::eTransferDstOptimal,
@@ -149,7 +134,7 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
     };
 
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
-    mCommandBuffer->mCommandBuffer.pipelineBarrier(
+    mCommandBuffer.mCommandBuffer.pipelineBarrier(
             {vk::PipelineStageFlagBits::eTransfer},
             {vk::PipelineStageFlagBits::eFragmentShader},
             {}, // VK_DEPENDENCY_BY_REGION_BIT https://stackoverflow.com/questions/65471677/the-meaning-and-implications-of-vk-dependency-by-region-bit
@@ -162,22 +147,22 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
 //    copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
     // -------------------- TODO --------------------
 
-    mCommandBuffer->endRecording();
+    mCommandBuffer.endRecording();
 
     vk::SubmitInfo submitInfo{
             0,
             nullptr,
             nullptr,
             1,
-            &mCommandBuffer->mCommandBuffer,
+            &mCommandBuffer.mCommandBuffer,
             0,
             nullptr,
     };
-    mInstance.mGraphicsQueue.submit(submitInfo, mFence->mFence);
+    mInstance.mGraphicsQueue.submit(submitInfo, mFence.mFence);
 }
 
 bool ImageStagingBuffer::isCurrentlyUploading() {
-    return mFence->isWaiting();
+    return mFence.isWaiting();
 }
 
 void ImageStagingBuffer::freeStagingMemory() {
@@ -186,15 +171,12 @@ void ImageStagingBuffer::freeStagingMemory() {
 }
 
 void ImageStagingBuffer::awaitUpload() {
-    mFence->await();
+    mFence.await();
 }
 
 ImageStagingBuffer::~ImageStagingBuffer() {
     log::d("Destroying ImageStagingBuffer");
 
-    mFence.clear();
+    mFence.await();
     freeStagingMemory();
-
-    mCommandBuffer.clear();
-    mCommandPool.clear();
 }
