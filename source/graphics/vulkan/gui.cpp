@@ -55,25 +55,6 @@ Gui::Gui(Instance &instance,
     // Setup Platform / Renderer backends
     ImGui_ImplGlfw_InitForVulkan(mWindow.mGlfwWindow, true);
     ImGui_ImplVulkan_InitInfo initInfo{
-//            VkInstance                      Instance;
-//            VkPhysicalDevice                PhysicalDevice;
-//            VkDevice                        Device;
-//            uint32_t                        QueueFamily;
-//            VkQueue                         Queue;
-//            VkPipelineCache                 PipelineCache;
-//            VkDescriptorPool                DescriptorPool;
-//            uint32_t                        Subpass;
-//            uint32_t                        MinImageCount;          // >= 2
-//            uint32_t                        ImageCount;             // >= MinImageCount
-//            VkSampleCountFlagBits           MSAASamples;            // >= VK_SAMPLE_COUNT_1_BIT (0 -> default to VK_SAMPLE_COUNT_1_BIT)
-//
-//            // Dynamic Rendering (Optional)
-//            bool                            UseDynamicRendering;    // Need to explicitly enable VK_KHR_dynamic_rendering extension to use this, even for Vulkan 1.3.
-//            VkFormat                        ColorAttachmentFormat;  // Required for dynamic rendering
-//
-//            // Allocation, Debugging
-//            const VkAllocationCallbacks*    Allocator;
-//            void                            (*CheckVkResultFn)(VkResult err);
             mInstance.mInstance,
             mInstance.mPhysicalDevice,
             mInstance.mDevice,
@@ -109,32 +90,6 @@ Gui::Gui(Instance &instance,
 //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
 //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
 //IM_ASSERT(font != nullptr);
-
-    // Fonts:
-//    VkCommandPool command_pool = Buffers::transferCommandPool;
-//    VkCommandBuffer command_buffer = Buffers::transferCommandBuffer;
-//
-//    checkVkResult(vkResetCommandPool(Devices::logical, command_pool, 0));
-//    VkCommandBufferBeginInfo beginInfo = {};
-//    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-//    beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-//    checkVkResult(vkBeginCommandBuffer(command_buffer, &beginInfo));
-//
-//    // TODO find out why this function needs VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT and provide the appropriate queue
-//    // TODO why does this not take the commandBuffer anymore. Probably because docking branch is used now.
-//    ImGui_ImplVulkan_CreateFontsTexture();
-//
-//    VkSubmitInfo endInfo = {};
-//    endInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-//    endInfo.commandBufferCount = 1;
-//    endInfo.pCommandBuffers = &command_buffer;
-//    checkVkResult(vkEndCommandBuffer(command_buffer));
-//    // TODO arbitrarily picked this queue because it was global
-//    checkVkResult(vkQueueSubmit(Buffers::transferQueue, 1, &endInfo, VK_NULL_HANDLE));
-//
-//    checkVkResult(vkDeviceWaitIdle(Devices::logical));
-//    // TODO why did this change. Probably because docking branch is used now.
-////    ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
 // TODO consider not calculating size twice per frame
