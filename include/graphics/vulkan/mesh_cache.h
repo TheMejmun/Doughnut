@@ -20,6 +20,10 @@ namespace dn::vulkan {
     public:
         explicit MeshCache(Instance &instance);
 
+        MeshCache(const MeshCache &other) = delete;
+
+        MeshCache(MeshCache &&other) = delete;
+
         ~MeshCache();
 
         void preload(const std::string &mesh);
