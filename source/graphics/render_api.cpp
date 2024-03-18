@@ -262,6 +262,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
 void VulkanAPI::recordUiDraw() {
     dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
     mGui->endFrame(mCommandBuffers[*mCurrentSwapchainFramebuffer]);
+    // TODO maybe this is not the most ideal way to do this.
     mGui->beginFrame();
 }
 
