@@ -10,17 +10,12 @@ using namespace dn;
 using namespace dn::vulkan;
 
 MeshCache::MeshCache(Instance &instance)
-        : mInstance(instance) {
+        : mInstance(instance),
+          mVertexBuffer(mInstance,
+                        BufferConfiguration{VERTEX, false}),
+          mIndexBuffer( mInstance,
+                        BufferConfiguration{INDEX, false}){
     log::d("Creating MeshCache");
-
-    mVertexBuffer.emplace(
-            mInstance,
-            BufferConfiguration{VERTEX, false}
-    );
-    mIndexBuffer.emplace(
-            mInstance,
-            BufferConfiguration{INDEX, false}
-    );
 }
 
 void MeshCache::preload(const std::string &mesh) {
@@ -28,19 +23,19 @@ void MeshCache::preload(const std::string &mesh) {
     if (!mMeshIndices.contains(mesh)) {
         auto meshImport = importMesh(mesh);
 
-        auto vertexPosition = mVertexBuffer->queueUpload(meshImport.vertices);
-        auto indexPosition = mIndexBuffer->queueUpload(meshImport.indices);
-        mVertexBuffer->awaitUpload();
-        mIndexBuffer->awaitUpload();
+        auto vertexPosition = mVertexBuffer.queueUpload(meshImport.vertices);
+        auto indexPosition = mIndexBuffer.queueUpload(meshImport.indices);
+        mVertexBuffer.awaitUpload();
+        mIndexBuffer.awaitUpload();
 
         mMeshIndices.emplace(
                 mesh,
                 MeshReference{
                         0,
                         vertexPosition.position,
-                        mVertexBuffer->mBuffer,
+                        mVertexBuffer.mBuffer,
                         indexPosition.position,
-                        mIndexBuffer->mBuffer
+                        mIndexBuffer.mBuffer
                 }
         );
     }

@@ -88,3 +88,27 @@ add_dependencies(Doughnut CopyAssets)
 add_executable(DoughnutTests source/test.cpp ${SOURCE_FILES})
 target_include_directories(DoughnutTests PRIVATE include)
 target_link_libraries(DoughnutTests PRIVATE ${LL})
+
+# https://stackoverflow.com/questions/32901679/unit-testing-as-part-of-the-build
+
+#enable_testing()
+#
+##add_dependencies(DoughnutTests Doughnut)
+#
+#add_test(TestsBuild
+#        "${CMAKE_COMMAND}"
+#        --build "${CMAKE_BINARY_DIR}"
+#        --config "$<CONFIG>"
+#        --target DoughnutTests
+#)
+#set_tests_properties(TestsBuild PROPERTIES FIXTURES_SETUP TestsFixture)
+#add_test(Doughnut DoughnutTests)
+#set_tests_properties(Doughnut PROPERTIES FIXTURES_REQUIRED TestsFixture)
+#
+#add_custom_command(
+#        TARGET Doughnut
+#        COMMENT "Run tests"
+#        POST_BUILD
+#        COMMAND ctest
+#        ARGS -C $<CONFIGURATION> -R "^DoughnutTests$" --output-on-failures
+#)

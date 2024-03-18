@@ -13,34 +13,19 @@ using namespace dn::vulkan;
 
 StagingBuffer::StagingBuffer(dn::vulkan::Instance &instance, dn::vulkan::StagingBufferConfiguration config)
         : mInstance(instance),
-          mConfig(config) {
+          mConfig(config) ,
+          mCommandPool(mInstance,CommandPoolConfiguration{*mInstance.mQueueFamilyIndices.transferFamily}),
+          mCommandBuffer(mInstance,mCommandPool),
+          mFence(mInstance,FenceConfiguration{true}){
     log::d("Creating StagingBuffer");
-
-    mCommandPool.emplace(mInstance,
-                         CommandPoolConfiguration{*mInstance.mQueueFamilyIndices.transferFamily});
-    mCommandBuffer.emplace(mInstance,
-                           *mCommandPool);
-    mFence.emplace(mInstance,
-                   FenceConfiguration{true});
-}
-
-StagingBuffer::StagingBuffer(dn::vulkan::StagingBuffer &&other) noexcept
-        : mInstance(other.mInstance),
-          mConfig(other.mConfig),
-          mCommandPool(std::exchange(other.mCommandPool, nullptr)),
-          mCommandBuffer(std::exchange(other.mCommandBuffer, nullptr)),
-          mFence(std::exchange(other.mFence, nullptr)),
-          mStagingBuffer(std::exchange(other.mStagingBuffer, nullptr)),
-          mStagingBufferMemory(std::exchange(other.mStagingBufferMemory, nullptr)) {
-    log::d("Moving StagingBuffer");
 }
 
 void StagingBuffer::upload(const uint32_t size, const void *data, const vk::Buffer target, const uint32_t at) {
     trace_scope("Upload Queueing");
 
     awaitUpload();
-    mFence->resetFence();
-    mCommandBuffer->startRecording();
+    mFence.resetFence();
+    mCommandBuffer.startRecording();
 
     // Transfer Buffer Creation
     std::array<uint32_t, 2> queueFamilyIndices{
@@ -78,24 +63,24 @@ void StagingBuffer::upload(const uint32_t size, const void *data, const vk::Buff
             at,
             size
     };
-    mCommandBuffer->mCommandBuffer.copyBuffer(mStagingBuffer, target, 1, &copyRegion);
+    mCommandBuffer.mCommandBuffer.copyBuffer(mStagingBuffer, target, 1, &copyRegion);
 
-    mCommandBuffer->endRecording();
+    mCommandBuffer.endRecording();
 
     vk::SubmitInfo submitInfo{
             0,
             nullptr,
             nullptr,
             1,
-            &mCommandBuffer->mCommandBuffer,
+            &mCommandBuffer.mCommandBuffer,
             0,
             nullptr,
     };
-    mInstance.mTransferQueue.submit(submitInfo, mFence->mFence);
+    mInstance.mTransferQueue.submit(submitInfo, mFence.mFence);
 }
 
 bool StagingBuffer::isCurrentlyUploading() {
-    return mFence->isWaiting();
+    return mFence.isWaiting();
 }
 
 void StagingBuffer::freeStagingMemory() {
@@ -104,15 +89,12 @@ void StagingBuffer::freeStagingMemory() {
 }
 
 void StagingBuffer::awaitUpload() {
-    mFence->await();
+    mFence.await();
 }
 
 StagingBuffer::~StagingBuffer() {
     log::d("Destroying StagingBuffer");
 
-    mFence.clear();
+    mFence.await();
     freeStagingMemory();
-
-    mCommandBuffer.clear();
-    mCommandPool.clear();
 }

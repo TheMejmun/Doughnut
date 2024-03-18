@@ -20,16 +20,20 @@ namespace dn::vulkan {
     public:
         explicit MeshCache(Instance &instance);
 
+        MeshCache(const MeshCache &other) = delete;
+
+        MeshCache(MeshCache &&other) = delete;
+
         ~MeshCache();
 
         void preload(const std::string &mesh);
 
-        MeshReference& get(const std::string &mesh);
+        MeshReference &get(const std::string &mesh);
 
     private:
         Instance &mInstance;
-        LateInit<Buffer> mVertexBuffer{};
-        LateInit<Buffer> mIndexBuffer{};
+        Buffer mVertexBuffer;
+        Buffer mIndexBuffer;
 
         std::unordered_map<std::string, MeshReference> mMeshIndices{};
         std::mutex mInsertMeshMutex{};
