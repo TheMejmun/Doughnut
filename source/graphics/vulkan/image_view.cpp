@@ -16,7 +16,7 @@ ImageView::ImageView(Context &context,
 
     vk::ImageViewCreateInfo viewCreateInfo{
             {},
-            image.mImage,
+            *image,
             vk::ImageViewType::e2D,
             config.format,
             vk::ComponentMapping{

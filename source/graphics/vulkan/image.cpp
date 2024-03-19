@@ -40,18 +40,16 @@ Image::Image(Context &context,
              vk::Format format,
              vk::DeviceMemory memory)
         : mContext(context),
-          mImage(image),
           mMemory(memory),
           mFormat(format),
           mUsageFlags(),
           mLocallyConstructed(false) {
-    log::v("Creating Image from existing vk::Image");
+    mVulkan = image;
 }
 
 Image::Image(Context &context,
              ImageConfiguration config)
         : mContext(context), mLocallyConstructed(true) {
-    log::v("Creating Image");
 
     if (config.isTextureImage) {
         // TODO format = config.hasAlpha ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8Srgb;
@@ -86,8 +84,8 @@ Image::Image(Context &context,
             vk::ImageLayout::eUndefined
     };
 
-    mImage = mContext.mDevice.createImage(createInfo);
-    vk::MemoryRequirements memoryRequirements = mContext.mDevice.getImageMemoryRequirements(mImage);
+    mVulkan = mContext.mDevice.createImage(createInfo);
+    vk::MemoryRequirements memoryRequirements = mContext.mDevice.getImageMemoryRequirements(mVulkan);
 
     vk::MemoryPropertyFlags properties{vk::MemoryPropertyFlagBits::eDeviceLocal};
 
@@ -97,47 +95,12 @@ Image::Image(Context &context,
     };
 
     mMemory = mContext.mDevice.allocateMemory(allocateInfo);
-    mContext.mDevice.bindImageMemory(mImage, mMemory, 0);
+    mContext.mDevice.bindImageMemory(mVulkan, mMemory, 0);
 }
-
-Image::Image(dn::vulkan::Image &&other) noexcept
-        : mImage(std::exchange(other.mImage, nullptr)),
-          mMemory(std::exchange(other.mMemory, nullptr)),
-          mFormat(other.mFormat),
-          mUsageFlags(other.mUsageFlags),
-          mContext(other.mContext),
-          mLocallyConstructed(other.mLocallyConstructed) {
-    log::v("Moving Image");
-}
-
-//void Image::upload(const dn::Texture &texture) {
-//    mStagingBuffer.emplace(
-//            mContext,
-//            StagingBufferConfiguration{}
-//    );
-// TODO
-//    mStagingBuffer->upload(
-//            static_cast<uint32_t>( texture.size()),
-//            texture.mData,
-//            target,
-//            0
-//    );
-//}
-
-//void Image::awaitUpload() {
-//    mStagingBuffer.reset();
-//}
-//
-//bool Image::isCurrentlyUploading() {
-//    return mStagingBuffer.has_value() && mStagingBuffer->isCurrentlyUploading();
-//}
 
 Image::~Image() {
     if (mLocallyConstructed) {
-        log::v("Destroying Image");
-        if (mImage != nullptr) { mContext.mDevice.destroy(mImage); }
+        if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
         if (mMemory != nullptr) { mContext.mDevice.free(mMemory); }
-    } else {
-        log::v("Skipping Image destruction");
     }
 }

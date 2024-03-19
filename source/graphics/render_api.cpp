@@ -18,7 +18,7 @@ using namespace dn;
 using namespace dn::vulkan;
 
 VulkanAPI::VulkanAPI(Window &window) {
-    trace_func
+    trace_function
 
     log::d("Creating VulkanAPI");
 

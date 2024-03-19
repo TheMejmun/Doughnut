@@ -9,6 +9,7 @@
 #include "graphics/texture.h"
 #include "staging_buffer.h"
 #include "core/late_init.h"
+#include "handle.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -28,21 +29,20 @@ namespace dn::vulkan {
         bool hasAlpha;
     };
 
-    class Image {
+    class Image : public Handle<vk::Image> {
     public:
         Image(Context &context,
               ImageConfiguration config);
+
+        Image(Image &&) = default;
 
         Image(Context &instance,
               vk::Image image,
               vk::Format format,
               vk::DeviceMemory memory);
 
-        Image(Image &&other) noexcept;
-
         ~Image();
 
-        vk::Image mImage;
         vk::DeviceMemory mMemory;
         vk::Format mFormat;
         vk::ImageUsageFlags mUsageFlags;
