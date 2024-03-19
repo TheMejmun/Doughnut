@@ -5,22 +5,25 @@
 #ifndef DOUGHNUT_COMMAND_BUFFER_H
 #define DOUGHNUT_COMMAND_BUFFER_H
 
-#include "instance.h"
+#include "context.h"
 #include "command_pool.h"
+#include "handle.h"
 
 #include <vulkan/vulkan.hpp>
 
 namespace dn::vulkan {
-    class CommandBuffer {
+    struct CommandBufferConfiguration {
+    };
+
+    class CommandBuffer : public Handle<vk::CommandBuffer, CommandBufferConfiguration> {
     public:
-        CommandBuffer(Instance &instance,
-                      CommandPool &pool);
+        CommandBuffer(Context &context,
+                      CommandPool &pool,
+                      const CommandBufferConfiguration &config);
 
-        CommandBuffer(CommandBuffer &&other) noexcept;
+        CommandBuffer(CommandBuffer &&other) = default;
 
-        ~CommandBuffer();
-
-        vk::CommandBuffer mCommandBuffer = nullptr;
+        ~CommandBuffer() = default; // Not necessary. Pool destruction will handle this
 
         void reset() const;
 
@@ -29,9 +32,6 @@ namespace dn::vulkan {
         void endRecording();
 
         bool mIsRecording = false;
-
-    private:
-        Instance &mInstance;
     };
 }
 

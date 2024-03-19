@@ -9,29 +9,24 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-CommandBuffer::CommandBuffer(Instance &instance,
-                             CommandPool &pool)
-        : mInstance(instance) {
+CommandBuffer::CommandBuffer(Context &context,
+                             CommandPool &pool,
+                             const CommandBufferConfiguration& config)
+        : Handle<vk::CommandBuffer, CommandBufferConfiguration>(context, config) {
     log::d("Creating CommandBuffer");
 
     // TODO multiple? so we won't have to re-record all of them
     vk::CommandBufferAllocateInfo allocInfo{
-            pool.mCommandPool,
+            *pool,
             vk::CommandBufferLevel::ePrimary,
             1
     };
 
-    mCommandBuffer = mInstance.mDevice.allocateCommandBuffers(allocInfo)[0];
-}
-
-CommandBuffer::CommandBuffer(dn::vulkan::CommandBuffer &&other) noexcept
-        : mInstance(other.mInstance),
-          mCommandBuffer(std::exchange(other.mCommandBuffer, nullptr)) {
-    log::d("Moving CommandBuffer");
+    mVulkan = mContext.mDevice.allocateCommandBuffers(allocInfo)[0];
 }
 
 void CommandBuffer::reset() const {
-    mCommandBuffer.reset();
+    mVulkan.reset();
 }
 
 void CommandBuffer::startRecording() {
@@ -44,7 +39,7 @@ void CommandBuffer::startRecording() {
             nullptr
     };
 
-    mCommandBuffer.begin(beginInfo);
+    mVulkan.begin(beginInfo);
 
     mIsRecording = true;
 }
@@ -52,12 +47,6 @@ void CommandBuffer::startRecording() {
 void CommandBuffer::endRecording() {
     dnAssert(mIsRecording, "Can not end recording a command buffer that is not recording");
 
-    mCommandBuffer.end();
+    mVulkan.end();
     mIsRecording = false;
-}
-
-CommandBuffer::~CommandBuffer() {
-    log::d("Destroying CommandBuffer");
-
-    // Not necessary. Pool destruction will handle this
 }

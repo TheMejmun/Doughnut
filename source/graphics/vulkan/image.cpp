@@ -35,29 +35,40 @@ vk::Format vulkan::findDepthFormat(vk::PhysicalDevice physicalDevice) {
     );
 }
 
-Image::Image(Instance &instance,
+ImageConfiguration constructConfiguration(vk::Extent2D extent, vk::Format format) {
+    // TODO
+    return {
+            extent,
+            false,
+            false,
+            false,
+            false
+    };
+};
+
+Image::Image(Context &context,
              vk::Image image,
+             vk::Extent2D extent,
              vk::Format format,
              vk::DeviceMemory memory)
-        : mInstance(instance),
-          mImage(image),
+        : Handle<vk::Image, ImageConfiguration>(context, constructConfiguration(extent, format)),
           mMemory(memory),
           mFormat(format),
           mUsageFlags(),
           mLocallyConstructed(false) {
-    log::v("Creating Image from existing vk::Image");
+    mVulkan = image;
 }
 
-Image::Image(Instance &instance,
+Image::Image(Context &context,
              ImageConfiguration config)
-        : mInstance(instance), mLocallyConstructed(true) {
-    log::v("Creating Image");
+        : Handle<vk::Image, ImageConfiguration>(context, config),
+          mLocallyConstructed(true) {
 
     if (config.isTextureImage) {
         // TODO format = config.hasAlpha ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8Srgb;
         mFormat = vk::Format::eR8G8B8A8Srgb;
     } else if (config.isDepthImage) {
-        mFormat = findDepthFormat(mInstance.mPhysicalDevice);
+        mFormat = findDepthFormat(mContext.mPhysicalDevice);
     }
 
     if (config.isTextureImage) {
@@ -86,58 +97,23 @@ Image::Image(Instance &instance,
             vk::ImageLayout::eUndefined
     };
 
-    mImage = mInstance.mDevice.createImage(createInfo);
-    vk::MemoryRequirements memoryRequirements = mInstance.mDevice.getImageMemoryRequirements(mImage);
+    mVulkan = mContext.mDevice.createImage(createInfo);
+    vk::MemoryRequirements memoryRequirements = mContext.mDevice.getImageMemoryRequirements(mVulkan);
 
     vk::MemoryPropertyFlags properties{vk::MemoryPropertyFlagBits::eDeviceLocal};
 
     vk::MemoryAllocateInfo allocateInfo{
             memoryRequirements.size,
-            findMemoryType(mInstance.mPhysicalDevice, memoryRequirements.memoryTypeBits, properties)
+            findMemoryType(mContext.mPhysicalDevice, memoryRequirements.memoryTypeBits, properties)
     };
 
-    mMemory = mInstance.mDevice.allocateMemory(allocateInfo);
-    mInstance.mDevice.bindImageMemory(mImage, mMemory, 0);
+    mMemory = mContext.mDevice.allocateMemory(allocateInfo);
+    mContext.mDevice.bindImageMemory(mVulkan, mMemory, 0);
 }
-
-Image::Image(dn::vulkan::Image &&other) noexcept
-        : mImage(std::exchange(other.mImage, nullptr)),
-          mMemory(std::exchange(other.mMemory, nullptr)),
-          mFormat(other.mFormat),
-          mUsageFlags(other.mUsageFlags),
-          mInstance(other.mInstance),
-          mLocallyConstructed(other.mLocallyConstructed) {
-    log::v("Moving Image");
-}
-
-//void Image::upload(const dn::Texture &texture) {
-//    mStagingBuffer.emplace(
-//            mInstance,
-//            StagingBufferConfiguration{}
-//    );
-// TODO
-//    mStagingBuffer->upload(
-//            static_cast<uint32_t>( texture.size()),
-//            texture.mData,
-//            target,
-//            0
-//    );
-//}
-
-//void Image::awaitUpload() {
-//    mStagingBuffer.reset();
-//}
-//
-//bool Image::isCurrentlyUploading() {
-//    return mStagingBuffer.has_value() && mStagingBuffer->isCurrentlyUploading();
-//}
 
 Image::~Image() {
     if (mLocallyConstructed) {
-        log::v("Destroying Image");
-        if (mImage != nullptr) { mInstance.mDevice.destroy(mImage); }
-        if (mMemory != nullptr) { mInstance.mDevice.free(mMemory); }
-    } else {
-        log::v("Skipping Image destruction");
+        if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
+        if (mMemory != nullptr) { mContext.mDevice.free(mMemory); }
     }
 }

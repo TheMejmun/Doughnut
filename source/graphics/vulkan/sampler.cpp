@@ -8,9 +8,8 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-Sampler::Sampler(dn::vulkan::Instance &instance, const dn::vulkan::SamplerConfiguration &config)
-        : mInstance(instance) {
-    log::d("Creating Sampler");
+Sampler::Sampler(Context &context, const SamplerConfiguration &config)
+        : Handle<vk::Sampler, SamplerConfiguration>(context, config) {
 
     vk::SamplerAddressMode addressMode;
     switch (config.edgeMode) {
@@ -32,7 +31,7 @@ Sampler::Sampler(dn::vulkan::Instance &instance, const dn::vulkan::SamplerConfig
             break;
     }
 
-    auto anisotropy = mInstance.mPhysicalDevice.getProperties().limits.maxSamplerAnisotropy;
+    auto anisotropy = mContext.mPhysicalDevice.getProperties().limits.maxSamplerAnisotropy;
 
     log::v("Max anisotropy", anisotropy);
 
@@ -43,7 +42,7 @@ Sampler::Sampler(dn::vulkan::Instance &instance, const dn::vulkan::SamplerConfig
             vk::SamplerMipmapMode::eLinear,
             addressMode, addressMode, addressMode,
             0.0f,
-            mInstance.mOptionalFeatures.supportsAnisotropicFiltering,
+            mContext.mOptionalFeatures.supportsAnisotropicFiltering,
             anisotropy,
             vk::False,
             vk::CompareOp::eNever, // For percentage-closer filtering
@@ -53,10 +52,9 @@ Sampler::Sampler(dn::vulkan::Instance &instance, const dn::vulkan::SamplerConfig
             vk::False
     };
 
-    mSampler = mInstance.mDevice.createSampler(samplerInfo);
+    mVulkan = mContext.mDevice.createSampler(samplerInfo);
 }
 
 Sampler::~Sampler() {
-    log::d("Destroying Sampler");
-    mInstance.mDevice.destroy(mSampler);
+    if (mVulkan != nullptr) mContext.mDevice.destroy(mVulkan);
 }

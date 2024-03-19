@@ -5,10 +5,11 @@
 #ifndef DOUGHNUT_TEXTURE_H
 #define DOUGHNUT_TEXTURE_H
 
+#include "io/logger.h"
+
 #include <string>
 #include <utility>
 #include <stb_image.h>
-#include "io/logger.h"
 
 namespace dn {
     class Texture {

@@ -8,19 +8,12 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-Semaphore::Semaphore(dn::vulkan::Instance &instance)
-        : mInstance(instance) {
-    log::d("Creating Semaphore");
+Semaphore::Semaphore(Context &context, const SemaphoreConfiguration &config)
+        : Handle<vk::Semaphore, SemaphoreConfiguration>(context, config) {
     vk::SemaphoreCreateInfo semaphoreInfo{};
-    mSemaphore = mInstance.mDevice.createSemaphore(semaphoreInfo);
-}
-
-Semaphore::Semaphore(dn::vulkan::Semaphore &&other) noexcept
-        : mInstance(other.mInstance), mSemaphore(std::exchange(other.mSemaphore, nullptr)) {
-    log::d("Moving Semaphore");
+    mVulkan = mContext.mDevice.createSemaphore(semaphoreInfo);
 }
 
 Semaphore::~Semaphore() {
-    log::d("Destroying Semaphore");
-    if (mSemaphore != nullptr) { mInstance.mDevice.destroy(mSemaphore); }
+    if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
 }

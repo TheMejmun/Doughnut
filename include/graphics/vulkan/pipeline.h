@@ -25,7 +25,7 @@ namespace dn::vulkan {
 
     class Pipeline {
     public:
-        Pipeline(Instance &instance,
+        Pipeline(Context &context,
                  RenderPass &renderPass,
                  const PipelineConfiguration &config);
 
@@ -33,6 +33,7 @@ namespace dn::vulkan {
 
         ~Pipeline();
 
+        // TODO create handles?
         vk::PipelineLayout mPipelineLayout = nullptr;
         vk::Pipeline mGraphicsPipeline = nullptr;
 
@@ -40,7 +41,7 @@ namespace dn::vulkan {
         LateInit<DescriptorPool> mDescriptorPool{};
         LateInit<DescriptorSet> mDescriptorSet{};
     private:
-        Instance &mInstance;
+        Context &mContext;
     };
 }
 

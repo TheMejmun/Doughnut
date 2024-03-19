@@ -9,9 +9,8 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-RenderPass::RenderPass(Instance &instance, dn::vulkan::RenderPassConfiguration config)
-        : mInstance(instance) {
-    log::d("Creating RenderPass");
+RenderPass::RenderPass(Context &context, const RenderPassConfiguration &config)
+        : Handle<vk::RenderPass, RenderPassConfiguration>(context, config) {
 
     // Color attachment
     vk::AttachmentDescription colorAttachment{
@@ -33,7 +32,7 @@ RenderPass::RenderPass(Instance &instance, dn::vulkan::RenderPassConfiguration c
     // Depth attachment
     vk::AttachmentDescription depthAttachment{
             {},
-            findDepthFormat(mInstance.mPhysicalDevice),
+            findDepthFormat(mContext.mPhysicalDevice),
             vk::SampleCountFlagBits::e1, // MSAA
             vk::AttachmentLoadOp::eClear,
             vk::AttachmentStoreOp::eDontCare,
@@ -79,15 +78,9 @@ RenderPass::RenderPass(Instance &instance, dn::vulkan::RenderPassConfiguration c
             1, &dependency
     };
 
-    mRenderPass = mInstance.mDevice.createRenderPass(renderPassCreateInfo);
-}
-
-RenderPass::RenderPass(dn::vulkan::RenderPass &&other) noexcept
-        : mInstance(other.mInstance), mRenderPass(std::exchange(other.mRenderPass, nullptr)) {
-    log::d("Moving RenderPass");
+    mVulkan = mContext.mDevice.createRenderPass(renderPassCreateInfo);
 }
 
 RenderPass::~RenderPass() {
-    log::d("Destroying RenderPass");
-    if (mRenderPass != nullptr) { mInstance.mDevice.destroy(mRenderPass); }
+    if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
 }

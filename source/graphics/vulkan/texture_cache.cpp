@@ -8,9 +8,9 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-TextureCache::TextureCache(dn::vulkan::Instance &instance)
-        : mInstance(instance),
-          mStagingBuffer(mInstance, ImageStagingBufferConfiguration{}) {
+TextureCache::TextureCache(Context &context)
+        : mContext(context),
+          mStagingBuffer(mContext, ImageStagingBufferConfiguration{}) {
     log::d("Creating TextureCache");
 }
 
@@ -19,27 +19,27 @@ void TextureCache::preload(const std::string &texture) {
     if (!mImages.contains(texture) || !mImageViews.contains(texture)) {
         auto textureImport = Texture(texture);
         vk::Extent2D extent{static_cast<uint32_t>(textureImport.mWidth), static_cast<uint32_t>(textureImport.mHeight)};
-        mImages.emplace(
+
+        // https://stackoverflow.com/questions/68828864/how-can-you-emplace-directly-a-mapped-value-into-an-unordered-map
+        mImages.try_emplace(
                 texture,
-                Image{
-                        mInstance,
-                        ImageConfiguration{
-                                extent,
-                                false,
-                                true,
-                                true,
-                                textureImport.mHasAlpha
-                        }
+                mContext,
+                ImageConfiguration{
+                        extent,
+                        false,
+                        true,
+                        true,
+                        textureImport.mHasAlpha
                 }
         );
         Image &image = mImages.at(texture);
 
-        mStagingBuffer.upload(textureImport, image.mImage);
+        mStagingBuffer.upload(textureImport, *image);
 
         mImageViews.emplace(
                 texture,
                 ImageView{
-                        mInstance,
+                        mContext,
                         image,
                         ImageViewConfiguration{
                                 extent,

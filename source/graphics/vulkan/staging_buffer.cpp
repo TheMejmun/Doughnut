@@ -11,12 +11,12 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-StagingBuffer::StagingBuffer(dn::vulkan::Instance &instance, dn::vulkan::StagingBufferConfiguration config)
-        : mInstance(instance),
-          mConfig(config) ,
-          mCommandPool(mInstance,CommandPoolConfiguration{*mInstance.mQueueFamilyIndices.transferFamily}),
-          mCommandBuffer(mInstance,mCommandPool),
-          mFence(mInstance,FenceConfiguration{true}){
+StagingBuffer::StagingBuffer(Context &context, StagingBufferConfiguration config)
+        : mContext(context),
+          mConfig(config),
+          mCommandPool(mContext, CommandPoolConfiguration{*mContext.mQueueFamilyIndices.transferFamily}),
+          mCommandBuffer(mContext, mCommandPool, {}),
+          mFence(mContext, FenceConfiguration{true}) {
     log::d("Creating StagingBuffer");
 }
 
@@ -29,33 +29,33 @@ void StagingBuffer::upload(const uint32_t size, const void *data, const vk::Buff
 
     // Transfer Buffer Creation
     std::array<uint32_t, 2> queueFamilyIndices{
-            mInstance.mQueueFamilyIndices.graphicsFamily.value(),
-            mInstance.mQueueFamilyIndices.transferFamily.value()
+            mContext.mQueueFamilyIndices.graphicsFamily.value(),
+            mContext.mQueueFamilyIndices.transferFamily.value()
     };
     vk::BufferCreateInfo bufferInfo{
             {},
             size,
             {vk::BufferUsageFlagBits::eTransferSrc},
-            mInstance.mQueueFamilyIndices.hasUniqueTransferQueue() ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive,
-            mInstance.mQueueFamilyIndices.hasUniqueTransferQueue() ? 2u : 1u,
+            mContext.mQueueFamilyIndices.hasUniqueTransferQueue() ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive,
+            mContext.mQueueFamilyIndices.hasUniqueTransferQueue() ? 2u : 1u,
             queueFamilyIndices.data()
     };
-    mStagingBuffer = mInstance.mDevice.createBuffer(bufferInfo);
+    mStagingBuffer = mContext.mDevice.createBuffer(bufferInfo);
 
-    vk::MemoryRequirements memoryRequirements = mInstance.mDevice.getBufferMemoryRequirements(target);
+    vk::MemoryRequirements memoryRequirements = mContext.mDevice.getBufferMemoryRequirements(target);
     vk::MemoryAllocateInfo allocInfo{
             memoryRequirements.size,
-            findMemoryType(mInstance.mPhysicalDevice, memoryRequirements.memoryTypeBits,
+            findMemoryType(mContext.mPhysicalDevice, memoryRequirements.memoryTypeBits,
                            {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent})
     };
-    mStagingBufferMemory = mInstance.mDevice.allocateMemory(allocInfo);
+    mStagingBufferMemory = mContext.mDevice.allocateMemory(allocInfo);
 
-    mInstance.mDevice.bindBufferMemory(mStagingBuffer, mStagingBufferMemory, 0);
+    mContext.mDevice.bindBufferMemory(mStagingBuffer, mStagingBufferMemory, 0);
 
     // Upload To Transfer Buffer
-    void *mappedMemory = mInstance.mDevice.mapMemory(mStagingBufferMemory, 0, size, {});
+    void *mappedMemory = mContext.mDevice.mapMemory(mStagingBufferMemory, 0, size, {});
     memcpy(mappedMemory, data, size);
-    mInstance.mDevice.unmapMemory(mStagingBufferMemory);
+    mContext.mDevice.unmapMemory(mStagingBufferMemory);
 
     // To final buffer
     vk::BufferCopy copyRegion{
@@ -63,7 +63,7 @@ void StagingBuffer::upload(const uint32_t size, const void *data, const vk::Buff
             at,
             size
     };
-    mCommandBuffer.mCommandBuffer.copyBuffer(mStagingBuffer, target, 1, &copyRegion);
+    (*mCommandBuffer).copyBuffer(mStagingBuffer, target, 1, &copyRegion);
 
     mCommandBuffer.endRecording();
 
@@ -72,11 +72,11 @@ void StagingBuffer::upload(const uint32_t size, const void *data, const vk::Buff
             nullptr,
             nullptr,
             1,
-            &mCommandBuffer.mCommandBuffer,
+            &(*mCommandBuffer),
             0,
             nullptr,
     };
-    mInstance.mTransferQueue.submit(submitInfo, mFence.mFence);
+    mContext.mTransferQueue.submit(submitInfo, *mFence);
 }
 
 bool StagingBuffer::isCurrentlyUploading() {
@@ -84,8 +84,8 @@ bool StagingBuffer::isCurrentlyUploading() {
 }
 
 void StagingBuffer::freeStagingMemory() {
-    if (mStagingBuffer != nullptr) { mInstance.mDevice.destroy(mStagingBuffer); }
-    if (mStagingBufferMemory != nullptr) { mInstance.mDevice.free(mStagingBufferMemory); }
+    if (mStagingBuffer != nullptr) { mContext.mDevice.destroy(mStagingBuffer); }
+    if (mStagingBufferMemory != nullptr) { mContext.mDevice.free(mStagingBufferMemory); }
 }
 
 void StagingBuffer::awaitUpload() {

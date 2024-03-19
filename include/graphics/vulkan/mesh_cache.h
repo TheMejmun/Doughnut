@@ -18,7 +18,7 @@ namespace dn::vulkan {
 
     class MeshCache {
     public:
-        explicit MeshCache(Instance &instance);
+        explicit MeshCache(Context &context);
 
         MeshCache(const MeshCache &other) = delete;
 
@@ -31,7 +31,7 @@ namespace dn::vulkan {
         MeshReference &get(const std::string &mesh);
 
     private:
-        Instance &mInstance;
+        Context &mContext;
         Buffer mVertexBuffer;
         Buffer mIndexBuffer;
 

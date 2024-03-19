@@ -5,23 +5,22 @@
 #ifndef DOUGHNUT_SEMAPHORE_H
 #define DOUGHNUT_SEMAPHORE_H
 
-#include "graphics/vulkan/instance.h"
+#include "graphics/vulkan/context.h"
+#include "handle.h"
 
 #include <vulkan/vulkan.hpp>
 
 namespace dn::vulkan {
-    class Semaphore {
-    public:
-        Semaphore(Instance &instance);
+    struct SemaphoreConfiguration {
+    };
 
-        Semaphore(Semaphore &&other) noexcept;
+    class Semaphore : public Handle<vk::Semaphore, SemaphoreConfiguration> {
+    public:
+        Semaphore(Context &context, const SemaphoreConfiguration &config);
+
+        Semaphore(Semaphore &&other) = default;
 
         ~Semaphore();
-
-        vk::Semaphore mSemaphore = nullptr;
-
-    private:
-        Instance &mInstance;
     };
 }
 

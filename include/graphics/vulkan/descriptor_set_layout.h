@@ -5,26 +5,23 @@
 #ifndef DOUGHNUT_DESCRIPTOR_SET_LAYOUT_H
 #define DOUGHNUT_DESCRIPTOR_SET_LAYOUT_H
 
+#include "context.h"
+#include "handle.h"
+
 #include <vulkan/vulkan.hpp>
 #include <vector>
-#include "instance.h"
 
 namespace dn::vulkan {
     struct DescriptorSetLayoutConfiguration {
     };
 
-    class DescriptorSetLayout {
+    class DescriptorSetLayout : public Handle<vk::DescriptorSetLayout, DescriptorSetLayoutConfiguration> {
     public:
-        DescriptorSetLayout(Instance &instance, DescriptorSetLayoutConfiguration config);
+        DescriptorSetLayout(Context &context, const DescriptorSetLayoutConfiguration &config);
 
-        DescriptorSetLayout(DescriptorSetLayout &&other) noexcept;
+        DescriptorSetLayout(DescriptorSetLayout &&other) = default;
 
         ~DescriptorSetLayout();
-
-        vk::DescriptorSetLayout mLayout = nullptr;
-
-    private:
-        Instance &mInstance;
     };
 }
 

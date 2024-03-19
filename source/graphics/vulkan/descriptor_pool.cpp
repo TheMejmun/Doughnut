@@ -9,9 +9,9 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-DescriptorPool::DescriptorPool(dn::vulkan::Instance &instance, dn::vulkan::DescriptorPoolConfiguration config)
-        : mInstance(instance) {
-    log::d("Creating DescriptorPool");
+DescriptorPool::DescriptorPool(Context &context, const DescriptorPoolConfiguration& config)
+        : Handle<vk::DescriptorPool, DescriptorPoolConfiguration>(context, config) {
+
     // Can have multiple pools, with multiple buffers each
     std::vector<vk::DescriptorPoolSize> poolSizes{};
 
@@ -45,15 +45,9 @@ DescriptorPool::DescriptorPool(dn::vulkan::Instance &instance, dn::vulkan::Descr
             poolSizes.data()
     };
 
-    mDescriptorPool = mInstance.mDevice.createDescriptorPool(poolInfo);
-}
-
-DescriptorPool::DescriptorPool(dn::vulkan::DescriptorPool &&other) noexcept
-        : mInstance(other.mInstance), mDescriptorPool(std::exchange(other.mDescriptorPool, nullptr)) {
-    log::d("Moving DescriptorPool");
+    mVulkan = mContext.mDevice.createDescriptorPool(poolInfo);
 }
 
 DescriptorPool::~DescriptorPool() {
-    log::d("Destroying DescriptorPool");
-    if (mDescriptorPool != nullptr) { mInstance.mDevice.destroy(mDescriptorPool); }
+    if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
 }

@@ -6,26 +6,25 @@
 #define DOUGHNUT_FRAMEBUFFER_H
 
 #include "image_view.h"
-#include "instance.h"
+#include "context.h"
 #include "render_pass.h"
 
 #include <vulkan/vulkan.hpp>
 
 namespace dn::vulkan {
-    class Framebuffer {
-    public:
-        Framebuffer(Instance &instance,
-                    const std::vector<ImageView *> &attachments,
-                    RenderPass &renderPass);
+    struct FramebufferConfiguration {
+    };
 
-        Framebuffer(Framebuffer &&other) noexcept;
+    class Framebuffer : public Handle<vk::Framebuffer, FramebufferConfiguration> {
+    public:
+        Framebuffer(Context &context,
+                    const std::vector<ImageView *> &attachments,
+                    RenderPass &renderPass,
+                    const FramebufferConfiguration &config);
+
+        Framebuffer(Framebuffer &&other) = default;
 
         ~Framebuffer();
-
-        vk::Framebuffer mFramebuffer = nullptr;
-
-    private:
-        Instance &mInstance;
     };
 }
 #endif //DOUGHNUT_FRAMEBUFFER_H

@@ -6,7 +6,7 @@
 #define DOUGHNUTSANDBOX_IMAGE_STAGING_BUFFER_H
 
 #include <vulkan/vulkan.hpp>
-#include "instance.h"
+#include "context.h"
 #include "graphics/vertex.h"
 #include "core/scheduler.h"
 #include "command_pool.h"
@@ -21,7 +21,7 @@ namespace dn::vulkan {
 
     class ImageStagingBuffer {
     public:
-        ImageStagingBuffer(Instance &instance,
+        ImageStagingBuffer(Context &context,
                            ImageStagingBufferConfiguration config);
 
         ImageStagingBuffer(const ImageStagingBuffer &other) = delete;
@@ -39,13 +39,14 @@ namespace dn::vulkan {
         void awaitUpload();
 
     private:
-        Instance &mInstance;
+        Context &mContext;
         ImageStagingBufferConfiguration mConfig;
 
         CommandPool mCommandPool;
         CommandBuffer mCommandBuffer;
         Fence mFence;
 
+        // TODO use dn Handles
         vk::Buffer mStagingBuffer = nullptr;
         vk::DeviceMemory mStagingBufferMemory = nullptr;
     };

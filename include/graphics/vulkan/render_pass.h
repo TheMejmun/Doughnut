@@ -5,7 +5,8 @@
 #ifndef DOUGHNUT_RENDER_PASS_H
 #define DOUGHNUT_RENDER_PASS_H
 
-#include "graphics/vulkan/instance.h"
+#include "graphics/vulkan/context.h"
+#include "handle.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -14,19 +15,14 @@ namespace dn::vulkan {
         vk::Format surfaceFormat;
     };
 
-    class RenderPass {
+    class RenderPass : public Handle<vk::RenderPass, RenderPassConfiguration> {
     public:
-        RenderPass(Instance &instance,
-                   RenderPassConfiguration config);
+        RenderPass(Context &context,
+                   const RenderPassConfiguration& config);
 
-        RenderPass(RenderPass &&other) noexcept;
+        RenderPass(RenderPass &&other) = default;
 
         ~RenderPass();
-
-        vk::RenderPass mRenderPass = nullptr;
-
-    private:
-        Instance &mInstance;
     };
 }
 

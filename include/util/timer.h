@@ -6,23 +6,16 @@
 #define DOUGHNUT_TIMER_H
 
 #include "preprocessor.h"
+#include "functions.h"
 
 #include <iostream>
 #include <chrono>
 #include <cmath>
 #include <deque>
-#if __has_include("source_location")
-#define SOURCE_LOCATION_ENABLED
-#include <source_location>
-#endif
 
 #define trace_scope(name) dn::ScopeTracer _scope_tracer(name);
 
-#ifdef SOURCE_LOCATION_ENABLED
-#define trace_func dn::ScopeTracer _func_tracer(std::source_location::current().function_name());
-#else
-#define trace_func dn::ScopeTracer _func_tracer(__PRETTY_FUNCTION__);
-#endif
+#define trace_function dn::ScopeTracer _function_tracer(this_function);
 
 namespace dn {
     using Clock = std::chrono::steady_clock;

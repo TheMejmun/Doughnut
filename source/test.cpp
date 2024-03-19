@@ -1,11 +1,8 @@
 
 #include "io/logger.h"
-#include "application.h"
-#include "core/scheduler.h"
-#include "io/resource_pool.h"
-#include "graphics/renderer_v2.h"
-
-#include <iostream>
+#include "util/timer.h"
+#include "ecs/system_manager.h"
+#include "ecs/entity_manager.h"
 
 int main() {
     dn::log::init(true, false, false, true);

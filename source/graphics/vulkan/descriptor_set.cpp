@@ -9,21 +9,21 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-DescriptorSet::DescriptorSet(Instance &instance,
+DescriptorSet::DescriptorSet(Context &context,
                              DescriptorSetLayout &layout,
                              DescriptorPool &pool,
                              const DescriptorSetConfiguration &config)
-        : mInstance(instance), mConfig(config) {
+        : mContext(context), mConfig(config) {
     log::d("Creating DescriptorSet");
 
-    std::vector<vk::DescriptorSetLayout> layouts(config.setCount, layout.mLayout);
+    std::vector<vk::DescriptorSetLayout> layouts(config.setCount, *layout);
     vk::DescriptorSetAllocateInfo allocInfo{
-            pool.mDescriptorPool,
+            *pool,
             static_cast<uint32_t>(layouts.size()),
             layouts.data()
     };
 
-    mDescriptorSets = mInstance.mDevice.allocateDescriptorSets(allocInfo);
+    mDescriptorSets = mContext.mDevice.allocateDescriptorSets(allocInfo);
     mBufferIndices.resize(mDescriptorSets.size());
 
     for (size_t i = 0; i < config.setCount; i++) {
@@ -33,7 +33,7 @@ DescriptorSet::DescriptorSet(Instance &instance,
         const auto reserveResult = mConfig.uboBuffer.reserve(config.uboSize);
         require(!reserveResult.notEnoughSpace, "Could not allocate descriptor set - Buffer too small!");
         vk::DescriptorBufferInfo bufferInfo{
-                mConfig.uboBuffer.mBuffer,
+                *mConfig.uboBuffer,
                 reserveResult.position.memoryIndex,
                 config.uboSize
         };
@@ -50,8 +50,8 @@ DescriptorSet::DescriptorSet(Instance &instance,
         );
 
         vk::DescriptorImageInfo imageInfo{
-                mConfig.sampler.mSampler,
-                mConfig.imageView.mImageView,
+                *mConfig.sampler,
+                *mConfig.imageView,
                 vk::ImageLayout::eShaderReadOnlyOptimal,
         };
 
@@ -66,12 +66,12 @@ DescriptorSet::DescriptorSet(Instance &instance,
                 nullptr
         );
 
-        mInstance.mDevice.updateDescriptorSets(descriptorWrites, nullptr);
+        mContext.mDevice.updateDescriptorSets(descriptorWrites, nullptr);
     }
 }
 
 DescriptorSet::DescriptorSet(dn::vulkan::DescriptorSet &&other) noexcept
-        : mInstance(other.mInstance),
+        : mContext(other.mContext),
           mConfig(other.mConfig),
           mDescriptorSets(std::exchange(other.mDescriptorSets, {})),
           mBufferIndices(std::exchange(other.mBufferIndices, {})) {

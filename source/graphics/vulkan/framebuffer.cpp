@@ -10,37 +10,32 @@ using namespace dn;
 using namespace dn::vulkan;
 
 
-Framebuffer::Framebuffer(Instance &instance,
+Framebuffer::Framebuffer(Context &context,
                          const std::vector<ImageView *> &attachments,
-                         RenderPass &renderPass)
-        : mInstance(instance) {
-    log::v("Creating Framebuffer");
+                         RenderPass &renderPass,
+                         const FramebufferConfiguration &config)
+        : Handle<vk::Framebuffer, FramebufferConfiguration>(context, config) {
+
     require(!attachments.empty(), "Can not create a Framebuffer on empty attachments");
 
     std::vector<vk::ImageView> data{};
     data.reserve(attachments.size());
     for (const auto imageView: attachments) {
-        data.push_back(imageView->mImageView);
+        data.push_back(**imageView);
     }
 
     vk::FramebufferCreateInfo createInfo{
             {},
-            renderPass.mRenderPass,
+            *renderPass,
             static_cast<uint32_t>(data.size()), data.data(),
-            attachments[0]->mExtent.width,
-            attachments[0]->mExtent.height,
+            attachments[0]->mConfig.extent.width,
+            attachments[0]->mConfig.extent.height,
             1
     };
 
-    mFramebuffer = mInstance.mDevice.createFramebuffer(createInfo);
-}
-
-Framebuffer::Framebuffer(dn::vulkan::Framebuffer &&other) noexcept
-        : mInstance(other.mInstance), mFramebuffer(std::exchange(other.mFramebuffer, nullptr)) {
-    log::v("Moving Framebuffer");
+    mVulkan = mContext.mDevice.createFramebuffer(createInfo);
 }
 
 Framebuffer::~Framebuffer() {
-    log::v("Destroying Framebuffer");
-    if (mFramebuffer != nullptr) { mInstance.mDevice.destroy(mFramebuffer); }
+    if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
 }

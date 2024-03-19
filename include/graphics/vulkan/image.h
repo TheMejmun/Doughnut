@@ -5,10 +5,11 @@
 #ifndef DOUGHNUT_IMAGE_H
 #define DOUGHNUT_IMAGE_H
 
-#include "instance.h"
+#include "context.h"
 #include "graphics/texture.h"
 #include "staging_buffer.h"
 #include "core/late_init.h"
+#include "handle.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -28,28 +29,25 @@ namespace dn::vulkan {
         bool hasAlpha;
     };
 
-    class Image {
+    class Image : public Handle<vk::Image, ImageConfiguration> {
     public:
-        Image(Instance &instance,
+        Image(Context &context,
               ImageConfiguration config);
 
-        Image(Instance &instance,
+        Image(Image &&) = default;
+
+        Image(Context &instance,
               vk::Image image,
+              vk::Extent2D extent,
               vk::Format format,
               vk::DeviceMemory memory);
 
-        Image(Image &&other) noexcept;
-
         ~Image();
 
-        vk::Image mImage;
         vk::DeviceMemory mMemory;
         vk::Format mFormat;
         vk::ImageUsageFlags mUsageFlags;
-
-    private:
-        Instance &mInstance;
-        bool mLocallyConstructed;
+        const bool mLocallyConstructed;
     };
 }
 
