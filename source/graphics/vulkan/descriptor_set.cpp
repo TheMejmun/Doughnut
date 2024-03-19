@@ -18,7 +18,7 @@ DescriptorSet::DescriptorSet(Context &context,
 
     std::vector<vk::DescriptorSetLayout> layouts(config.setCount, layout.mLayout);
     vk::DescriptorSetAllocateInfo allocInfo{
-            pool.mDescriptorPool,
+            *pool,
             static_cast<uint32_t>(layouts.size()),
             layouts.data()
     };

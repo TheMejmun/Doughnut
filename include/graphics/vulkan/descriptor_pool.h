@@ -5,17 +5,19 @@
 #ifndef DOUGHNUT_DESCRIPTOR_POOL_H
 #define DOUGHNUT_DESCRIPTOR_POOL_H
 
+#include "context.h"
+#include "handle.h"
+
 #include <vulkan/vulkan.hpp>
 #include <vector>
-#include "context.h"
 
 namespace dn::vulkan {
-    enum DescriptorType{
+    enum DescriptorType {
         UNIFORM_BUFFER,
         SAMPLER // eCombinedImageSampler TODO differentiate different sampler types
     };
 
-    struct DescriptorPoolSize{
+    struct DescriptorPoolSize {
         DescriptorType type;
         uint32_t count;
     };
@@ -26,18 +28,13 @@ namespace dn::vulkan {
         bool freeable = false;
     };
 
-    class DescriptorPool {
+    class DescriptorPool : public Handle<vk::DescriptorPool, DescriptorPoolConfiguration> {
     public:
-        DescriptorPool(Context &context, const DescriptorPoolConfiguration& config);
+        DescriptorPool(Context &context, const DescriptorPoolConfiguration &config);
 
-        DescriptorPool(DescriptorPool &&other) noexcept;
+        DescriptorPool(DescriptorPool &&other) = default;
 
         ~DescriptorPool();
-
-        vk::DescriptorPool mDescriptorPool = nullptr;
-
-    private:
-        Context& mContext;
     };
 }
 

@@ -61,7 +61,7 @@ Gui::Gui(Context &context,
             *mContext.mQueueFamilyIndices.graphicsFamily,
             mContext.mGraphicsQueue,
             mPipelineCache, // TODO
-            mDescriptorPool.mDescriptorPool,
+            *mDescriptorPool,
             0, // TODO
             config.minImageCount,
             config.imageCount,
