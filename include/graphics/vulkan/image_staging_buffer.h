@@ -46,6 +46,7 @@ namespace dn::vulkan {
         CommandBuffer mCommandBuffer;
         Fence mFence;
 
+        // TODO use dn Handles
         vk::Buffer mStagingBuffer = nullptr;
         vk::DeviceMemory mStagingBufferMemory = nullptr;
     };

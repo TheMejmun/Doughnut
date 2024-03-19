@@ -73,7 +73,7 @@ Gui::Gui(Context &context,
     };
     // init_info.RenderPass = wd->RenderPass;
     // init_info.Allocator = g_Allocator;
-    ImGui_ImplVulkan_Init(&initInfo, renderPass.mRenderPass);
+    ImGui_ImplVulkan_Init(&initInfo, *renderPass);
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.

@@ -33,6 +33,7 @@ namespace dn::vulkan {
 
         ~Pipeline();
 
+        // TODO create handles?
         vk::PipelineLayout mPipelineLayout = nullptr;
         vk::Pipeline mGraphicsPipeline = nullptr;
 

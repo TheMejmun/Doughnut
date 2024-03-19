@@ -9,9 +9,8 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-RenderPass::RenderPass(Context &context, RenderPassConfiguration config)
-        : mContext(context) {
-    log::d("Creating RenderPass");
+RenderPass::RenderPass(Context &context, const RenderPassConfiguration &config)
+        : Handle<vk::RenderPass, RenderPassConfiguration>(context, config) {
 
     // Color attachment
     vk::AttachmentDescription colorAttachment{
@@ -79,15 +78,9 @@ RenderPass::RenderPass(Context &context, RenderPassConfiguration config)
             1, &dependency
     };
 
-    mRenderPass = mContext.mDevice.createRenderPass(renderPassCreateInfo);
-}
-
-RenderPass::RenderPass(dn::vulkan::RenderPass &&other) noexcept
-        : mContext(other.mContext), mRenderPass(std::exchange(other.mRenderPass, nullptr)) {
-    log::d("Moving RenderPass");
+    mVulkan = mContext.mDevice.createRenderPass(renderPassCreateInfo);
 }
 
 RenderPass::~RenderPass() {
-    log::d("Destroying RenderPass");
-    if (mRenderPass != nullptr) { mContext.mDevice.destroy(mRenderPass); }
+    if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
 }

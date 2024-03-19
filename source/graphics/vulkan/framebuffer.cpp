@@ -26,7 +26,7 @@ Framebuffer::Framebuffer(Context &context,
 
     vk::FramebufferCreateInfo createInfo{
             {},
-            renderPass.mRenderPass,
+            *renderPass,
             static_cast<uint32_t>(data.size()), data.data(),
             attachments[0]->mConfig.extent.width,
             attachments[0]->mConfig.extent.height,
