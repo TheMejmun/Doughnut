@@ -99,7 +99,7 @@ void Swapchain::create() {
         mMinImageCount > swapchainSupport.capabilities.maxImageCount) {
         mMinImageCount = swapchainSupport.capabilities.maxImageCount;
     }
-    log::d("Creating the swapchain with at least", mMinImageCount, "images");
+    log::v("Creating the swapchain with at least", mMinImageCount, "images");
 
     const std::array<uint32_t, 2> queueIndices{
             *mContext.mQueueFamilyIndices.graphicsFamily,
@@ -136,6 +136,8 @@ void Swapchain::create() {
 
     std::vector<vk::Image> images = mContext.mDevice.getSwapchainImagesKHR(mSwapchain);
     mImageCount = images.size();
+    log::v("Got", mImageCount, "swapchain images");
+
     for (const vk::Image image: images) {
         mImages.emplace_back(mContext, image, mExtent, mSurfaceFormat.format, nullptr);
         mImageViews.emplace_back(mContext, mImages.back(), ImageViewConfiguration{mExtent, mSurfaceFormat.format});
@@ -149,6 +151,8 @@ void Swapchain::create() {
                     false
             }
     );
+    log::v("Created depth image with format", to_string(mDepthImage->mFormat));
+
     mDepthImageView.emplace(
             mContext,
             *mDepthImage,

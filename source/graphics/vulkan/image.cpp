@@ -56,7 +56,6 @@ Image::Image(Context &context,
           mFormat(format),
           mUsageFlags(),
           mLocallyConstructed(false) {
-    log::v("Wrapping vk::Image with extent", extent.width, "*", extent.height, "and format", to_string(format));
     mVulkan = image;
 }
 

@@ -27,11 +27,11 @@ namespace dn::vulkan {
                   mContext(other.mContext),
                   mMoved(false) {
             mMoved = true;
-            dn::log::d("Moved", typeid(VK_TYPE).name(), "handle");
+            dn::log::v("Moved", typeid(VK_TYPE).name(), "handle");
         }
 
         ~Handle() {
-            dn::log::d("Destroyed", typeid(VK_TYPE).name(), "handle (moved:", mMoved ? "true" : "false", "\b)");
+            dn::log::d("Destroyed", mMoved ? "moved" : "\b", typeid(VK_TYPE).name(), "handle");
         }
 
         VK_TYPE *operator->() {
