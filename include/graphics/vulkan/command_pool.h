@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_COMMAND_POOL_H
 #define DOUGHNUT_COMMAND_POOL_H
 
-#include "instance.h"
+#include "context.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -16,7 +16,7 @@ namespace dn::vulkan {
 
     class CommandPool {
     public:
-        CommandPool(Instance &instance, CommandPoolConfiguration config);
+        CommandPool(Context &context, CommandPoolConfiguration config);
 
         CommandPool(CommandPool &&other) noexcept;
 
@@ -25,7 +25,7 @@ namespace dn::vulkan {
         vk::CommandPool mCommandPool = nullptr;
 
     private:
-        Instance &mInstance;
+        Context &mContext;
     };
 }
 

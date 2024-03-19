@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_FENCE_H
 #define DOUGHNUT_FENCE_H
 
-#include "graphics/vulkan/instance.h"
+#include "graphics/vulkan/context.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -16,7 +16,7 @@ namespace dn::vulkan {
 
     class Fence {
     public:
-        Fence(Instance &instance,
+        Fence(Context &context,
               FenceConfiguration config);
 
         Fence(Fence &&other) noexcept;
@@ -32,7 +32,7 @@ namespace dn::vulkan {
         vk::Fence mFence = nullptr;
 
     private:
-        Instance &mInstance;
+        Context &mContext;
     };
 }
 

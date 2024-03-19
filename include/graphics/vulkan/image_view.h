@@ -18,7 +18,7 @@ namespace dn::vulkan {
 
     class ImageView {
     public:
-        ImageView(Instance &instance,
+        ImageView(Context &context,
                   const Image &image,
                   ImageViewConfiguration config);
 
@@ -30,7 +30,7 @@ namespace dn::vulkan {
         vk::Extent2D mExtent{};
 
     private:
-        Instance &mInstance;
+        Context &mContext;
     };
 }
 

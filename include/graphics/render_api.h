@@ -10,7 +10,7 @@
 #include "graphics/vulkan/optional_features.h"
 #include "graphics/vulkan/queue_family_indices.h"
 #include "graphics/vulkan/swapchain.h"
-#include "graphics/vulkan/instance.h"
+#include "graphics/vulkan/context.h"
 #include "core/late_init.h"
 #include "graphics/vulkan/pipeline.h"
 #include "graphics/vulkan/buffer.h"
@@ -56,7 +56,7 @@ namespace dn {
         LateInit<vulkan::Buffer> mUniformBuffer{};
 
     private:
-        LateInit<vulkan::Instance> mInstance{};
+        LateInit<vulkan::Context> mContext{};
         LateInit<vulkan::Swapchain> mSwapchain{};
         LateInit<vulkan::PipelineCache> mPipelines{};
         LateInit<vulkan::CommandPool> mCommandPool{};

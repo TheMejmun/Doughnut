@@ -8,9 +8,9 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-TextureCache::TextureCache(dn::vulkan::Instance &instance)
-        : mInstance(instance),
-          mStagingBuffer(mInstance, ImageStagingBufferConfiguration{}) {
+TextureCache::TextureCache(Context &context)
+        : mContext(context),
+          mStagingBuffer(mContext, ImageStagingBufferConfiguration{}) {
     log::d("Creating TextureCache");
 }
 
@@ -22,7 +22,7 @@ void TextureCache::preload(const std::string &texture) {
         mImages.emplace(
                 texture,
                 Image{
-                        mInstance,
+                        mContext,
                         ImageConfiguration{
                                 extent,
                                 false,
@@ -39,7 +39,7 @@ void TextureCache::preload(const std::string &texture) {
         mImageViews.emplace(
                 texture,
                 ImageView{
-                        mInstance,
+                        mContext,
                         image,
                         ImageViewConfiguration{
                                 extent,

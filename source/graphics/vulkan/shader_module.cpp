@@ -9,8 +9,8 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-ShaderModule::ShaderModule(dn::vulkan::Instance &instance, const std::string &filePath)
-        : mInstance(instance) {
+ShaderModule::ShaderModule(Context &context, const std::string &filePath)
+        : mContext(context) {
     log::v("Creating ShaderModule");
     const auto fileBytes = dn::readFile(filePath);
 
@@ -20,15 +20,15 @@ ShaderModule::ShaderModule(dn::vulkan::Instance &instance, const std::string &fi
             fileBytes.size(), reinterpret_cast<const uint32_t *>(fileBytes.data())
     };
 
-    mShaderModule = mInstance.mDevice.createShaderModule(createInfo);
+    mShaderModule = mContext.mDevice.createShaderModule(createInfo);
 }
 
 ShaderModule::ShaderModule(dn::vulkan::ShaderModule &&other) noexcept
-        : mInstance(other.mInstance), mShaderModule(std::exchange(other.mShaderModule, nullptr)) {
+        : mContext(other.mContext), mShaderModule(std::exchange(other.mShaderModule, nullptr)) {
     log::v("Moving ShaderModule");
 }
 
 ShaderModule::~ShaderModule() {
     log::v("Destroying ShaderModule");
-    if (mShaderModule != nullptr) { mInstance.mDevice.destroy(mShaderModule); }
+    if (mShaderModule != nullptr) { mContext.mDevice.destroy(mShaderModule); }
 }

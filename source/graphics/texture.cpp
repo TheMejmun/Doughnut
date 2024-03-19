@@ -2,13 +2,12 @@
 // Created by Saman on 25.12.23.
 //
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "graphics/texture.h"
 #include "io/logger.h"
 #include "util/timer.h"
 #include "util/importer.h"
-
-#include <stb_image.h>
-#include <filesystem>
 
 using namespace dn;
 

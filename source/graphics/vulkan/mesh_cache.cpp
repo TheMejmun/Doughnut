@@ -9,12 +9,12 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-MeshCache::MeshCache(Instance &instance)
-        : mInstance(instance),
-          mVertexBuffer(mInstance,
+MeshCache::MeshCache(Context &context)
+        : mContext(context),
+          mVertexBuffer(mContext,
                         BufferConfiguration{VERTEX, false}),
-          mIndexBuffer( mInstance,
-                        BufferConfiguration{INDEX, false}){
+          mIndexBuffer(mContext,
+                       BufferConfiguration{INDEX, false}) {
     log::d("Creating MeshCache");
 }
 

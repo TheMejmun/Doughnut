@@ -35,11 +35,11 @@ vk::Format vulkan::findDepthFormat(vk::PhysicalDevice physicalDevice) {
     );
 }
 
-Image::Image(Instance &instance,
+Image::Image(Context &context,
              vk::Image image,
              vk::Format format,
              vk::DeviceMemory memory)
-        : mInstance(instance),
+        : mContext(context),
           mImage(image),
           mMemory(memory),
           mFormat(format),
@@ -48,16 +48,16 @@ Image::Image(Instance &instance,
     log::v("Creating Image from existing vk::Image");
 }
 
-Image::Image(Instance &instance,
+Image::Image(Context &context,
              ImageConfiguration config)
-        : mInstance(instance), mLocallyConstructed(true) {
+        : mContext(context), mLocallyConstructed(true) {
     log::v("Creating Image");
 
     if (config.isTextureImage) {
         // TODO format = config.hasAlpha ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8Srgb;
         mFormat = vk::Format::eR8G8B8A8Srgb;
     } else if (config.isDepthImage) {
-        mFormat = findDepthFormat(mInstance.mPhysicalDevice);
+        mFormat = findDepthFormat(mContext.mPhysicalDevice);
     }
 
     if (config.isTextureImage) {
@@ -86,18 +86,18 @@ Image::Image(Instance &instance,
             vk::ImageLayout::eUndefined
     };
 
-    mImage = mInstance.mDevice.createImage(createInfo);
-    vk::MemoryRequirements memoryRequirements = mInstance.mDevice.getImageMemoryRequirements(mImage);
+    mImage = mContext.mDevice.createImage(createInfo);
+    vk::MemoryRequirements memoryRequirements = mContext.mDevice.getImageMemoryRequirements(mImage);
 
     vk::MemoryPropertyFlags properties{vk::MemoryPropertyFlagBits::eDeviceLocal};
 
     vk::MemoryAllocateInfo allocateInfo{
             memoryRequirements.size,
-            findMemoryType(mInstance.mPhysicalDevice, memoryRequirements.memoryTypeBits, properties)
+            findMemoryType(mContext.mPhysicalDevice, memoryRequirements.memoryTypeBits, properties)
     };
 
-    mMemory = mInstance.mDevice.allocateMemory(allocateInfo);
-    mInstance.mDevice.bindImageMemory(mImage, mMemory, 0);
+    mMemory = mContext.mDevice.allocateMemory(allocateInfo);
+    mContext.mDevice.bindImageMemory(mImage, mMemory, 0);
 }
 
 Image::Image(dn::vulkan::Image &&other) noexcept
@@ -105,14 +105,14 @@ Image::Image(dn::vulkan::Image &&other) noexcept
           mMemory(std::exchange(other.mMemory, nullptr)),
           mFormat(other.mFormat),
           mUsageFlags(other.mUsageFlags),
-          mInstance(other.mInstance),
+          mContext(other.mContext),
           mLocallyConstructed(other.mLocallyConstructed) {
     log::v("Moving Image");
 }
 
 //void Image::upload(const dn::Texture &texture) {
 //    mStagingBuffer.emplace(
-//            mInstance,
+//            mContext,
 //            StagingBufferConfiguration{}
 //    );
 // TODO
@@ -135,8 +135,8 @@ Image::Image(dn::vulkan::Image &&other) noexcept
 Image::~Image() {
     if (mLocallyConstructed) {
         log::v("Destroying Image");
-        if (mImage != nullptr) { mInstance.mDevice.destroy(mImage); }
-        if (mMemory != nullptr) { mInstance.mDevice.free(mMemory); }
+        if (mImage != nullptr) { mContext.mDevice.destroy(mImage); }
+        if (mMemory != nullptr) { mContext.mDevice.free(mMemory); }
     } else {
         log::v("Skipping Image destruction");
     }

@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.hpp>
 #include <vector>
-#include "instance.h"
+#include "context.h"
 
 namespace dn::vulkan {
     struct DescriptorSetLayoutConfiguration {
@@ -15,7 +15,7 @@ namespace dn::vulkan {
 
     class DescriptorSetLayout {
     public:
-        DescriptorSetLayout(Instance &instance, DescriptorSetLayoutConfiguration config);
+        DescriptorSetLayout(Context &context, DescriptorSetLayoutConfiguration config);
 
         DescriptorSetLayout(DescriptorSetLayout &&other) noexcept;
 
@@ -24,7 +24,7 @@ namespace dn::vulkan {
         vk::DescriptorSetLayout mLayout = nullptr;
 
     private:
-        Instance &mInstance;
+        Context &mContext;
     };
 }
 

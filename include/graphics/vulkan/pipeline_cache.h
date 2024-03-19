@@ -14,7 +14,7 @@ namespace dn::vulkan {
 
     class PipelineCache {
     public:
-        PipelineCache(Instance &instance,
+        PipelineCache(Context &context,
                       RenderPass &renderPass,
                       const PipelineCacheConfiguration& config);
 
@@ -23,7 +23,7 @@ namespace dn::vulkan {
         Pipeline& get(const PipelineConfiguration &config);
 
     private:
-        Instance &mInstance;
+        Context &mContext;
         RenderPass &mRenderPass;
         PipelineCacheConfiguration mConfig;
 

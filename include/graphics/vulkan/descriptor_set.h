@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_DESCRIPTOR_SET_H
 #define DOUGHNUT_DESCRIPTOR_SET_H
 
-#include "instance.h"
+#include "context.h"
 #include "descriptor_set_layout.h"
 #include "descriptor_pool.h"
 #include "buffer.h"
@@ -26,7 +26,7 @@ namespace dn::vulkan {
 
     class DescriptorSet {
     public:
-        DescriptorSet(Instance &instance,
+        DescriptorSet(Context &context,
                       DescriptorSetLayout &layout,
                       DescriptorPool &pool,
                       const DescriptorSetConfiguration &config);
@@ -39,7 +39,7 @@ namespace dn::vulkan {
         std::vector<UploadResult> mBufferIndices{};
 
     private:
-        Instance &mInstance;
+        Context &mContext;
         DescriptorSetConfiguration mConfig;
     };
 }

@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_RENDER_PASS_H
 #define DOUGHNUT_RENDER_PASS_H
 
-#include "graphics/vulkan/instance.h"
+#include "graphics/vulkan/context.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -16,7 +16,7 @@ namespace dn::vulkan {
 
     class RenderPass {
     public:
-        RenderPass(Instance &instance,
+        RenderPass(Context &context,
                    RenderPassConfiguration config);
 
         RenderPass(RenderPass &&other) noexcept;
@@ -26,7 +26,7 @@ namespace dn::vulkan {
         vk::RenderPass mRenderPass = nullptr;
 
     private:
-        Instance &mInstance;
+        Context &mContext;
     };
 }
 

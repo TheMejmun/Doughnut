@@ -8,10 +8,10 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-PipelineCache::PipelineCache(Instance &instance,
+PipelineCache::PipelineCache(Context &context,
                              RenderPass &renderPass,
                              const PipelineCacheConfiguration &config)
-        : mInstance(instance),
+        : mContext(context),
           mRenderPass(renderPass),
           mConfig(config) {
     log::d("Creating PipelineCache");
@@ -25,7 +25,7 @@ Pipeline &PipelineCache::get(const dn::vulkan::PipelineConfiguration &config) {
     if (!mPipelines.contains(key)) {
         log::d("Creating Pipeline for VS", config.vertexShader, "and FS", config.fragmentShader);
         mPipelines.emplace(key,
-                           Pipeline{mInstance,
+                           Pipeline{mContext,
                                     mRenderPass,
                                     config
                            }

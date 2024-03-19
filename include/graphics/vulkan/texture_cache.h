@@ -5,7 +5,7 @@
 #ifndef DOUGHNUTSANDBOX_TEXTURE_CACHE_H
 #define DOUGHNUTSANDBOX_TEXTURE_CACHE_H
 
-#include "graphics/vulkan/instance.h"
+#include "graphics/vulkan/context.h"
 #include "graphics/vulkan/image.h"
 #include "graphics/vulkan/image_view.h"
 #include "graphics/vulkan/image_staging_buffer.h"
@@ -15,7 +15,7 @@
 namespace dn::vulkan {
     class TextureCache {
     public:
-        explicit TextureCache(Instance &instance);
+        explicit TextureCache(Context &context);
 
         ~TextureCache();
 
@@ -26,7 +26,7 @@ namespace dn::vulkan {
         ImageView &getImageView(const std::string &texture);
 
     private:
-        Instance &mInstance;
+        Context &mContext;
         ImageStagingBuffer mStagingBuffer;
         std::unordered_map<std::string, Image> mImages{};
         std::unordered_map<std::string, ImageView> mImageViews{};

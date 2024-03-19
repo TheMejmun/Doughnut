@@ -72,20 +72,20 @@ vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities, Wi
 }
 
 Swapchain::Swapchain(
-        Instance &instance,
+        Context &context,
         SwapchainConfiguration config
-) : mConfig(config), mInstance(instance) {
+) : mConfig(config), mContext(context) {
     create();
 }
 
 void Swapchain::create() {
     log::d("Creating Swapchain");
 
-    SwapchainSupportDetails swapchainSupport = querySwapchainSupport(mInstance.mPhysicalDevice, mInstance.mSurface);
+    SwapchainSupportDetails swapchainSupport = querySwapchainSupport(mContext.mPhysicalDevice, mContext.mSurface);
 
     mSurfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
     mPresentMode = chooseSwapPresentMode(swapchainSupport.presentModes, mConfig.uncappedFramerate);
-    mExtent = chooseSwapExtent(swapchainSupport.capabilities, mInstance.mWindow);
+    mExtent = chooseSwapExtent(swapchainSupport.capabilities, mContext.mWindow);
 
     if (mExtent.width < 1 || mExtent.height < 1) {
         log::v("Invalid swapchain extents. Retry later!");
@@ -102,12 +102,12 @@ void Swapchain::create() {
     log::d("Creating the swapchain with at least", mMinImageCount, "images");
 
     const std::array<uint32_t, 2> queueIndices{
-            *mInstance.mQueueFamilyIndices.graphicsFamily,
-            *mInstance.mQueueFamilyIndices.presentFamily
+            *mContext.mQueueFamilyIndices.graphicsFamily,
+            *mContext.mQueueFamilyIndices.presentFamily
     };
     vk::SharingMode imageSharingMode = vk::SharingMode::eExclusive;
     uint32_t queueFamilyIndexCount = 0;
-    if (!mInstance.mQueueFamilyIndices.isUnifiedGraphicsPresentQueue()) {
+    if (!mContext.mQueueFamilyIndices.isUnifiedGraphicsPresentQueue()) {
         imageSharingMode = vk::SharingMode::eConcurrent;
         queueFamilyIndexCount = 2;
     }
@@ -115,7 +115,7 @@ void Swapchain::create() {
     // TODO switch to VK_IMAGE_USAGE_TRANSFER_DST_BIT for post processing, instead of directly rendering to the SC
     vk::SwapchainCreateInfoKHR createInfo{
             {},
-            mInstance.mSurface,
+            mContext.mSurface,
             mMinImageCount,
             mSurfaceFormat.format,
             mSurfaceFormat.colorSpace,
@@ -132,17 +132,17 @@ void Swapchain::create() {
             nullptr // Put previous swapchain here if overridden, e.g. if window size changed
     };
 
-    mSwapchain = mInstance.mDevice.createSwapchainKHR(createInfo);
+    mSwapchain = mContext.mDevice.createSwapchainKHR(createInfo);
 
-    std::vector<vk::Image> images = mInstance.mDevice.getSwapchainImagesKHR(mSwapchain);
+    std::vector<vk::Image> images = mContext.mDevice.getSwapchainImagesKHR(mSwapchain);
     mImageCount = images.size();
     for (const vk::Image image: images) {
-        mImages.emplace_back(mInstance, image, mSurfaceFormat.format, nullptr);
-        mImageViews.emplace_back(mInstance, mImages.back(), ImageViewConfiguration{mExtent, mSurfaceFormat.format});
+        mImages.emplace_back(mContext, image, mSurfaceFormat.format, nullptr);
+        mImageViews.emplace_back(mContext, mImages.back(), ImageViewConfiguration{mExtent, mSurfaceFormat.format});
     }
 
     mDepthImage.emplace(
-            mInstance,
+            mContext,
             ImageConfiguration{
                     mExtent,
                     true,
@@ -150,13 +150,13 @@ void Swapchain::create() {
             }
     );
     mDepthImageView.emplace(
-            mInstance,
+            mContext,
             *mDepthImage,
-            ImageViewConfiguration{mExtent, findDepthFormat(mInstance.mPhysicalDevice), vk::ImageAspectFlagBits::eDepth}
+            ImageViewConfiguration{mExtent, findDepthFormat(mContext.mPhysicalDevice), vk::ImageAspectFlagBits::eDepth}
     );
 
     mRenderPass.emplace(
-            mInstance,
+            mContext,
             RenderPassConfiguration{
                     mSurfaceFormat.format
             }
@@ -166,7 +166,7 @@ void Swapchain::create() {
     for (auto &imageView: mImageViews) {
         std::vector<ImageView *> data{&imageView, &(*mDepthImageView)};
         mFramebuffers.emplace_back(
-                mInstance,
+                mContext,
                 data,
                 *mRenderPass
         );
@@ -181,14 +181,14 @@ float Swapchain::getAspectRatio() const {
 
 bool Swapchain::shouldRecreate() const {
     int w, h;
-    glfwGetFramebufferSize(mInstance.mWindow.mGlfwWindow, &w, &h);
+    glfwGetFramebufferSize(mContext.mWindow.mGlfwWindow, &w, &h);
     bool framebufferChanged = w != mExtent.width || h != mExtent.height;
 
     return mNeedsNewSwapchain || framebufferChanged;
 }
 
 std::optional<uint32_t> Swapchain::acquireNextImage(Semaphore &semaphore) {
-    auto result = mInstance.mDevice.acquireNextImageKHR(mSwapchain, std::numeric_limits<uint64_t>::max(), semaphore.mSemaphore, nullptr);
+    auto result = mContext.mDevice.acquireNextImageKHR(mSwapchain, std::numeric_limits<uint64_t>::max(), semaphore.mSemaphore, nullptr);
     // TODO are these really all okay results?
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkAcquireNextImageKHR.html
     if (result.result == vk::Result::eSuccess
@@ -226,15 +226,10 @@ void Swapchain::destroy() {
 
     mImageViews.clear();
 
-    mInstance.mDevice.destroy(mSwapchain);
+    mContext.mDevice.destroy(mSwapchain);
 }
 
 void Swapchain::recreate() {
     destroy();
     create();
-
-    // TODO
-    // if (success) {
-    //     Imgui::recalculateScale(state);
-    // }
 }

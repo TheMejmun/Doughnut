@@ -10,7 +10,7 @@
 #include "image.h"
 #include "image_view.h"
 #include "framebuffer.h"
-#include "instance.h"
+#include "context.h"
 #include "render_pass.h"
 #include "core/late_init.h"
 #include "semaphore.h"
@@ -35,7 +35,7 @@ namespace dn::vulkan {
     class Swapchain {
     public:
         Swapchain(
-                Instance &instance,
+                Context &context,
                 SwapchainConfiguration config
         );
 
@@ -73,7 +73,7 @@ namespace dn::vulkan {
         void destroy();
 
         SwapchainConfiguration mConfig;
-        Instance &mInstance;
+        Context &mContext;
 
         bool mNeedsNewSwapchain;
         vk::SurfaceFormatKHR mSurfaceFormat{};

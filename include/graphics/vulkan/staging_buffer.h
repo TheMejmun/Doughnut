@@ -6,7 +6,7 @@
 #define DOUGHNUT_STAGING_BUFFER_H
 
 #include <vulkan/vulkan.hpp>
-#include "instance.h"
+#include "context.h"
 #include "graphics/vertex.h"
 #include "core/scheduler.h"
 #include "command_pool.h"
@@ -20,7 +20,7 @@ namespace dn::vulkan {
 
     class StagingBuffer {
     public:
-        StagingBuffer(Instance &instance,
+        StagingBuffer(Context &context,
                       StagingBufferConfiguration config);
 
         StagingBuffer(const StagingBuffer &other) = delete;
@@ -38,7 +38,7 @@ namespace dn::vulkan {
         void awaitUpload();
 
     private:
-        Instance &mInstance;
+        Context &mContext;
         StagingBufferConfiguration mConfig;
 
         CommandPool mCommandPool;

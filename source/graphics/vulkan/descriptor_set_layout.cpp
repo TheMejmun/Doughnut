@@ -9,8 +9,8 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-DescriptorSetLayout::DescriptorSetLayout(Instance &instance, dn::vulkan::DescriptorSetLayoutConfiguration config)
-        : mInstance(instance) {
+DescriptorSetLayout::DescriptorSetLayout(Context &context, dn::vulkan::DescriptorSetLayoutConfiguration config)
+        : mContext(context) {
     log::d("Creating DescriptorSetLayout");
 
     // TODO actually take into account the configuration
@@ -37,15 +37,15 @@ DescriptorSetLayout::DescriptorSetLayout(Instance &instance, dn::vulkan::Descrip
             layoutBindings.data()
     };
 
-    mLayout = mInstance.mDevice.createDescriptorSetLayout(createInfo);
+    mLayout = mContext.mDevice.createDescriptorSetLayout(createInfo);
 }
 
 DescriptorSetLayout::DescriptorSetLayout(dn::vulkan::DescriptorSetLayout &&other) noexcept
-        : mLayout(std::exchange(other.mLayout, nullptr)), mInstance(other.mInstance) {
+        : mLayout(std::exchange(other.mLayout, nullptr)), mContext(other.mContext) {
     log::d("Moving DescriptorSetLayout");
 }
 
 DescriptorSetLayout::~DescriptorSetLayout() {
     log::d("Destroying DescriptorSetLayout");
-    if (mLayout != nullptr) { mInstance.mDevice.destroy(mLayout); }
+    if (mLayout != nullptr) { mContext.mDevice.destroy(mLayout); }
 }

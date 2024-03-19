@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_COMMAND_BUFFER_H
 #define DOUGHNUT_COMMAND_BUFFER_H
 
-#include "instance.h"
+#include "context.h"
 #include "command_pool.h"
 
 #include <vulkan/vulkan.hpp>
@@ -13,7 +13,7 @@
 namespace dn::vulkan {
     class CommandBuffer {
     public:
-        CommandBuffer(Instance &instance,
+        CommandBuffer(Context &context,
                       CommandPool &pool);
 
         CommandBuffer(CommandBuffer &&other) noexcept;
@@ -31,7 +31,7 @@ namespace dn::vulkan {
         bool mIsRecording = false;
 
     private:
-        Instance &mInstance;
+        Context &mContext;
     };
 }
 

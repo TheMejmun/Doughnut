@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_BUFFER_H
 #define DOUGHNUT_BUFFER_H
 
-#include "instance.h"
+#include "context.h"
 #include "graphics/vertex.h"
 #include "core/scheduler.h"
 #include "staging_buffer.h"
@@ -39,7 +39,7 @@ namespace dn::vulkan {
 
     class Buffer {
     public:
-        Buffer(Instance &instance,
+        Buffer(Context &context,
                BufferConfiguration config);
 
         Buffer(Buffer &&other) noexcept;
@@ -110,7 +110,7 @@ namespace dn::vulkan {
 
         void directUpload(uint32_t size, const uint8_t *data, uint32_t at);
 
-        Instance &mInstance;
+        Context &mContext;
         BufferConfiguration mConfig;
 
         LateInit<StagingBuffer> mStagingBuffer{};

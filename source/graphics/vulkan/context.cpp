@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-10.
 //
 
-#include "graphics/vulkan/instance.h"
+#include "graphics/vulkan/context.h"
 #include "util/require.h"
 #include "graphics/vulkan/swapchain.h"
 #include "io/logger.h"
@@ -124,7 +124,7 @@ bool checkPortabilityMode(const vk::PhysicalDevice &device) {
     });
 }
 
-Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(window) {
+Context::Context(Window &window, ContextConfiguration config) : mWindow(window) {
     log::d("Creating Instance");
 
     // INSTANCE
@@ -252,7 +252,7 @@ Instance::Instance(Window &window, InstanceConfiguration config) : mWindow(windo
     mTransferQueue = mDevice.getQueue(mQueueFamilyIndices.transferFamily.value(), 0);
 }
 
-Instance::Instance(Instance &&other) noexcept
+Context::Context(Context &&other) noexcept
         : mWindow(other.mWindow),
           mInstance(std::exchange(other.mInstance, nullptr)),
           mSurface(std::exchange(other.mSurface, nullptr)),
@@ -261,7 +261,7 @@ Instance::Instance(Instance &&other) noexcept
     log::d("Moving Instance");
 }
 
-Instance::~Instance() {
+Context::~Context() {
     log::d("Destroying Instance");
     if (mDevice != nullptr) { mDevice.destroy(); }
     if (mSurface != nullptr) { mInstance.destroySurfaceKHR(mSurface); }

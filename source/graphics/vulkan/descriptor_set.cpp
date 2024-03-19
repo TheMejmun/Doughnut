@@ -9,11 +9,11 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-DescriptorSet::DescriptorSet(Instance &instance,
+DescriptorSet::DescriptorSet(Context &context,
                              DescriptorSetLayout &layout,
                              DescriptorPool &pool,
                              const DescriptorSetConfiguration &config)
-        : mInstance(instance), mConfig(config) {
+        : mContext(context), mConfig(config) {
     log::d("Creating DescriptorSet");
 
     std::vector<vk::DescriptorSetLayout> layouts(config.setCount, layout.mLayout);
@@ -23,7 +23,7 @@ DescriptorSet::DescriptorSet(Instance &instance,
             layouts.data()
     };
 
-    mDescriptorSets = mInstance.mDevice.allocateDescriptorSets(allocInfo);
+    mDescriptorSets = mContext.mDevice.allocateDescriptorSets(allocInfo);
     mBufferIndices.resize(mDescriptorSets.size());
 
     for (size_t i = 0; i < config.setCount; i++) {
@@ -66,12 +66,12 @@ DescriptorSet::DescriptorSet(Instance &instance,
                 nullptr
         );
 
-        mInstance.mDevice.updateDescriptorSets(descriptorWrites, nullptr);
+        mContext.mDevice.updateDescriptorSets(descriptorWrites, nullptr);
     }
 }
 
 DescriptorSet::DescriptorSet(dn::vulkan::DescriptorSet &&other) noexcept
-        : mInstance(other.mInstance),
+        : mContext(other.mContext),
           mConfig(other.mConfig),
           mDescriptorSets(std::exchange(other.mDescriptorSets, {})),
           mBufferIndices(std::exchange(other.mBufferIndices, {})) {

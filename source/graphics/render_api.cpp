@@ -22,71 +22,71 @@ VulkanAPI::VulkanAPI(Window &window) {
 
     log::d("Creating VulkanAPI");
 
-    mInstance.emplace(
+    mContext.emplace(
             window,
-            InstanceConfiguration{}
+            ContextConfiguration{}
     );
 
     mSwapchain.emplace(
-            *mInstance,
+            *mContext,
             SwapchainConfiguration{false}
     );
 
     mMeshes.emplace(
-            *mInstance
+            *mContext
     );
     mTextures.emplace(
-            *mInstance
+            *mContext
     );
 
     // TODO one per frame in flight
     mUniformBuffer.emplace(
-            *mInstance,
+            *mContext,
             BufferConfiguration{UNIFORM, true}
     );
 
     mCommandPool.emplace(
-            *mInstance,
-            CommandPoolConfiguration{*mInstance->mQueueFamilyIndices.graphicsFamily}
+            *mContext,
+            CommandPoolConfiguration{*mContext->mQueueFamilyIndices.graphicsFamily}
     );
 
     // if (!(*mSwapchain).shouldRecreate()) {
     // TODO do we need this condition?
 
     mPipelines.emplace(
-            *mInstance,
+            *mContext,
             *mSwapchain->mRenderPass,
             PipelineCacheConfiguration{1u}
     );
 
     for (uint32_t i = 0; i < mSwapchain->mImageCount; ++i) {
         mCommandBuffers.emplace_back(
-                *mInstance,
+                *mContext,
                 *mCommandPool
         );
     }
     // }
 
     mImageAvailableSemaphore.emplace(
-            *mInstance
+            *mContext
     );
     mRenderFinishedSemaphore.emplace(
-            *mInstance
+            *mContext
     );
     mInFlightFence.emplace(
-            *mInstance,
+            *mContext,
             FenceConfiguration{true}
     );
 
     mSampler.emplace(
-            *mInstance,
+            *mContext,
             SamplerConfiguration{
                     CLAMP
             }
     );
 
     mGui.emplace(
-            *mInstance,
+            *mContext,
             window,
             *mSwapchain->mRenderPass,
             GuiConfiguration{
@@ -288,7 +288,7 @@ void VulkanAPI::drawFrame(double delta) {
             signalSemaphores.data(),
     };
 
-    mInstance->mGraphicsQueue.submit(submitInfo, mInFlightFence->mFence);
+    mContext->mGraphicsQueue.submit(submitInfo, mInFlightFence->mFence);
 
     vk::PresentInfoKHR presentInfo{
             static_cast<uint32_t>(signalSemaphores.size()),
@@ -298,7 +298,7 @@ void VulkanAPI::drawFrame(double delta) {
             &(*mCurrentSwapchainFramebuffer),
             nullptr
     };
-    auto result = mInstance->mPresentQueue.presentKHR(presentInfo);
+    auto result = mContext->mPresentQueue.presentKHR(presentInfo);
 
     require(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR, "An error has occured while rendering");
 
@@ -323,5 +323,5 @@ VulkanAPI::~VulkanAPI() {
     mTextures.reset();
     mPipelines.reset();
     mSwapchain.reset();
-    mInstance.reset();
+    mContext.reset();
 }

@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_IMAGE_H
 #define DOUGHNUT_IMAGE_H
 
-#include "instance.h"
+#include "context.h"
 #include "graphics/texture.h"
 #include "staging_buffer.h"
 #include "core/late_init.h"
@@ -30,10 +30,10 @@ namespace dn::vulkan {
 
     class Image {
     public:
-        Image(Instance &instance,
+        Image(Context &context,
               ImageConfiguration config);
 
-        Image(Instance &instance,
+        Image(Context &instance,
               vk::Image image,
               vk::Format format,
               vk::DeviceMemory memory);
@@ -48,7 +48,7 @@ namespace dn::vulkan {
         vk::ImageUsageFlags mUsageFlags;
 
     private:
-        Instance &mInstance;
+        Context &mContext;
         bool mLocallyConstructed;
     };
 }

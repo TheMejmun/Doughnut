@@ -9,9 +9,9 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-CommandBuffer::CommandBuffer(Instance &instance,
+CommandBuffer::CommandBuffer(Context &context,
                              CommandPool &pool)
-        : mInstance(instance) {
+        : mContext(context) {
     log::d("Creating CommandBuffer");
 
     // TODO multiple? so we won't have to re-record all of them
@@ -21,11 +21,11 @@ CommandBuffer::CommandBuffer(Instance &instance,
             1
     };
 
-    mCommandBuffer = mInstance.mDevice.allocateCommandBuffers(allocInfo)[0];
+    mCommandBuffer = mContext.mDevice.allocateCommandBuffers(allocInfo)[0];
 }
 
 CommandBuffer::CommandBuffer(dn::vulkan::CommandBuffer &&other) noexcept
-        : mInstance(other.mInstance),
+        : mContext(other.mContext),
           mCommandBuffer(std::exchange(other.mCommandBuffer, nullptr)) {
     log::d("Moving CommandBuffer");
 }

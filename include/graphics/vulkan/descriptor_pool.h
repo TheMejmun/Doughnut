@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.hpp>
 #include <vector>
-#include "instance.h"
+#include "context.h"
 
 namespace dn::vulkan {
     enum DescriptorType{
@@ -28,7 +28,7 @@ namespace dn::vulkan {
 
     class DescriptorPool {
     public:
-        DescriptorPool(Instance &instance, DescriptorPoolConfiguration config);
+        DescriptorPool(Context &context, const DescriptorPoolConfiguration& config);
 
         DescriptorPool(DescriptorPool &&other) noexcept;
 
@@ -37,7 +37,7 @@ namespace dn::vulkan {
         vk::DescriptorPool mDescriptorPool = nullptr;
 
     private:
-        Instance& mInstance;
+        Context& mContext;
     };
 }
 

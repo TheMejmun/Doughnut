@@ -13,16 +13,16 @@
 #include <string>
 
 namespace dn::vulkan {
-    struct InstanceConfiguration {
+    struct ContextConfiguration {
     };
 
-    class Instance {
+    class Context {
     public:
-        Instance(Window &window, InstanceConfiguration config);
+        Context(Window &window, ContextConfiguration config);
 
-        Instance(Instance &&other) noexcept;
+        Context(Context &&other) noexcept;
 
-        ~Instance();
+        ~Context();
 
         Window &mWindow;
 

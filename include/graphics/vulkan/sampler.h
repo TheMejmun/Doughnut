@@ -25,7 +25,7 @@ namespace dn::vulkan {
 
     class Sampler {
     public:
-        Sampler(Instance &instance,
+        Sampler(Context &context,
                 const SamplerConfiguration &config);
 
         Sampler(Sampler &&other) = default;
@@ -35,7 +35,7 @@ namespace dn::vulkan {
         vk::Sampler mSampler;
 
     private:
-        Instance &mInstance;
+        Context &mContext;
     };
 }
 

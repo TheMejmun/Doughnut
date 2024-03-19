@@ -5,7 +5,7 @@
 #ifndef DOUGHNUTSANDBOX_GUI_H
 #define DOUGHNUTSANDBOX_GUI_H
 
-#include "graphics/vulkan/instance.h"
+#include "graphics/vulkan/context.h"
 #include "descriptor_pool.h"
 #include "render_pass.h"
 #include "command_buffer.h"
@@ -18,7 +18,7 @@ namespace dn::vulkan {
 
     class Gui {
     public:
-        Gui(Instance &instance,
+        Gui(Context &context,
             Window &window,
             RenderPass &renderPass,
             const GuiConfiguration &config);
@@ -30,7 +30,7 @@ namespace dn::vulkan {
         void endFrame(CommandBuffer &commandBuffer);
 
     private:
-        Instance &mInstance;
+        Context &mContext;
         Window &mWindow;
         GuiConfiguration mConfig;
 

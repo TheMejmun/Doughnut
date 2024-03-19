@@ -25,7 +25,7 @@ namespace dn::vulkan {
 
     class Pipeline {
     public:
-        Pipeline(Instance &instance,
+        Pipeline(Context &context,
                  RenderPass &renderPass,
                  const PipelineConfiguration &config);
 
@@ -40,7 +40,7 @@ namespace dn::vulkan {
         LateInit<DescriptorPool> mDescriptorPool{};
         LateInit<DescriptorSet> mDescriptorSet{};
     private:
-        Instance &mInstance;
+        Context &mContext;
     };
 }
 

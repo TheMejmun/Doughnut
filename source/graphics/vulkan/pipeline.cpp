@@ -14,10 +14,10 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-Pipeline::Pipeline(Instance &instance,
+Pipeline::Pipeline(Context &context,
                    RenderPass &renderPass,
                    const PipelineConfiguration &config)
-        : mInstance(instance) {
+        : mContext(context) {
     log::d("Creating Pipeline");
 
     // https://vulkan-tutorial.com/en/Drawing_a_triangle/Graphics_pipeline_basics/Fixed_functions
@@ -27,13 +27,13 @@ Pipeline::Pipeline(Instance &instance,
     };
 
     mDescriptorSetLayout.emplace(
-            mInstance,
+            mContext,
             layoutConfig
     );
 
     // TODO pull these out of here
-    ShaderModule vertexShader = ShaderModule{mInstance, config.vertexShader};
-    ShaderModule fragmentShader = ShaderModule{mInstance, config.fragmentShader};
+    ShaderModule vertexShader = ShaderModule{mContext, config.vertexShader};
+    ShaderModule fragmentShader = ShaderModule{mContext, config.fragmentShader};
 
     vk::PipelineShaderStageCreateInfo vertexShaderStageInfo{
             {},
@@ -95,7 +95,7 @@ Pipeline::Pipeline(Instance &instance,
             {},
             vk::False,
             vk::False,
-            (mInstance.mOptionalFeatures.supportsWireframeMode && config.wireFrameMode)
+            (mContext.mOptionalFeatures.supportsWireframeMode && config.wireFrameMode)
             ? vk::PolygonMode::eLine
             : vk::PolygonMode::eFill,
             vk::CullModeFlags{vk::CullModeFlagBits::eBack},
@@ -164,7 +164,7 @@ Pipeline::Pipeline(Instance &instance,
             &pushConstantRange,
     };
 
-    mPipelineLayout = mInstance.mDevice.createPipelineLayout(pipelineLayoutInfo);
+    mPipelineLayout = mContext.mDevice.createPipelineLayout(pipelineLayoutInfo);
 
     vk::PipelineDepthStencilStateCreateInfo depthStencil{
             {},
@@ -199,12 +199,12 @@ Pipeline::Pipeline(Instance &instance,
             -1,
     };
 
-    auto result = mInstance.mDevice.createGraphicsPipeline(nullptr, pipelineInfo);
+    auto result = mContext.mDevice.createGraphicsPipeline(nullptr, pipelineInfo);
     require(result.result, "Failed to create graphics pipeline");
     mGraphicsPipeline = result.value;
 
     mDescriptorPool.emplace(
-            mInstance,
+            mContext,
             DescriptorPoolConfiguration{
                     2u,
                     {
@@ -215,7 +215,7 @@ Pipeline::Pipeline(Instance &instance,
     );
 
     mDescriptorSet.emplace(
-            mInstance,
+            mContext,
             *mDescriptorSetLayout,
             *mDescriptorPool,
             config.descriptorSetConfig
@@ -224,7 +224,7 @@ Pipeline::Pipeline(Instance &instance,
 
 // TODO will this actually move the other Pipeline's descriptor set layout over without destroying it?
 Pipeline::Pipeline(dn::vulkan::Pipeline &&other) noexcept
-        : mInstance(other.mInstance),
+        : mContext(other.mContext),
           mDescriptorSetLayout(std::exchange(other.mDescriptorSetLayout, nullptr)),
           mPipelineLayout(std::exchange(other.mPipelineLayout, nullptr)),
           mGraphicsPipeline(std::exchange(other.mGraphicsPipeline, nullptr)),
@@ -237,7 +237,7 @@ Pipeline::~Pipeline() {
     log::d("Destroying Pipeline");
     mDescriptorSet.reset();
     mDescriptorPool.reset();
-    if (mGraphicsPipeline != nullptr) { mInstance.mDevice.destroy(mGraphicsPipeline); }
-    if (mPipelineLayout != nullptr) { mInstance.mDevice.destroy(mPipelineLayout); }
+    if (mGraphicsPipeline != nullptr) { mContext.mDevice.destroy(mGraphicsPipeline); }
+    if (mPipelineLayout != nullptr) { mContext.mDevice.destroy(mPipelineLayout); }
     mDescriptorSetLayout.reset();
 }
