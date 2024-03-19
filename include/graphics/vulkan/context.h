@@ -20,7 +20,9 @@ namespace dn::vulkan {
     public:
         Context(Window &window, ContextConfiguration config);
 
-        Context(Context &&other) noexcept;
+        Context(const Context &other) = delete;
+
+        Context(Context &&other) = default;
 
         ~Context();
 

@@ -125,7 +125,6 @@ bool checkPortabilityMode(const vk::PhysicalDevice &device) {
 }
 
 Context::Context(Window &window, ContextConfiguration config) : mWindow(window) {
-    log::d("Creating Instance");
 
     // INSTANCE
 
@@ -250,20 +249,13 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
     mGraphicsQueue = mDevice.getQueue(mQueueFamilyIndices.graphicsFamily.value(), 0);
     mPresentQueue = mDevice.getQueue(mQueueFamilyIndices.presentFamily.value(), 0);
     mTransferQueue = mDevice.getQueue(mQueueFamilyIndices.transferFamily.value(), 0);
-}
 
-Context::Context(Context &&other) noexcept
-        : mWindow(other.mWindow),
-          mInstance(std::exchange(other.mInstance, nullptr)),
-          mSurface(std::exchange(other.mSurface, nullptr)),
-          mPhysicalDevice(other.mPhysicalDevice),
-          mDevice(std::exchange(other.mDevice, nullptr)) {
-    log::d("Moving Instance");
+    log::d("Created Context");
 }
 
 Context::~Context() {
-    log::d("Destroying Instance");
     if (mDevice != nullptr) { mDevice.destroy(); }
     if (mSurface != nullptr) { mInstance.destroySurfaceKHR(mSurface); }
     if (mInstance != nullptr) { mInstance.destroy(); }
+    log::d("Destroyed Context");
 }

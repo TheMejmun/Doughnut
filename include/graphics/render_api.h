@@ -56,10 +56,10 @@ namespace dn {
         LateInit<vulkan::Buffer> mUniformBuffer{};
 
     private:
-        LateInit<vulkan::Context> mContext{};
-        LateInit<vulkan::Swapchain> mSwapchain{};
-        LateInit<vulkan::PipelineCache> mPipelines{};
-        LateInit<vulkan::CommandPool> mCommandPool{};
+        vulkan::Context mContext;
+        vulkan::Swapchain mSwapchain;
+        vulkan::CommandPool mCommandPool;
+
         std::vector<vulkan::CommandBuffer> mCommandBuffers{};
         LateInit<vulkan::Semaphore> mImageAvailableSemaphore{};
         LateInit<vulkan::Semaphore> mRenderFinishedSemaphore{};
@@ -68,6 +68,7 @@ namespace dn {
 
         std::optional<uint32_t> mCurrentSwapchainFramebuffer{};
 
+        LateInit<vulkan::PipelineCache> mPipelines{};
         LateInit<vulkan::MeshCache> mMeshes{};
         LateInit<vulkan::TextureCache> mTextures{};
 

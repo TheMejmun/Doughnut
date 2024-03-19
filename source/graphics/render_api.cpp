@@ -17,95 +17,81 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-VulkanAPI::VulkanAPI(Window &window) {
-    trace_function
-
-    log::d("Creating VulkanAPI");
-
-    mContext.emplace(
-            window,
-            ContextConfiguration{}
-    );
-
-    mSwapchain.emplace(
-            *mContext,
-            SwapchainConfiguration{false}
-    );
+VulkanAPI::VulkanAPI(Window &window)
+        : mContext(window, ContextConfiguration{}),
+          mSwapchain(mContext, SwapchainConfiguration{false}),
+          mCommandPool(mContext, CommandPoolConfiguration{*mContext.mQueueFamilyIndices.graphicsFamily}) {
 
     mMeshes.emplace(
-            *mContext
+            mContext
     );
     mTextures.emplace(
-            *mContext
+            mContext
     );
 
     // TODO one per frame in flight
     mUniformBuffer.emplace(
-            *mContext,
+            mContext,
             BufferConfiguration{UNIFORM, true}
-    );
-
-    mCommandPool.emplace(
-            *mContext,
-            CommandPoolConfiguration{*mContext->mQueueFamilyIndices.graphicsFamily}
     );
 
     // if (!(*mSwapchain).shouldRecreate()) {
     // TODO do we need this condition?
-
     mPipelines.emplace(
-            *mContext,
-            *mSwapchain->mRenderPass,
+            mContext,
+            *mSwapchain.mRenderPass,
             PipelineCacheConfiguration{1u}
     );
 
-    for (uint32_t i = 0; i < mSwapchain->mImageCount; ++i) {
+    for (uint32_t i = 0; i < mSwapchain.mImageCount; ++i) {
         mCommandBuffers.emplace_back(
-                *mContext,
-                *mCommandPool
+                mContext,
+                mCommandPool
         );
     }
     // }
 
     mImageAvailableSemaphore.emplace(
-            *mContext
+            mContext
     );
     mRenderFinishedSemaphore.emplace(
-            *mContext
+            mContext
     );
     mInFlightFence.emplace(
-            *mContext,
+            mContext,
             FenceConfiguration{true}
     );
 
     mSampler.emplace(
-            *mContext,
+            mContext,
             SamplerConfiguration{
                     CLAMP
             }
     );
 
     mGui.emplace(
-            *mContext,
+            mContext,
             window,
-            *mSwapchain->mRenderPass,
+            *mSwapchain.mRenderPass,
             GuiConfiguration{
-                    mSwapchain->mMinImageCount,
-                    mSwapchain->mImageCount
+                    mSwapchain.mMinImageCount,
+                    mSwapchain.mImageCount
             }
     );
     mGui->beginFrame(); // TODO
+
+    log::d("Created VulkanAPI");
 }
 
 bool VulkanAPI::nextImage() {
     mInFlightFence->await();
 
-    if (mSwapchain->shouldRecreate()) {
+    if (mSwapchain.shouldRecreate()) {
         log::d("Requesting swapchain recreation");
-        mSwapchain->recreate();
+        mSwapchain.recreate();
     }
 
-    auto acquireImageResult = mSwapchain->acquireNextImage(*mImageAvailableSemaphore);
+    auto acquireImageResult = mSwapchain.acquireNextImage(*mImageAvailableSemaphore);
 
     mInFlightFence->resetFence();
 
@@ -133,11 +119,11 @@ void VulkanAPI::beginRenderPass() {
             vk::ClearValue{{1.0f, 0}}
     };
     vk::RenderPassBeginInfo renderPassInfo{
-            mSwapchain->mRenderPass->mRenderPass,
-            *mSwapchain->getFramebuffer(*mCurrentSwapchainFramebuffer),
+            mSwapchain.mRenderPass->mRenderPass,
+            *mSwapchain.getFramebuffer(*mCurrentSwapchainFramebuffer),
             vk::Rect2D{
                     {0, 0},
-                    mSwapchain->mExtent
+                    mSwapchain.mExtent
             },
             static_cast<uint32_t>(clearValues.size()),
             clearValues.data()
@@ -197,8 +183,8 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
     vk::Viewport viewport{
             0.0f,
             0.0f,
-            static_cast<float>(mSwapchain->mExtent.width),
-            static_cast<float>(mSwapchain->mExtent.height),
+            static_cast<float>(mSwapchain.mExtent.width),
+            static_cast<float>(mSwapchain.mExtent.height),
             0.0f,
             1.0f
     };
@@ -211,7 +197,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
 
     vk::Rect2D scissor{
             {0, 0},
-            mSwapchain->mExtent
+            mSwapchain.mExtent
     };
 
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.setScissor(
@@ -231,7 +217,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
     );
 
     PushConstantsObject pushConstants{
-            {mSwapchain->mExtent.width, mSwapchain->mExtent.height}
+            {mSwapchain.mExtent.width, mSwapchain.mExtent.height}
     };
     mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.pushConstants(
             pipeline.mPipelineLayout,
@@ -288,17 +274,17 @@ void VulkanAPI::drawFrame(double delta) {
             signalSemaphores.data(),
     };
 
-    mContext->mGraphicsQueue.submit(submitInfo, **mInFlightFence);
+    mContext.mGraphicsQueue.submit(submitInfo, **mInFlightFence);
 
     vk::PresentInfoKHR presentInfo{
             static_cast<uint32_t>(signalSemaphores.size()),
             signalSemaphores.data(),
             1,
-            &mSwapchain->mSwapchain,
+            &mSwapchain.mSwapchain,
             &(*mCurrentSwapchainFramebuffer),
             nullptr
     };
-    auto result = mContext->mPresentQueue.presentKHR(presentInfo);
+    auto result = mContext.mPresentQueue.presentKHR(presentInfo);
 
     require(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR, "An error has occured while rendering");
 
@@ -306,7 +292,6 @@ void VulkanAPI::drawFrame(double delta) {
 }
 
 VulkanAPI::~VulkanAPI() {
-    log::d("Destroying VulkanAPI");
     mInFlightFence->await();
 
     mGui.reset();
@@ -317,11 +302,10 @@ VulkanAPI::~VulkanAPI() {
     mRenderFinishedSemaphore.reset();
 
     mCommandBuffers.clear();
-    mCommandPool.reset();
     mUniformBuffer.reset();
     mMeshes.reset();
     mTextures.reset();
     mPipelines.reset();
-    mSwapchain.reset();
-    mContext.reset();
+
+    log::d("Destroyed VulkanAPI");
 }
