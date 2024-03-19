@@ -16,7 +16,7 @@ namespace dn::vulkan {
         Handle(Context &context, const CONFIG_TYPE &config)
                 : mContext(context),
                   mConfig(config) {
-            dn::log::d("Created", typeid(VK_TYPE).name(), "handle");
+            dn::log::d("Creating", typeid(VK_TYPE).name(), "handle");
         }
 
         Handle(const Handle &) = delete;
