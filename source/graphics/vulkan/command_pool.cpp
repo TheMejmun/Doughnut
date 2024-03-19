@@ -8,9 +8,8 @@
 using namespace dn;
 using namespace dn::vulkan;
 
-CommandPool::CommandPool(Context &context, CommandPoolConfiguration config)
-        : mContext(context) {
-    log::d("Creating CommandPool");
+CommandPool::CommandPool(Context &context, const CommandPoolConfiguration &config)
+        : Handle<vk::CommandPool, CommandPoolConfiguration>(context, config){
 
     // Use VK_COMMAND_POOL_CREATE_TRANSIENT_BIT if buffer is very short-lived
     vk::CommandPoolCreateInfo poolInfo{
@@ -18,16 +17,9 @@ CommandPool::CommandPool(Context &context, CommandPoolConfiguration config)
             config.queueFamilyIndex
     };
 
-    mCommandPool = mContext.mDevice.createCommandPool(poolInfo);
-}
-
-CommandPool::CommandPool(dn::vulkan::CommandPool &&other) noexcept
-        : mContext(other.mContext),
-          mCommandPool(std::exchange(other.mCommandPool, nullptr)) {
-    log::d("Moving CommandPool");
+    mVulkan = mContext.mDevice.createCommandPool(poolInfo);
 }
 
 CommandPool::~CommandPool() {
-    log::d("Destroying CommandPool");
-    if (mCommandPool != nullptr) { mContext.mDevice.destroy(mCommandPool); }
+    if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
 }

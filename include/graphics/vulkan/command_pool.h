@@ -6,6 +6,7 @@
 #define DOUGHNUT_COMMAND_POOL_H
 
 #include "context.h"
+#include "handle.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -14,18 +15,14 @@ namespace dn::vulkan {
         uint32_t queueFamilyIndex;
     };
 
-    class CommandPool {
+    class CommandPool : public Handle<vk::CommandPool, CommandPoolConfiguration> {
     public:
-        CommandPool(Context &context, CommandPoolConfiguration config);
+        CommandPool(Context &context,
+                    const CommandPoolConfiguration &config);
 
-        CommandPool(CommandPool &&other) noexcept;
+        CommandPool(CommandPool &&other) = default;
 
         ~CommandPool();
-
-        vk::CommandPool mCommandPool = nullptr;
-
-    private:
-        Context &mContext;
     };
 }
 

@@ -17,7 +17,7 @@ CommandBuffer::CommandBuffer(Context &context,
 
     // TODO multiple? so we won't have to re-record all of them
     vk::CommandBufferAllocateInfo allocInfo{
-            pool.mCommandPool,
+            *pool,
             vk::CommandBufferLevel::ePrimary,
             1
     };
