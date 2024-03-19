@@ -159,7 +159,7 @@ Pipeline::Pipeline(Context &context,
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{
             {},
             1,
-            &mDescriptorSetLayout->mLayout,
+            &(**mDescriptorSetLayout),
             1,
             &pushConstantRange,
     };
