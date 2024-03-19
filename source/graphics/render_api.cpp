@@ -293,6 +293,8 @@ void VulkanAPI::drawFrame(double delta) {
 }
 
 VulkanAPI::~VulkanAPI() {
+    log::d("Destroying VulkanAPI");
+
     mInFlightFence->await();
 
     mGui.reset();
@@ -307,6 +309,4 @@ VulkanAPI::~VulkanAPI() {
     mMeshes.reset();
     mTextures.reset();
     mPipelines.reset();
-
-    log::d("Destroyed VulkanAPI");
 }

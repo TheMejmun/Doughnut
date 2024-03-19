@@ -254,8 +254,8 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
 }
 
 Context::~Context() {
+    log::d("Destroying Context");
     if (mDevice != nullptr) { mDevice.destroy(); }
     if (mSurface != nullptr) { mInstance.destroySurfaceKHR(mSurface); }
     if (mInstance != nullptr) { mInstance.destroy(); }
-    log::d("Destroyed Context");
 }
