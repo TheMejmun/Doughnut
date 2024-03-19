@@ -17,7 +17,7 @@ void checkVkResult(VkResult err) {
 
     if (err < 0) {
         std::stringstream sstream;
-        sstream << "Failed to create  GUI. VkResult: " << err;
+        sstream << "Failed to create GUI. VkResult: " << err;
         throw std::runtime_error(sstream.str());
     }
 }
