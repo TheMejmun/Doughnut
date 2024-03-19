@@ -10,6 +10,7 @@
 #include "core/scheduler.h"
 #include "staging_buffer.h"
 #include "core/late_init.h"
+#include "handle.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -37,12 +38,12 @@ namespace dn::vulkan {
         BufferPosition position;
     };
 
-    class Buffer {
+    class Buffer : public Handle<vk::Buffer, BufferConfiguration> {
     public:
         Buffer(Context &context,
                BufferConfiguration config);
 
-        Buffer(Buffer &&other) noexcept;
+        Buffer(Buffer &&other) = default;
 
         ~Buffer();
 
@@ -77,7 +78,7 @@ namespace dn::vulkan {
 
         void clear(uint32_t at, uint32_t byteSize);
 
-        inline void clear(){
+        inline void clear() {
             clear(0, mIsUsed.size());
         }
 
@@ -97,8 +98,6 @@ namespace dn::vulkan {
 
         void awaitUpload();
 
-        vk::Buffer mBuffer = nullptr;
-
     private:
         UploadResult calculateMemoryIndex(uint32_t size);
 
@@ -109,9 +108,6 @@ namespace dn::vulkan {
         UploadResult directUpload(uint32_t size, const uint8_t *data);
 
         void directUpload(uint32_t size, const uint8_t *data, uint32_t at);
-
-        Context &mContext;
-        BufferConfiguration mConfig;
 
         LateInit<StagingBuffer> mStagingBuffer{};
 

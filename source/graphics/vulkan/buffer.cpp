@@ -14,13 +14,12 @@ using namespace dn::vulkan;
 constexpr uint32_t ALLOC_SIZE = 1024 * 1024 * 256;
 
 Buffer::Buffer(dn::vulkan::Context &context, dn::vulkan::BufferConfiguration config)
-        : mContext(context), mConfig(config) {
-    log::d("Creating Buffer");
+        : Handle<vk::Buffer, BufferConfiguration>(context, config) {
 
     mIsUsed.resize(ALLOC_SIZE);
     mIsUsedMutex = std::make_unique<std::mutex>();
 
-    log::v("Maximum memory allocation count:", mContext.mPhysicalDevice.getProperties().limits.maxMemoryAllocationCount);
+    // log::v("Maximum memory allocation count:", mContext.mPhysicalDevice.getProperties().limits.maxMemoryAllocationCount);
 
     if (!mConfig.hostDirectAccessible) {
         mStagingBuffer.emplace(
@@ -57,10 +56,10 @@ Buffer::Buffer(dn::vulkan::Context &context, dn::vulkan::BufferConfiguration con
             mContext.mQueueFamilyIndices.hasUniqueTransferQueue() ? 2u : 1u,
             queueFamilyIndices.data()
     };
-    mBuffer = mContext.mDevice.createBuffer(bufferInfo);
+    mVulkan = mContext.mDevice.createBuffer(bufferInfo);
 
     // Malloc
-    vk::MemoryRequirements memoryRequirements = mContext.mDevice.getBufferMemoryRequirements(mBuffer);
+    vk::MemoryRequirements memoryRequirements = mContext.mDevice.getBufferMemoryRequirements(mVulkan);
     vk::MemoryPropertyFlags propertyFlags{};
     if (config.hostDirectAccessible) {
         propertyFlags = {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
@@ -75,23 +74,12 @@ Buffer::Buffer(dn::vulkan::Context &context, dn::vulkan::BufferConfiguration con
     mBufferMemory = mContext.mDevice.allocateMemory(allocInfo);
 
     // offset % memRequirements.alignment == 0
-    mContext.mDevice.bindBufferMemory(mBuffer, mBufferMemory, 0);
+    mContext.mDevice.bindBufferMemory(mVulkan, mBufferMemory, 0);
 
     // Persistent mapping:
     if (mConfig.hostDirectAccessible) {
         mMappedBuffer = static_cast<uint8_t *>(mContext.mDevice.mapMemory(mBufferMemory, 0, ALLOC_SIZE, {}));
     }
-}
-
-Buffer::Buffer(dn::vulkan::Buffer &&other) noexcept
-        : mContext(other.mContext),
-          mConfig(other.mConfig),
-          mStagingBuffer(std::exchange(other.mStagingBuffer, nullptr)),
-          mBuffer(std::exchange(other.mBuffer, nullptr)),
-          mBufferMemory(std::exchange(other.mBufferMemory, nullptr)),
-          mIsUsed(std::exchange(other.mIsUsed, {})),
-          mIsUsedMutex(std::exchange(other.mIsUsedMutex, nullptr)) {
-    log::d("Moving Buffer");
 }
 
 UploadResult Buffer::calculateMemoryIndex(const uint32_t size) {
@@ -150,7 +138,7 @@ void Buffer::queueUpload(const uint32_t size, const uint8_t *data, const uint32_
     mStagingBuffer->upload(
             size,
             data,
-            mBuffer,
+            mVulkan,
             at
     );
 }
@@ -195,10 +183,8 @@ void Buffer::awaitUpload() {
 }
 
 Buffer::~Buffer() {
-    log::d("Destroying Buffer");
-
     mStagingBuffer.reset();
 
-    if (mBuffer != nullptr) { mContext.mDevice.destroy(mBuffer); }
+    if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
     if (mBufferMemory != nullptr) { mContext.mDevice.free(mBufferMemory); }
 }

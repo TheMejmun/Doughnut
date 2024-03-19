@@ -33,9 +33,9 @@ void MeshCache::preload(const std::string &mesh) {
                 MeshReference{
                         0,
                         vertexPosition.position,
-                        mVertexBuffer.mBuffer,
+                        *mVertexBuffer,
                         indexPosition.position,
-                        mIndexBuffer.mBuffer
+                        *mIndexBuffer
                 }
         );
     }
