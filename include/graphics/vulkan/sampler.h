@@ -6,6 +6,7 @@
 #define DOUGHNUTSANDBOX_SAMPLER_H
 
 #include "image.h"
+#include "handle.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -23,7 +24,7 @@ namespace dn::vulkan {
         EdgeMode edgeMode;
     };
 
-    class Sampler {
+class Sampler :public Handle<vk::Sampler, SamplerConfiguration>{
     public:
         Sampler(Context &context,
                 const SamplerConfiguration &config);
@@ -31,11 +32,6 @@ namespace dn::vulkan {
         Sampler(Sampler &&other) = default;
 
         ~Sampler();
-
-        vk::Sampler mSampler;
-
-    private:
-        Context &mContext;
     };
 }
 

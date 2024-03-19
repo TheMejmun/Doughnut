@@ -9,8 +9,7 @@ using namespace dn;
 using namespace dn::vulkan;
 
 Sampler::Sampler(Context &context, const SamplerConfiguration &config)
-        : mContext(context) {
-    log::d("Creating Sampler");
+        : Handle<vk::Sampler, SamplerConfiguration>(context, config) {
 
     vk::SamplerAddressMode addressMode;
     switch (config.edgeMode) {
@@ -53,10 +52,9 @@ Sampler::Sampler(Context &context, const SamplerConfiguration &config)
             vk::False
     };
 
-    mSampler = mContext.mDevice.createSampler(samplerInfo);
+    mVulkan = mContext.mDevice.createSampler(samplerInfo);
 }
 
 Sampler::~Sampler() {
-    log::d("Destroying Sampler");
-    mContext.mDevice.destroy(mSampler);
+    if (mVulkan != nullptr) mContext.mDevice.destroy(mVulkan);
 }

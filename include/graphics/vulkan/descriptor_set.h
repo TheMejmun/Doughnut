@@ -16,6 +16,7 @@
 #include <vector>
 
 namespace dn::vulkan {
+    // TODO These objects being inside the config object feels wrong
     struct DescriptorSetConfiguration {
         uint32_t setCount;
         uint32_t uboSize;
