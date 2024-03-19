@@ -117,7 +117,7 @@ void Gui::endFrame(CommandBuffer &commandBuffer) {
         auto size = mWindow.getSize();
         ImVec2 scale = {size.scale, size.scale};
         draw_data->FramebufferScale = scale;
-        ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer.mCommandBuffer);
+        ImGui_ImplVulkan_RenderDrawData(draw_data, *commandBuffer);
     }
 }
 

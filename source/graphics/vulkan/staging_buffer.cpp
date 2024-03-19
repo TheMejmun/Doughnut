@@ -15,7 +15,7 @@ StagingBuffer::StagingBuffer(Context &context, StagingBufferConfiguration config
         : mContext(context),
           mConfig(config),
           mCommandPool(mContext, CommandPoolConfiguration{*mContext.mQueueFamilyIndices.transferFamily}),
-          mCommandBuffer(mContext, mCommandPool),
+          mCommandBuffer(mContext, mCommandPool, {}),
           mFence(mContext, FenceConfiguration{true}) {
     log::d("Creating StagingBuffer");
 }
@@ -63,7 +63,7 @@ void StagingBuffer::upload(const uint32_t size, const void *data, const vk::Buff
             at,
             size
     };
-    mCommandBuffer.mCommandBuffer.copyBuffer(mStagingBuffer, target, 1, &copyRegion);
+    (*mCommandBuffer).copyBuffer(mStagingBuffer, target, 1, &copyRegion);
 
     mCommandBuffer.endRecording();
 
@@ -72,7 +72,7 @@ void StagingBuffer::upload(const uint32_t size, const void *data, const vk::Buff
             nullptr,
             nullptr,
             1,
-            &mCommandBuffer.mCommandBuffer,
+            &(*mCommandBuffer),
             0,
             nullptr,
     };

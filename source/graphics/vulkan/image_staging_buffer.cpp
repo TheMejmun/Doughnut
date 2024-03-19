@@ -15,7 +15,7 @@ ImageStagingBuffer::ImageStagingBuffer(dn::vulkan::Context &context, dn::vulkan:
         : mContext(context),
           mConfig(config),
           mCommandPool(mContext, CommandPoolConfiguration{*mContext.mQueueFamilyIndices.graphicsFamily}),
-          mCommandBuffer(mContext, mCommandPool),
+          mCommandBuffer(mContext, mCommandPool, {}),
           mFence(mContext, FenceConfiguration{true}) {
     log::d("Creating ImageStagingBuffer");
 
@@ -80,7 +80,7 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
     };
 
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
-    mCommandBuffer.mCommandBuffer.pipelineBarrier(
+    (*mCommandBuffer).pipelineBarrier(
             {vk::PipelineStageFlagBits::eTopOfPipe},
             {vk::PipelineStageFlagBits::eTransfer},
             {}, // VK_DEPENDENCY_BY_REGION_BIT https://stackoverflow.com/questions/65471677/the-meaning-and-implications-of-vk-dependency-by-region-bit
@@ -107,7 +107,7 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
              1}
     };
 
-    mCommandBuffer.mCommandBuffer.copyBufferToImage(
+    (*mCommandBuffer).copyBufferToImage(
             mStagingBuffer,
             target,
             vk::ImageLayout::eTransferDstOptimal,
@@ -135,7 +135,7 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
     };
 
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
-    mCommandBuffer.mCommandBuffer.pipelineBarrier(
+    (*mCommandBuffer).pipelineBarrier(
             {vk::PipelineStageFlagBits::eTransfer},
             {vk::PipelineStageFlagBits::eFragmentShader},
             {}, // VK_DEPENDENCY_BY_REGION_BIT https://stackoverflow.com/questions/65471677/the-meaning-and-implications-of-vk-dependency-by-region-bit
@@ -155,7 +155,7 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
             nullptr,
             nullptr,
             1,
-            &mCommandBuffer.mCommandBuffer,
+            &(*mCommandBuffer),
             0,
             nullptr,
     };

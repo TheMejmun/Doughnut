@@ -46,7 +46,8 @@ VulkanAPI::VulkanAPI(Window &window)
     for (uint32_t i = 0; i < mSwapchain.mImageCount; ++i) {
         mCommandBuffers.emplace_back(
                 mContext,
-                mCommandPool
+                mCommandPool,
+                CommandBufferConfiguration{}
         );
     }
     // }
@@ -129,12 +130,12 @@ void VulkanAPI::beginRenderPass() {
             clearValues.data()
     };
 
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 }
 
 void VulkanAPI::endRenderPass() {
     dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.endRenderPass();
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).endRenderPass();
 }
 
 void VulkanAPI::endRecording() {
@@ -158,8 +159,8 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
                                              false
                                      });
     // TODO put this somewhere reasonable
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics,
-                                                                               pipeline.mGraphicsPipeline);
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).bindPipeline(vk::PipelineBindPoint::eGraphics,
+                                                                   pipeline.mGraphicsPipeline);
 
     auto &mesh = mMeshes->get(renderable.model);
 
@@ -167,14 +168,14 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
     // TODO do indices need to be offset by their in-buffer position?
     std::array<vk::Buffer, 1> vertexBuffers{mesh.vertexBuffer};
     std::array<vk::DeviceSize, 1> offsets{0};
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindVertexBuffers(
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).bindVertexBuffers(
             0,
             1,
             vertexBuffers.data(),
             offsets.data()
     );
 
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindIndexBuffer(
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).bindIndexBuffer(
             mesh.indexBuffer,
             0,
             vk::IndexType::eUint32
@@ -189,7 +190,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
             1.0f
     };
 
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.setViewport(
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).setViewport(
             0,
             1,
             &viewport
@@ -200,13 +201,13 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
             mSwapchain.mExtent
     };
 
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.setScissor(
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).setScissor(
             0,
             1,
             &scissor
     );
 
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.bindDescriptorSets(
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
             pipeline.mPipelineLayout,
             0,
@@ -219,7 +220,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
     PushConstantsObject pushConstants{
             {mSwapchain.mExtent.width, mSwapchain.mExtent.height}
     };
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.pushConstants(
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).pushConstants(
             pipeline.mPipelineLayout,
             vk::ShaderStageFlagBits::eAll,
             0,
@@ -227,7 +228,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
             &pushConstants
     );
 
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.drawIndexed(
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).drawIndexed(
             mesh.indexPosition.count,
             1,
             mesh.indexPosition.memoryIndex / sizeof(uint32_t),
@@ -235,7 +236,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
             0
     );
 
-    mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer.draw(
+    (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).draw(
             mesh.vertexPosition.count,
             1,
             0,
@@ -269,7 +270,7 @@ void VulkanAPI::drawFrame(double delta) {
             waitSemaphores.data(),
             waitStages.data(),
             1,
-            &mCommandBuffers[*mCurrentSwapchainFramebuffer].mCommandBuffer,
+            &(*mCommandBuffers[*mCurrentSwapchainFramebuffer]),
             static_cast<uint32_t>(signalSemaphores.size()),
             signalSemaphores.data(),
     };
