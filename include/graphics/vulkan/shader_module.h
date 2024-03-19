@@ -6,23 +6,23 @@
 #define DOUGHNUT_SHADER_MODULE_H
 
 #include "graphics/vulkan/context.h"
+#include "handle.h"
 
 #include <string>
 #include <vulkan/vulkan.hpp>
 
 namespace dn::vulkan {
-    class ShaderModule {
-    public:
-        ShaderModule(Context &context, const std::string &filePath);
+    struct ShaderModuleConfiguration {
+        std::string filePath;
+    };
 
-        ShaderModule(ShaderModule &&other) noexcept;
+    class ShaderModule : public Handle<vk::ShaderModule, ShaderModuleConfiguration> {
+    public:
+        ShaderModule(Context &context, const ShaderModuleConfiguration &config);
+
+        ShaderModule(ShaderModule &&other) = default;
 
         ~ShaderModule();
-
-        vk::ShaderModule mShaderModule= nullptr;
-
-    private:
-        Context &mContext;
     };
 }
 

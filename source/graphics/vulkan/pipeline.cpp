@@ -32,13 +32,13 @@ Pipeline::Pipeline(Context &context,
     );
 
     // TODO pull these out of here
-    ShaderModule vertexShader = ShaderModule{mContext, config.vertexShader};
-    ShaderModule fragmentShader = ShaderModule{mContext, config.fragmentShader};
+    ShaderModule vertexShader = ShaderModule{mContext, {config.vertexShader}};
+    ShaderModule fragmentShader = ShaderModule{mContext, {config.fragmentShader}};
 
     vk::PipelineShaderStageCreateInfo vertexShaderStageInfo{
             {},
             vk::ShaderStageFlagBits::eVertex,
-            vertexShader.mShaderModule,
+            *vertexShader,
             "main",
             nullptr // Use pSpecializationInfo to specify constants
     };
@@ -46,7 +46,7 @@ Pipeline::Pipeline(Context &context,
     vk::PipelineShaderStageCreateInfo fragmentShaderStageInfo{
             {},
             vk::ShaderStageFlagBits::eFragment,
-            fragmentShader.mShaderModule,
+            *fragmentShader,
             "main",
             nullptr // Use pSpecializationInfo to specify constants
     };
