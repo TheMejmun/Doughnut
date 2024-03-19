@@ -193,7 +193,7 @@ bool Swapchain::shouldRecreate() const {
 }
 
 std::optional<uint32_t> Swapchain::acquireNextImage(Semaphore &semaphore) {
-    auto result = mContext.mDevice.acquireNextImageKHR(mSwapchain, std::numeric_limits<uint64_t>::max(), semaphore.mSemaphore, nullptr);
+    auto result = mContext.mDevice.acquireNextImageKHR(mSwapchain, std::numeric_limits<uint64_t>::max(), *semaphore, nullptr);
     // TODO are these really all okay results?
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkAcquireNextImageKHR.html
     if (result.result == vk::Result::eSuccess

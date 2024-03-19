@@ -53,10 +53,12 @@ VulkanAPI::VulkanAPI(Window &window)
     // }
 
     mImageAvailableSemaphore.emplace(
-            mContext
+            mContext,
+            SemaphoreConfiguration{}
     );
     mRenderFinishedSemaphore.emplace(
-            mContext
+            mContext,
+            SemaphoreConfiguration{}
     );
     mInFlightFence.emplace(
             mContext,
@@ -262,9 +264,9 @@ void VulkanAPI::drawFrame(double delta) {
 
     // or VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
 
-    std::array<vk::Semaphore, 1> waitSemaphores{mImageAvailableSemaphore->mSemaphore}; // index corresponding to wait stage
+    std::array<vk::Semaphore, 1> waitSemaphores{**mImageAvailableSemaphore}; // index corresponding to wait stage
     std::array<vk::PipelineStageFlags, 1> waitStages{vk::PipelineStageFlagBits::eColorAttachmentOutput}; // Wait in fragment stage
-    std::array<vk::Semaphore, 1> signalSemaphores{mRenderFinishedSemaphore->mSemaphore};
+    std::array<vk::Semaphore, 1> signalSemaphores{**mRenderFinishedSemaphore};
     vk::SubmitInfo submitInfo{
             static_cast<uint32_t>(waitSemaphores.size()),
             waitSemaphores.data(),
