@@ -172,7 +172,8 @@ void Swapchain::create() {
         mFramebuffers.emplace_back(
                 mContext,
                 data,
-                *mRenderPass
+                *mRenderPass,
+                FramebufferConfiguration{}
         );
     }
 

@@ -12,20 +12,19 @@
 #include <vulkan/vulkan.hpp>
 
 namespace dn::vulkan {
-    class Framebuffer {
+    struct FramebufferConfiguration {
+    };
+
+    class Framebuffer : public Handle<vk::Framebuffer, FramebufferConfiguration> {
     public:
         Framebuffer(Context &context,
                     const std::vector<ImageView *> &attachments,
-                    RenderPass &renderPass);
+                    RenderPass &renderPass,
+                    const FramebufferConfiguration &config);
 
-        Framebuffer(Framebuffer &&other) noexcept;
+        Framebuffer(Framebuffer &&other) = default;
 
         ~Framebuffer();
-
-        vk::Framebuffer mFramebuffer = nullptr;
-
-    private:
-        Context &mContext;
     };
 }
 #endif //DOUGHNUT_FRAMEBUFFER_H

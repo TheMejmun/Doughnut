@@ -134,7 +134,7 @@ void VulkanAPI::beginRenderPass() {
     };
     vk::RenderPassBeginInfo renderPassInfo{
             mSwapchain->mRenderPass->mRenderPass,
-            mSwapchain->getFramebuffer(*mCurrentSwapchainFramebuffer).mFramebuffer,
+            *mSwapchain->getFramebuffer(*mCurrentSwapchainFramebuffer),
             vk::Rect2D{
                     {0, 0},
                     mSwapchain->mExtent

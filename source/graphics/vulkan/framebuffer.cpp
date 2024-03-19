@@ -12,9 +12,10 @@ using namespace dn::vulkan;
 
 Framebuffer::Framebuffer(Context &context,
                          const std::vector<ImageView *> &attachments,
-                         RenderPass &renderPass)
-        : mContext(context) {
-    log::v("Creating Framebuffer");
+                         RenderPass &renderPass,
+                         const FramebufferConfiguration &config)
+        : Handle<vk::Framebuffer, FramebufferConfiguration>(context, config) {
+
     require(!attachments.empty(), "Can not create a Framebuffer on empty attachments");
 
     std::vector<vk::ImageView> data{};
@@ -32,15 +33,9 @@ Framebuffer::Framebuffer(Context &context,
             1
     };
 
-    mFramebuffer = mContext.mDevice.createFramebuffer(createInfo);
-}
-
-Framebuffer::Framebuffer(dn::vulkan::Framebuffer &&other) noexcept
-        : mContext(other.mContext), mFramebuffer(std::exchange(other.mFramebuffer, nullptr)) {
-    log::v("Moving Framebuffer");
+    mVulkan = mContext.mDevice.createFramebuffer(createInfo);
 }
 
 Framebuffer::~Framebuffer() {
-    log::v("Destroying Framebuffer");
-    if (mFramebuffer != nullptr) { mContext.mDevice.destroy(mFramebuffer); }
+    if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
 }

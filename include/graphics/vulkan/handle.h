@@ -26,7 +26,7 @@ namespace dn::vulkan {
                   mConfig(other.mConfig),
                   mContext(other.mContext),
                   mMoved(false) {
-            mMoved = true;
+            other.mMoved = true;
             dn::log::v("Moved", typeid(VK_TYPE).name(), "handle");
         }
 
