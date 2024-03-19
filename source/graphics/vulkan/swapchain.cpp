@@ -137,7 +137,7 @@ void Swapchain::create() {
     std::vector<vk::Image> images = mContext.mDevice.getSwapchainImagesKHR(mSwapchain);
     mImageCount = images.size();
     for (const vk::Image image: images) {
-        mImages.emplace_back(mContext, image, mSurfaceFormat.format, nullptr);
+        mImages.emplace_back(mContext, image, mExtent, mSurfaceFormat.format, nullptr);
         mImageViews.emplace_back(mContext, mImages.back(), ImageViewConfiguration{mExtent, mSurfaceFormat.format});
     }
 
@@ -225,6 +225,7 @@ void Swapchain::destroy() {
     mDepthImage.reset();
 
     mImageViews.clear();
+    mImages.clear();
 
     mContext.mDevice.destroy(mSwapchain);
 }

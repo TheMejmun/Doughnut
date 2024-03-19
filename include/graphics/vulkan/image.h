@@ -29,7 +29,7 @@ namespace dn::vulkan {
         bool hasAlpha;
     };
 
-    class Image : public Handle<vk::Image> {
+    class Image : public Handle<vk::Image, ImageConfiguration> {
     public:
         Image(Context &context,
               ImageConfiguration config);
@@ -38,6 +38,7 @@ namespace dn::vulkan {
 
         Image(Context &instance,
               vk::Image image,
+              vk::Extent2D extent,
               vk::Format format,
               vk::DeviceMemory memory);
 
@@ -46,10 +47,7 @@ namespace dn::vulkan {
         vk::DeviceMemory mMemory;
         vk::Format mFormat;
         vk::ImageUsageFlags mUsageFlags;
-
-    private:
-        Context &mContext;
-        bool mLocallyConstructed;
+        const bool mLocallyConstructed;
     };
 }
 

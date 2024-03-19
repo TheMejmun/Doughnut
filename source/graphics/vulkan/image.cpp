@@ -35,21 +35,35 @@ vk::Format vulkan::findDepthFormat(vk::PhysicalDevice physicalDevice) {
     );
 }
 
+ImageConfiguration constructConfiguration(vk::Extent2D extent, vk::Format format) {
+    // TODO
+    return {
+            extent,
+            false,
+            false,
+            false,
+            false
+    };
+};
+
 Image::Image(Context &context,
              vk::Image image,
+             vk::Extent2D extent,
              vk::Format format,
              vk::DeviceMemory memory)
-        : mContext(context),
+        : Handle<vk::Image, ImageConfiguration>(context, constructConfiguration(extent, format)),
           mMemory(memory),
           mFormat(format),
           mUsageFlags(),
           mLocallyConstructed(false) {
+    log::v("Wrapping vk::Image with extent", extent.width, "*", extent.height, "and format", to_string(format));
     mVulkan = image;
 }
 
 Image::Image(Context &context,
              ImageConfiguration config)
-        : mContext(context), mLocallyConstructed(true) {
+        : Handle<vk::Image, ImageConfiguration>(context, config),
+          mLocallyConstructed(true) {
 
     if (config.isTextureImage) {
         // TODO format = config.hasAlpha ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8Srgb;

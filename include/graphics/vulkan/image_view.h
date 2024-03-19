@@ -16,21 +16,15 @@ namespace dn::vulkan {
         vk::ImageAspectFlags aspectFlags = {vk::ImageAspectFlagBits::eColor};
     };
 
-    class ImageView {
+    class ImageView : public Handle<vk::ImageView, ImageViewConfiguration> {
     public:
         ImageView(Context &context,
                   const Image &image,
-                  ImageViewConfiguration config);
+                  const ImageViewConfiguration &config);
 
-        ImageView(ImageView &&other) noexcept;
+        ImageView(ImageView &&other) = default;
 
         ~ImageView();
-
-        vk::ImageView mImageView;
-        vk::Extent2D mExtent{};
-
-    private:
-        Context &mContext;
     };
 }
 

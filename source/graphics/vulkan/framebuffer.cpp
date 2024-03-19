@@ -20,15 +20,15 @@ Framebuffer::Framebuffer(Context &context,
     std::vector<vk::ImageView> data{};
     data.reserve(attachments.size());
     for (const auto imageView: attachments) {
-        data.push_back(imageView->mImageView);
+        data.push_back(**imageView);
     }
 
     vk::FramebufferCreateInfo createInfo{
             {},
             renderPass.mRenderPass,
             static_cast<uint32_t>(data.size()), data.data(),
-            attachments[0]->mExtent.width,
-            attachments[0]->mExtent.height,
+            attachments[0]->mConfig.extent.width,
+            attachments[0]->mConfig.extent.height,
             1
     };
 

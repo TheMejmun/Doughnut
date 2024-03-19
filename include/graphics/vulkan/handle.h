@@ -7,20 +7,31 @@
 
 #include "io/logger.h"
 
+#include <typeinfo>
+
 namespace dn::vulkan {
-    template<class VK_TYPE>
+    template<class VK_TYPE, class CONFIG_TYPE>
     class Handle {
     public:
-        Handle() {
-            dn::log::d("Created", typeid(VK_TYPE).name());
+        Handle(Context &context, const CONFIG_TYPE &config)
+                : mContext(context),
+                  mConfig(config) {
+            dn::log::d("Created", typeid(VK_TYPE).name(), "handle");
         }
 
         Handle(const Handle &) = delete;
 
-        Handle(Handle &&) = default;
+        Handle(Handle &&other) noexcept
+                : mVulkan(std::exchange(other.mVulkan, nullptr)),
+                  mConfig(other.mConfig),
+                  mContext(other.mContext),
+                  mMoved(false) {
+            mMoved = true;
+            dn::log::d("Moved", typeid(VK_TYPE).name(), "handle");
+        }
 
         ~Handle() {
-            dn::log::d("Destroyed", typeid(VK_TYPE).name());
+            dn::log::d("Destroyed", typeid(VK_TYPE).name(), "handle (moved:", mMoved ? "true" : "false", "\b)");
         }
 
         VK_TYPE *operator->() {
@@ -40,6 +51,11 @@ namespace dn::vulkan {
         }
 
         VK_TYPE mVulkan;
+        const CONFIG_TYPE mConfig;
+
+        Context &mContext;
+
+        bool mMoved = false;
     };
 }
 

@@ -10,15 +10,14 @@ using namespace dn::vulkan;
 
 ImageView::ImageView(Context &context,
                      const Image &image,
-                     ImageViewConfiguration config)
-        : mContext(context), mExtent(config.extent) {
-    log::v("Creating ImageView");
+                     const ImageViewConfiguration &config)
+        : Handle<vk::ImageView, ImageViewConfiguration>(context, config) {
 
     vk::ImageViewCreateInfo viewCreateInfo{
             {},
             *image,
             vk::ImageViewType::e2D,
-            config.format,
+            mConfig.format,
             vk::ComponentMapping{
                     vk::ComponentSwizzle::eIdentity,
                     vk::ComponentSwizzle::eIdentity,
@@ -26,7 +25,7 @@ ImageView::ImageView(Context &context,
                     vk::ComponentSwizzle::eIdentity,
             },
             vk::ImageSubresourceRange{
-                    config.aspectFlags,
+                    mConfig.aspectFlags,
                     0,
                     1,
                     0,
@@ -34,17 +33,11 @@ ImageView::ImageView(Context &context,
             }
     };
 
-    mImageView = mContext.mDevice.createImageView(viewCreateInfo);
-}
-
-ImageView::ImageView(ImageView &&other) noexcept
-        : mImageView(std::exchange(other.mImageView, nullptr)),
-          mContext(other.mContext),
-          mExtent(other.mExtent) {
-    log::v("Moving ImageView");
+    mVulkan = mContext.mDevice.createImageView(viewCreateInfo);
 }
 
 ImageView::~ImageView() {
-    log::v("Destroying ImageView");
-    if (mImageView != nullptr) { mContext.mDevice.destroy(mImageView); }
+    if (mVulkan != nullptr) {
+        mContext.mDevice.destroy(mVulkan);
+    }
 }
