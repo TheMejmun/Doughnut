@@ -76,7 +76,7 @@ void StagingBuffer::upload(const uint32_t size, const void *data, const vk::Buff
             0,
             nullptr,
     };
-    mContext.mTransferQueue.submit(submitInfo, mFence.mFence);
+    mContext.mTransferQueue.submit(submitInfo, *mFence);
 }
 
 bool StagingBuffer::isCurrentlyUploading() {

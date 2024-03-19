@@ -288,7 +288,7 @@ void VulkanAPI::drawFrame(double delta) {
             signalSemaphores.data(),
     };
 
-    mContext->mGraphicsQueue.submit(submitInfo, mInFlightFence->mFence);
+    mContext->mGraphicsQueue.submit(submitInfo, **mInFlightFence);
 
     vk::PresentInfoKHR presentInfo{
             static_cast<uint32_t>(signalSemaphores.size()),

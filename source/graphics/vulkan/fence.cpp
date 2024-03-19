@@ -12,24 +12,19 @@ using namespace dn::vulkan;
 
 Fence::Fence(Context &context,
              FenceConfiguration config)
-        : mContext(context) {
-    log::d("Creating Fence");
+        : Handle<vk::Fence, FenceConfiguration>(context, config) {
+
     vk::FenceCreateInfo fenceInfo{
-            config.startSignalled ?
+            mConfig.startSignalled ?
             vk::FenceCreateFlags{vk::FenceCreateFlagBits::eSignaled} :
             vk::FenceCreateFlags{}
     };
-    mFence = mContext.mDevice.createFence(fenceInfo);
-}
-
-Fence::Fence(Fence &&other) noexcept
-        : mContext(other.mContext), mFence(std::exchange(other.mFence, nullptr)) {
-    log::d("Moving Fence");
+    mVulkan = mContext.mDevice.createFence(fenceInfo);
 }
 
 double Fence::await() const {
     auto beforeFence = now();
-    auto result = mContext.mDevice.waitForFences(mFence, vk::True, std::numeric_limits<uint64_t>::max());
+    auto result = mContext.mDevice.waitForFences(mVulkan, vk::True, std::numeric_limits<uint64_t>::max());
     require(result == vk::Result::eSuccess || result == vk::Result::eTimeout, "An error has occurred while waiting for a fence");
     auto afterFence = now();
 
@@ -37,11 +32,11 @@ double Fence::await() const {
 }
 
 void Fence::resetFence() const {
-    mContext.mDevice.resetFences(mFence);
+    mContext.mDevice.resetFences(mVulkan);
 }
 
 bool Fence::isWaiting() const {
-    auto result = mContext.mDevice.getFenceStatus(mFence);
+    auto result = mContext.mDevice.getFenceStatus(mVulkan);
     switch (result) {
         case vk::Result::eSuccess:
             return false;
@@ -53,7 +48,6 @@ bool Fence::isWaiting() const {
 }
 
 Fence::~Fence() {
-    log::d("Destroying Fence");
     await();
-    if (mFence != nullptr) { mContext.mDevice.destroy(mFence); }
+    if (mVulkan != nullptr) { mContext.mDevice.destroy(mVulkan); }
 }

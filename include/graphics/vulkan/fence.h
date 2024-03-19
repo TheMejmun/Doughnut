@@ -6,6 +6,7 @@
 #define DOUGHNUT_FENCE_H
 
 #include "graphics/vulkan/context.h"
+#include "handle.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -14,12 +15,12 @@ namespace dn::vulkan {
         bool startSignalled;
     };
 
-    class Fence {
+    class Fence : public Handle<vk::Fence, FenceConfiguration> {
     public:
         Fence(Context &context,
               FenceConfiguration config);
 
-        Fence(Fence &&other) noexcept;
+        Fence(Fence &&other) = default;
 
         ~Fence();
 
@@ -28,11 +29,6 @@ namespace dn::vulkan {
         void resetFence() const;
 
         [[nodiscard]] bool isWaiting() const;
-
-        vk::Fence mFence = nullptr;
-
-    private:
-        Context &mContext;
     };
 }
 

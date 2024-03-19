@@ -159,7 +159,7 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
             0,
             nullptr,
     };
-    mContext.mGraphicsQueue.submit(submitInfo, mFence.mFence);
+    mContext.mGraphicsQueue.submit(submitInfo, *mFence);
 }
 
 bool ImageStagingBuffer::isCurrentlyUploading() {
