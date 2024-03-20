@@ -3,7 +3,6 @@
 //
 
 #include "ecs/systems/camera_controller.h"
-#include "io/input_manager.h"
 #include "ecs/system_manager.h"
 #include "physics/transformer.h"
 #include "ecs/components/projector.h"
