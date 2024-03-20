@@ -253,7 +253,23 @@ void Window::toggleFullscreen() {
 }
 
 void Window::listen(WindowEventListener *listener) {
+    for (auto &mListener: mEventListeners) {
+        if (mListener == nullptr) {
+            mListener = listener;
+            return;
+        }
+    }
     mEventListeners.emplace_back(listener);
+}
+
+void Window::deregister(WindowEventListener *listener) {
+    for (auto &mListener: mEventListeners) {
+        if (mListener == listener) {
+            mListener = nullptr;
+            return;
+        }
+    }
+    log::e("Tried to deregister non-registered WindowEventListener");
 }
 
 void Window::poll() {

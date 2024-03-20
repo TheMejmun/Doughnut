@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+// TODO abstract
 union SDL_Event;
 
 class WindowEventListener {
@@ -101,6 +102,8 @@ namespace dn {
         [[nodiscard]] Size getSize() const;
 
         void listen(WindowEventListener *listener);
+
+        void deregister(WindowEventListener *listener);
 
         void *mHandle = nullptr; // SDL_Window
         std::string mTitle;
