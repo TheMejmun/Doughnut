@@ -48,6 +48,7 @@ Gui::Gui(Context &context,
     io.WantCaptureMouse = true;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Gamepad Controls
 
     // Setup ImGui style
     ImGui::StyleColorsDark();
@@ -90,6 +91,12 @@ Gui::Gui(Context &context,
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != nullptr);
+
+    mWindow.listen(this);
+}
+
+void Gui::onWindowEvent(const SDL_Event &event) {
+    ImGui_ImplSDL2_ProcessEvent(&event);
 }
 
 // TODO consider not calculating size twice per frame

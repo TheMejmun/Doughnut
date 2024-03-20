@@ -5,10 +5,16 @@
 #include "io/window.h"
 #include "io/logger.h"
 #include "util/require.h"
+#include "util/os.h"
 
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <utility>
+
+#ifdef OS_WINDOWS
+#define SDL_VIDEODRIVER windows
+#endif
+// TODO other OSes
 
 using namespace dn;
 
@@ -184,26 +190,34 @@ Window::Window(std::string title, int32_t width, int32_t height, bool resizable)
     require(width > 0 && height > 0, "Can not set negative window dimensions");
 
     // Specify SDL subsystems to init
+    // SDL_INIT_GAMECONTROLLER for imgui?
     bool success = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+    log::i("Test 1");
     require(success == 0, SDL_GetError());
 
+    log::i("Test -1");
+    require(SDL_VideoInit(nullptr) == 0, SDL_GetError());
+
     pollMonitorResolution();
+
+    // TODO see what this does
+    SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 
     uint32_t windowFlags = SDL_WINDOW_VULKAN;
     if (resizable)
         windowFlags |= SDL_WINDOW_RESIZABLE;
     // TODO maybe for mac
-    // windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+//    windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 
-    // TODO try
-    // SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
-
-    mHandle = SDL_CreateWindow(mTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, windowFlags);
+    mHandle = SDL_CreateWindow(mTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, windowFlags);
+    log::i("Test 2");
     require(mHandle != nullptr, SDL_GetError());
 
     mWindowID = SDL_GetWindowID((SDL_Window *) mHandle);
 
     pollPosition();
+
+    dn::log::i("Video driver:", SDL_GetCurrentVideoDriver());
 
     dn::log::d("Created Window");
 }
@@ -238,9 +252,22 @@ void Window::toggleFullscreen() {
     }
 }
 
+void Window::listen(WindowEventListener *listener) {
+    mEventListeners.emplace_back(listener);
+}
+
 void Window::poll() {
+    // Should only be called on main window thread
+    // https://wiki.libsdl.org/SDL2/SDL_PumpEvents
+    // Does not seem to make a difference anyway
+    SDL_PumpEvents();
+
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0) {
+        for (auto &listener: mEventListeners) {
+            listener->onWindowEvent(event);
+        }
+
         switch (event.type) {
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_CLOSE) {

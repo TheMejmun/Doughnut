@@ -16,7 +16,7 @@ namespace dn::vulkan {
         uint32_t imageCount;
     };
 
-    class Gui {
+    class Gui : WindowEventListener {
     public:
         Gui(Context &context,
             Window &window,
@@ -28,6 +28,8 @@ namespace dn::vulkan {
         void beginFrame();
 
         void endFrame(CommandBuffer &commandBuffer);
+
+        void onWindowEvent(const SDL_Event &event) override;
 
     private:
         Context &mContext;

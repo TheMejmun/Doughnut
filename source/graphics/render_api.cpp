@@ -9,6 +9,7 @@
 #include "graphics/uniform_buffer_object.h"
 #include "util/timer.h"
 #include "graphics/push_constants_object.h"
+#include "imgui.h"
 
 #include <stdexcept>
 #include <vector>
@@ -72,15 +73,15 @@ VulkanAPI::VulkanAPI(Window &window)
             }
     );
 
-//    mGui.emplace(
-//            mContext,
-//            window,
-//            *mSwapchain.mRenderPass,
-//            GuiConfiguration{
-//                    mSwapchain.mMinImageCount,
-//                    mSwapchain.mImageCount
-//            }
-//    );
+    mGui.emplace(
+            mContext,
+            window,
+            *mSwapchain.mRenderPass,
+            GuiConfiguration{
+                    mSwapchain.mMinImageCount,
+                    mSwapchain.mImageCount
+            }
+    );
 //    mGui->beginFrame(); // TODO
 
     log::d("Created VulkanAPI");
@@ -244,15 +245,14 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
             0,
             0
     );
-
-    // TODO this->drawUi(ecs);
 }
 
 void VulkanAPI::recordUiDraw() {
-//    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
-//    mGui->endFrame(mCommandBuffers[*mCurrentSwapchainFramebuffer]);
-//    // TODO maybe this is not the most ideal way to do this.
-//    mGui->beginFrame();
+    // TODO maybe this is not the most ideal way to do this.
+    mGui->beginFrame();
+    ImGui::ShowDemoWindow();
+    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    mGui->endFrame(mCommandBuffers[*mCurrentSwapchainFramebuffer]);
 }
 
 void VulkanAPI::drawFrame(double delta) {

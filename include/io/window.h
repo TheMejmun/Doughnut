@@ -11,6 +11,13 @@
 #include <string>
 #include <vector>
 
+union SDL_Event;
+
+class WindowEventListener {
+public:
+    virtual void onWindowEvent(const SDL_Event &event) = 0;
+};
+
 namespace dn {
     enum PixelFormat {
         UNKNOWN,
@@ -93,6 +100,8 @@ namespace dn {
 
         [[nodiscard]] Size getSize() const;
 
+        void listen(WindowEventListener *listener);
+
         void *mHandle = nullptr; // SDL_Window
         std::string mTitle;
 
@@ -108,6 +117,8 @@ namespace dn {
         bool mShouldClose = false; // TODO Write when event received
 
         std::vector<DisplayInfo> mDisplayInfos{};
+
+        std::vector<WindowEventListener *> mEventListeners{};
     };
 }
 
