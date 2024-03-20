@@ -4,8 +4,10 @@
 
 #include "graphics/vulkan/fence.h"
 #include "io/logger.h"
-#include "util/timer.h"
 #include "util/require.h"
+#include "util/timer.h"
+
+#include <vulkan/vulkan.hpp>
 
 using namespace dn;
 using namespace dn::vulkan;

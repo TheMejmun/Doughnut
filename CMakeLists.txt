@@ -90,7 +90,14 @@ target_include_directories(Doughnut PUBLIC include)
 
 #add_subdirectory(external)
 
-target_include_directories(Doughnut PUBLIC ${VK_FOLDER}/Include/)
+if (WIN32)
+    set(VK_INCLUDE ${VK_FOLDER}/Include/)
+elseif (LINUX)
+    set(VK_INCLUDE ${VK_FOLDER}/include/)
+elseif (UNIX)
+    set(VK_INCLUDE ${VK_FOLDER}/include/)
+endif ()
+target_include_directories(Doughnut PUBLIC ${VK_INCLUDE})
 
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
