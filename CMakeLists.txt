@@ -5,7 +5,39 @@ set(CMAKE_CXX_STANDARD 20)
 
 # ----------------------------------- SETTINGS -----------------------------------
 
-# TODO check if VK_FOLDER is even necessary or if it is unused.
+# https://stackoverflow.com/questions/32183975/how-to-print-all-the-properties-of-a-target-in-cmake
+function(print_target_properties target)
+    if(NOT CMAKE_PROPERTY_LIST)
+        execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE CMAKE_PROPERTY_LIST)
+
+        # Convert command output into a CMake list
+        string(REGEX REPLACE ";" "\\\\;" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
+        string(REGEX REPLACE "\n" ";" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
+        list(REMOVE_DUPLICATES CMAKE_PROPERTY_LIST)
+    endif()
+
+    if(NOT TARGET ${target})
+        message(STATUS "There is no target named '${target}'")
+        return()
+    endif()
+
+    message(STATUS "CMake target properties:")
+
+    foreach(property ${CMAKE_PROPERTY_LIST})
+        string(REPLACE "<CONFIG>" "DEBUG" property ${property})
+
+        if(${property} MATCHES "LOCATION")
+            message(STATUS "Skipping LOCATION")
+            continue()
+        endif ()
+
+        get_property(was_set TARGET ${target} PROPERTY ${property} SET)
+        if(was_set)
+            get_target_property(value ${target} ${property})
+            message(STATUS "${target} ${property} = ${value}")
+        endif()
+    endforeach()
+endfunction()
 
 if (WIN32)
     message(STATUS "Windows mode")
@@ -18,6 +50,7 @@ elseif (UNIX)
     set(VULKAN_BASE_DIR "$ENV{HOME}/VulkanSDK")
 endif ()
 
+# TODO check if VK_FOLDER is even necessary or if it is unused.
 if (NOT DEFINED VK_FOLDER)
     if (DEFINED ENV{VULKAN_SDK})
         message(STATUS "Setting VK_FOLDER from ENV{VULKAN_SDK}")
@@ -37,19 +70,15 @@ if (NOT DEFINED VK_FOLDER)
     endif ()
 endif ()
 
-if (NOT DEFINED ENV{VULKAN_SDK})
-    message(STATUS "Setting ENV{VULKAN_SDK} from VK_FOLDER")
-    set(ENV{VULKAN_SDK} VK_FOLDER)
-endif ()
+string(REPLACE "\\" "/" VK_FOLDER ${VK_FOLDER})
 
 message(STATUS "VK_FOLDER: ${VK_FOLDER}")
-message(STATUS "VULKAN_SDK: $ENV{VULKAN_SDK}")
 
 # ----------------------------------- ADD LIBRARY -----------------------------------
 
 # Add files
-file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS *.cpp)
-message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS source/*.cpp)
+# message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 
 # Main library
 add_library(Doughnut STATIC ${SOURCE_FILES})
@@ -59,23 +88,22 @@ target_include_directories(Doughnut PUBLIC include)
 
 # ----------------------------------- ADD DEPENDENCIES -----------------------------------
 
+#add_subdirectory(external)
+
+target_include_directories(Doughnut PUBLIC ${VK_FOLDER}/Include/)
+
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE glfw)
 find_package(Stb REQUIRED)
 target_include_directories(Doughnut PRIVATE ${Stb_INCLUDE_DIR})
-find_package(VulkanHeaders CONFIG)
-target_link_libraries(Doughnut PRIVATE Vulkan::Headers)
 
 find_package(imgui CONFIG REQUIRED)
 target_link_libraries(Doughnut PUBLIC imgui::imgui)
-find_package(glm CONFIG REQUIRED)
-target_link_libraries(Doughnut PUBLIC glm::glm)
 
 # output
-get_target_property(LL Doughnut LINK_LIBRARIES)
-message(STATUS "Linked libraries: ${LL}")
+print_target_properties(Doughnut)
 
 # ----------------------------------- ADD RESOURCES -----------------------------------
 
@@ -85,9 +113,13 @@ add_dependencies(Doughnut CopyAssets)
 
 # ----------------------------------- ADD TEST EXECUTABLE -----------------------------------
 
-add_executable(DoughnutTests source/test.cpp ${SOURCE_FILES})
-target_include_directories(DoughnutTests PRIVATE include)
-target_link_libraries(DoughnutTests PRIVATE ${LL})
+get_target_property(TEST_LINK_LIBRARIES Doughnut LINK_LIBRARIES)
+get_target_property(TEST_INCLUDE_DIRS Doughnut INCLUDE_DIRECTORIES)
+get_target_property(TEST_SOURCES Doughnut SOURCES)
+
+add_executable(DoughnutTests source/test.cpp ${TEST_SOURCES})
+target_include_directories(DoughnutTests PRIVATE ${TEST_INCLUDE_DIRS})
+target_link_libraries(DoughnutTests PRIVATE ${TEST_LINK_LIBRARIES})
 
 # https://stackoverflow.com/questions/32901679/unit-testing-as-part-of-the-build
 
