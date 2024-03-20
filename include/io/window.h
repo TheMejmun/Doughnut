@@ -89,6 +89,8 @@ namespace dn {
 
         void toggleFullscreen();
 
+        void poll();
+
         [[nodiscard]] Size getSize() const;
 
         void *mHandle = nullptr; // SDL_Window

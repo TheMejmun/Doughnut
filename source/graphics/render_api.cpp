@@ -72,16 +72,16 @@ VulkanAPI::VulkanAPI(Window &window)
             }
     );
 
-    mGui.emplace(
-            mContext,
-            window,
-            *mSwapchain.mRenderPass,
-            GuiConfiguration{
-                    mSwapchain.mMinImageCount,
-                    mSwapchain.mImageCount
-            }
-    );
-    mGui->beginFrame(); // TODO
+//    mGui.emplace(
+//            mContext,
+//            window,
+//            *mSwapchain.mRenderPass,
+//            GuiConfiguration{
+//                    mSwapchain.mMinImageCount,
+//                    mSwapchain.mImageCount
+//            }
+//    );
+//    mGui->beginFrame(); // TODO
 
     log::d("Created VulkanAPI");
 }
@@ -249,10 +249,10 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
 }
 
 void VulkanAPI::recordUiDraw() {
-    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
-    mGui->endFrame(mCommandBuffers[*mCurrentSwapchainFramebuffer]);
-    // TODO maybe this is not the most ideal way to do this.
-    mGui->beginFrame();
+//    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+//    mGui->endFrame(mCommandBuffers[*mCurrentSwapchainFramebuffer]);
+//    // TODO maybe this is not the most ideal way to do this.
+//    mGui->beginFrame();
 }
 
 void VulkanAPI::drawFrame(double delta) {

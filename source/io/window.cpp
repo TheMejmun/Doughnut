@@ -12,6 +12,8 @@
 
 using namespace dn;
 
+// TODO Poll Events https://vkguide.dev/docs/chapter-0/code_walkthrough/
+
 PixelFormat mapFormat(SDL_PixelFormatEnum sdlFormat) {
     switch (sdlFormat) {
         case SDL_PIXELFORMAT_INDEX1LSB:
@@ -233,6 +235,13 @@ void Window::toggleFullscreen() {
     } else {
         // TODO set position?
         SDL_SetWindowFullscreen((SDL_Window *) mHandle, 0);
+    }
+}
+
+void Window::poll() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event) != 0) {
+        log::e("EVENT HAPPENED AAAHHHH!!!");
     }
 }
 

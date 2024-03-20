@@ -25,7 +25,6 @@
 #include "graphics/vulkan/sampler.h"
 #include "graphics/vulkan/gui.h"
 
-#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 #include <string>
 #include <optional>

@@ -6,10 +6,11 @@
 #include "util/require.h"
 #include "graphics/vulkan/swapchain.h"
 #include "io/logger.h"
-#include "GLFW/glfw3.h"
 
 #include <sstream>
 #include <set>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_vulkan.h>
 
 using namespace dn;
 using namespace dn::vulkan;
@@ -81,7 +82,6 @@ QueueFamilyIndices findQueueFamilies(const vk::PhysicalDevice &device, const vk:
     return indices;
 }
 
-
 bool checkExtensionSupport(const vk::PhysicalDevice &device) {
     std::vector<vk::ExtensionProperties> extensionProperties = device.enumerateDeviceExtensionProperties();
 
@@ -139,11 +139,21 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
 
     std::vector<const char *> requiredInstanceExtensions{};
 
-    // GLFW extensions
-    uint32_t glfwExtensionCount = 0;
-    const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    for (uint32_t i = 0; i < glfwExtensionCount; i++) {
-        requiredInstanceExtensions.emplace_back(glfwExtensions[i]);
+    // SDL extensions
+    unsigned int sdlExtensionCount;
+    std::vector<const char *> sdlExtensionNames{};
+    require(
+            SDL_Vulkan_GetInstanceExtensions((SDL_Window *) mWindow.mHandle, &sdlExtensionCount, nullptr) == SDL_TRUE,
+            "Error getting SDL Vulkan extensions"
+    );
+    sdlExtensionNames.resize(sdlExtensionCount);
+    require(
+            SDL_Vulkan_GetInstanceExtensions((SDL_Window *) mWindow.mHandle, &sdlExtensionCount, sdlExtensionNames.data()) == SDL_TRUE,
+            "Error getting SDL Vulkan extensions"
+    );
+
+    for (uint32_t i = 0; i < sdlExtensionCount; i++) {
+        requiredInstanceExtensions.emplace_back(sdlExtensionNames[i]);
     }
 
     // MacOS compatibility
@@ -169,7 +179,7 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
     mInstance = vk::createInstance(instanceCreateInfo);
 
     require(
-            glfwCreateWindowSurface(mInstance, (GLFWwindow *) mWindow.mHandle, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
+            SDL_Vulkan_CreateSurface((SDL_Window *) mWindow.mHandle, mInstance, reinterpret_cast<VkSurfaceKHR *>(&mSurface)) == SDL_TRUE,
             "Failed to create window surface!"
     );
 

@@ -7,7 +7,7 @@
 
 #include <imgui.h>
 #include <imgui_impl_vulkan.h>
-#include <imgui_impl_glfw.h>
+#include <imgui_impl_sdl2.h>
 
 using namespace dn;
 using namespace dn::vulkan;
@@ -53,7 +53,7 @@ Gui::Gui(Context &context,
     ImGui::StyleColorsDark();
 
     // Setup Platform / Renderer backends
-    ImGui_ImplGlfw_InitForVulkan((GLFWwindow *) mWindow.mHandle, true);
+    ImGui_ImplSDL2_InitForVulkan((SDL_Window *) mWindow.mHandle);
     ImGui_ImplVulkan_InitInfo initInfo{
             mContext.mInstance,
             mContext.mPhysicalDevice,
@@ -101,7 +101,7 @@ void Gui::beginFrame() {
     ImGui::GetIO().DisplayFramebufferScale = scale;
 
     ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 }
 
@@ -125,6 +125,6 @@ Gui::~Gui() {
     log::d("Destroying GUI");
 
     ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 }
