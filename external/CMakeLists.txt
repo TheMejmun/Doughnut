@@ -19,14 +19,21 @@ endif ()
 
 # libs
 if (WIN32)
-    file(GLOB SDL_LIB CONFIGURE_DEPENDS "${VK_FOLDER}/Lib/SDL2.lib")
+    # TODO for some reason using the standard SDL2.lib does not work for release builds in Windows
+    file(GLOB SDL_LIB CONFIGURE_DEPENDS "${VK_FOLDER}/Lib/SDL2d.lib")
 elseif (LINUX)
     file(GLOB SDL_LIB CONFIGURE_DEPENDS "${VK_FOLDER}/lib/libSDL2.a")
 elseif (UNIX)
     file(GLOB SDL_LIB CONFIGURE_DEPENDS "${VK_FOLDER}/lib/libSDL2.a")
 endif ()
 
-set(VK_LIB ${SDL_LIB} PARENT_SCOPE)
+#if (WIN32)
+#    file(GLOB VK_LIB CONFIGURE_DEPENDS "${VK_FOLDER}/Lib/vulkan-1.lib")
+#elseif (LINUX)
+#elseif (UNIX)
+#endif ()
+
+set(VK_LIB ${SDL_LIB} ${VK_LIB} PARENT_SCOPE)
 
 #message(STATUS "Before norm: ${VULKAN_LIB_SOURCE}")
 #normalize(VULKAN_LIB_SOURCE)

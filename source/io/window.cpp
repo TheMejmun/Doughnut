@@ -8,13 +8,9 @@
 #include "util/os.h"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_vulkan.h>
 #include <iostream>
 #include <utility>
-
-#ifdef OS_WINDOWS
-#define SDL_VIDEODRIVER windows
-#endif
-// TODO other OSes
 
 using namespace dn;
 
@@ -197,6 +193,11 @@ Window::Window(std::string title, int32_t width, int32_t height, bool resizable)
 
     log::i("Test -1");
     require(SDL_VideoInit(nullptr) == 0, SDL_GetError());
+
+//#ifdef OS_WINDOWS
+//    success = SDL_Vulkan_LoadLibrary("vulkan-1.dll") == 0;
+//    require(success, SDL_GetError());
+//#endif
 
     pollMonitorResolution();
 
