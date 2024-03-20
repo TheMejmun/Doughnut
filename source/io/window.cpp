@@ -241,7 +241,13 @@ void Window::toggleFullscreen() {
 void Window::poll() {
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0) {
-        log::e("EVENT HAPPENED AAAHHHH!!!");
+        switch (event.type) {
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+                    mShouldClose = true;
+                }
+                break;
+        }
     }
 }
 
