@@ -6,6 +6,7 @@
 #include "util/require.h"
 #include "graphics/vulkan/swapchain.h"
 #include "io/logger.h"
+#include "GLFW/glfw3.h"
 
 #include <sstream>
 #include <set>
@@ -168,7 +169,7 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
     mInstance = vk::createInstance(instanceCreateInfo);
 
     require(
-            glfwCreateWindowSurface(mInstance, mWindow.mGlfwWindow, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
+            glfwCreateWindowSurface(mInstance, (GLFWwindow *) mWindow.mHandle, nullptr, reinterpret_cast<VkSurfaceKHR *>(&mSurface)),
             "Failed to create window surface!"
     );
 

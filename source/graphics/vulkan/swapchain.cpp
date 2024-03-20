@@ -5,6 +5,7 @@
 #include "graphics/vulkan/swapchain.h"
 #include "io/logger.h"
 #include "util/require.h"
+#include "GLFW/glfw3.h"
 
 using namespace dn;
 using namespace dn::vulkan;
@@ -60,7 +61,7 @@ vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities, Wi
         out = capabilities.currentExtent;
     } else {
         int w, h;
-        glfwGetFramebufferSize(window.mGlfwWindow, &w, &h);
+        glfwGetFramebufferSize((GLFWwindow *) window.mHandle, &w, &h);
         out = vk::Extent2D{static_cast<uint32_t>(w), static_cast<uint32_t>(h)};
 
         out.width = std::clamp(out.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
@@ -186,7 +187,7 @@ float Swapchain::getAspectRatio() const {
 
 bool Swapchain::shouldRecreate() const {
     int w, h;
-    glfwGetFramebufferSize(mContext.mWindow.mGlfwWindow, &w, &h);
+    glfwGetFramebufferSize((GLFWwindow *) mContext.mWindow.mHandle, &w, &h);
     bool framebufferChanged = w != mExtent.width || h != mExtent.height;
 
     return mNeedsNewSwapchain || framebufferChanged;

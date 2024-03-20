@@ -6,90 +6,292 @@
 #include "io/logger.h"
 #include "util/require.h"
 
+#include <SDL2/SDL.h>
 #include <iostream>
 #include <utility>
 
 using namespace dn;
 
-Window::Window(std::string title, int32_t width, int32_t height, bool resizable)
-        : mTitle(std::move(title)),
-          mWidth(width),
-          mHeight(height) {
-    require(mWidth > 0 && mHeight > 0, "Can not create a window with negative dimensions");
-    dn::log::d("Creating Window");
+PixelFormat mapFormat(SDL_PixelFormatEnum sdlFormat) {
+    switch (sdlFormat) {
+        case SDL_PIXELFORMAT_INDEX1LSB:
+            return INDEX1LSB;
+        case SDL_PIXELFORMAT_INDEX1MSB:
+            return INDEX1MSB;
+        case SDL_PIXELFORMAT_INDEX4LSB:
+            return INDEX4LSB;
+        case SDL_PIXELFORMAT_INDEX4MSB:
+            return INDEX4MSB;
+        case SDL_PIXELFORMAT_INDEX8:
+            return INDEX8;
+        case SDL_PIXELFORMAT_RGB332:
+            return RGB332;
+        case SDL_PIXELFORMAT_XRGB4444:
+            return XRGB4444;
+        case SDL_PIXELFORMAT_XBGR4444:
+            return XBGR4444;
+        case SDL_PIXELFORMAT_XRGB1555:
+            return XRGB1555;
+        case SDL_PIXELFORMAT_XBGR1555:
+            return XBGR1555;
+        case SDL_PIXELFORMAT_ARGB4444:
+            return ARGB4444;
+        case SDL_PIXELFORMAT_RGBA4444:
+            return RGBA4444;
+        case SDL_PIXELFORMAT_ABGR4444:
+            return ABGR4444;
+        case SDL_PIXELFORMAT_BGRA4444:
+            return BGRA4444;
+        case SDL_PIXELFORMAT_ARGB1555:
+            return ARGB1555;
+        case SDL_PIXELFORMAT_RGBA5551:
+            return RGBA5551;
+        case SDL_PIXELFORMAT_ABGR1555:
+            return ABGR1555;
+        case SDL_PIXELFORMAT_BGRA5551:
+            return BGRA5551;
+        case SDL_PIXELFORMAT_RGB565:
+            return RGB565;
+        case SDL_PIXELFORMAT_BGR565:
+            return BGR565;
+        case SDL_PIXELFORMAT_RGB24:
+            return RGB24;
+        case SDL_PIXELFORMAT_BGR24:
+            return BGR24;
+        case SDL_PIXELFORMAT_XRGB8888:
+            return XRGB8888;
+        case SDL_PIXELFORMAT_RGBX8888:
+            return RGBX8888;
+        case SDL_PIXELFORMAT_XBGR8888:
+            return XBGR8888;
+        case SDL_PIXELFORMAT_BGRX8888:
+            return BGRX8888;
+        case SDL_PIXELFORMAT_ARGB8888:
+            return ARGB8888;
+        case SDL_PIXELFORMAT_RGBA8888:
+            return RGBA8888;
+        case SDL_PIXELFORMAT_ABGR8888:
+            return ABGR8888;
+        case SDL_PIXELFORMAT_BGRA8888:
+            return BGRA8888;
+        case SDL_PIXELFORMAT_ARGB2101010:
+            return ARGB2101010;
+        case SDL_PIXELFORMAT_YV12:
+            return YV12;
+        case SDL_PIXELFORMAT_IYUV:
+            return IYUV;
+        case SDL_PIXELFORMAT_YUY2:
+            return YUY2;
+        case SDL_PIXELFORMAT_UYVY:
+            return UYVY;
+        case SDL_PIXELFORMAT_YVYU:
+            return YVYU;
+        case SDL_PIXELFORMAT_NV12:
+            return NV12;
+        case SDL_PIXELFORMAT_NV21:
+            return NV21;
+        default:
+        error("Unknown pixel format");
+    }
+}
 
-    glfwInit();
+std::string toString(PixelFormat pixelFormat) {
+    switch (pixelFormat) {
+        case INDEX1LSB:
+            return "INDEX1LSB";
+        case INDEX1MSB:
+            return "INDEX1MSB";
+        case INDEX4LSB:
+            return "INDEX4LSB";
+        case INDEX4MSB:
+            return "INDEX4MSB";
+        case INDEX8:
+            return "INDEX8";
+        case RGB332:
+            return "RGB332";
+        case XRGB4444:
+            return "XRGB4444";
+        case XBGR4444:
+            return "XBGR4444";
+        case XRGB1555:
+            return "XRGB1555";
+        case XBGR1555:
+            return "XBGR1555";
+        case ARGB4444:
+            return "ARGB4444";
+        case RGBA4444:
+            return "RGBA4444";
+        case ABGR4444:
+            return "ABGR4444";
+        case BGRA4444:
+            return "BGRA4444";
+        case ARGB1555:
+            return "ARGB1555";
+        case RGBA5551:
+            return "RGBA5551";
+        case ABGR1555:
+            return "ABGR1555";
+        case BGRA5551:
+            return "BGRA5551";
+        case RGB565:
+            return "RGB565";
+        case BGR565:
+            return "BGR565";
+        case RGB24:
+            return "RGB24";
+        case BGR24:
+            return "BGR24";
+        case XRGB8888:
+            return "XRGB8888";
+        case RGBX8888:
+            return "RGBX8888";
+        case XBGR8888:
+            return "XBGR8888";
+        case BGRX8888:
+            return "BGRX8888";
+        case ARGB8888:
+            return "ARGB8888";
+        case RGBA8888:
+            return "RGBA8888";
+        case ABGR8888:
+            return "ABGR8888";
+        case BGRA8888:
+            return "BGRA8888";
+        case ARGB2101010:
+            return "ARGB2101010";
+        case YV12:
+            return "YV12";
+        case IYUV:
+            return "IYUV";
+        case YUY2:
+            return "YUY2";
+        case UYVY:
+            return "UYVY";
+        case YVYU:
+            return "YVYU";
+        case NV12:
+            return "NV12";
+        case NV21:
+            return "NV21";
+        default:
+        error("Unknown pixel format");
+    }
+}
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+Window::Window(std::string title, int32_t width, int32_t height, bool resizable) : mTitle(std::move(title)) {
+    require(width > 0 && height > 0, "Can not set negative window dimensions");
 
-    mGlfwWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), nullptr, nullptr);
-    glfwSetWindowAttrib(mGlfwWindow, GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
-    mMonitor = glfwGetPrimaryMonitor();
+    // Specify SDL subsystems to init
+    bool success = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+    require(success == 0, SDL_GetError());
+
     pollMonitorResolution();
+
+    uint32_t windowFlags = SDL_WINDOW_VULKAN;
+    if (resizable)
+        windowFlags |= SDL_WINDOW_RESIZABLE;
+    // TODO maybe for mac
+    // windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+
+    // TODO try
+    // SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
+
+    mHandle = SDL_CreateWindow(mTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, windowFlags);
+    require(mHandle != nullptr, SDL_GetError());
+
+    mWindowID = SDL_GetWindowID((SDL_Window *) mHandle);
+
+    pollPosition();
+
+    dn::log::d("Created Window");
 }
 
 void Window::updateTitle(const std::string &t) {
     mTitle = t;
-    if (mGlfwWindow != nullptr) {
-        glfwSetWindowTitle(mGlfwWindow, mTitle.c_str());
-    }
+    SDL_SetWindowTitle((SDL_Window *) mHandle, mTitle.c_str());
 }
 
 bool Window::shouldClose() const {
-    return glfwWindowShouldClose(mGlfwWindow);
+    return mShouldClose;
 }
 
 void Window::close() const {
-    glfwSetWindowShouldClose(mGlfwWindow, GLFW_TRUE);
+    SDL_Event event{};
+    event.window = {SDL_WINDOWEVENT,
+                    SDL_GetTicks(),
+                    mWindowID,
+                    SDL_WINDOWEVENT_CLOSE
+    };
+    SDL_PushEvent(&event);
 }
 
 void Window::toggleFullscreen() {
     mIsMaximized = !mIsMaximized;
     if (mIsMaximized) {
         pollPosition(); // For restoring later
-        glfwSetWindowMonitor(mGlfwWindow, glfwGetPrimaryMonitor(),
-                             0, 0,
-                             mWidth, mHeight,
-                             mMonitorParams->refreshRate);
+        SDL_SetWindowFullscreen((SDL_Window *) mHandle, SDL_WINDOW_FULLSCREEN);
     } else {
-        glfwSetWindowMonitor(mGlfwWindow, nullptr,
-                             mWindowPosX, mWindowPosY,
-                             mWidth, mHeight, GLFW_DONT_CARE);
+        // TODO set position?
+        SDL_SetWindowFullscreen((SDL_Window *) mHandle, 0);
     }
 }
 
-
 void Window::pollMonitorResolution() {
-    // Supposed to be valid until monitor disconnected, but seems to change between fullscreen and windowed
-    mMonitorParams = glfwGetVideoMode(mMonitor);
-    int count;
-    auto params = glfwGetVideoModes(mMonitor, &count);
+    // Supposed to be valid until monitor disconnected, but seems to change
+    // between fullscreen and windowed
+    int numDisplays = SDL_GetNumVideoDisplays();
+    require(numDisplays > 0, "No displays were found");
+    mDisplayInfos.resize(numDisplays);
 
-    for (int i = 0; i < count; ++i) {
-        dn::log::d("Got monitor info:",
-                   "\n\tWidth:\t", params[i].width,
-                   "\n\tHeight:\t", params[i].height,
-                   "\n\tRed Bits:\t", params[i].redBits,
-                   "\n\tGreen Bits:\t", params[i].greenBits,
-                   "\n\tBlue Bits:\t", params[i].blueBits,
-                   "\n\tHz:\t", params[i].refreshRate);
-        mMonitorParams = &params[i];
+    for (int displayIndex = 0; displayIndex < numDisplays; ++displayIndex) {
+        int numDisplayModes = SDL_GetNumDisplayModes(displayIndex);
+        DisplayInfo &displayInfo = mDisplayInfos[displayIndex];
+
+        displayInfo.name = SDL_GetDisplayName(displayIndex);
+
+        displayInfo.displayModes.resize(numDisplayModes);
+
+        for (int displayModeIndex = 0; displayModeIndex < numDisplayModes; ++displayModeIndex) {
+            DisplayMode &displayMode = displayInfo.displayModes[displayModeIndex];
+
+            SDL_DisplayMode sdlDisplayMode;
+            auto result = SDL_GetDisplayMode(displayIndex, displayModeIndex, &sdlDisplayMode);
+            require(result == 0, SDL_GetError());
+
+            displayMode.width = sdlDisplayMode.w;
+            displayMode.height = sdlDisplayMode.h;
+            displayMode.refreshRate = sdlDisplayMode.refresh_rate;
+
+            auto pixelOrder = SDL_PIXELORDER(sdlDisplayMode.format); // https://wiki.libsdl.org/SDL2/SDL_PixelFormatEnum#order
+            auto pixelBitPattern = SDL_PIXELLAYOUT(sdlDisplayMode.format); // https://wiki.libsdl.org/SDL2/SDL_PixelFormatEnum#layout
+
+            displayMode.format = mapFormat((SDL_PixelFormatEnum) sdlDisplayMode.format);
+            displayMode.hasAlpha = SDL_ISPIXELFORMAT_ALPHA(sdlDisplayMode.format);
+
+            dn::log::d("Got monitor info for", displayInfo.name, "\b:",
+                       "\n\tWidth:\t", displayMode.width,
+                       "\n\tHeight:\t", displayMode.height,
+                       "\n\tFormat:\t", toString(displayMode.format),
+                       "\n\tHz:\t", sdlDisplayMode.refresh_rate
+            );
+        }
     }
 }
 
 void Window::pollPosition() {
-    glfwGetWindowPos(mGlfwWindow, &mWindowPosX, &mWindowPosY);
+    SDL_GetWindowPosition((SDL_Window *) mHandle, &mWindowPosX, &mWindowPosY);
 }
 
 Size Window::getSize() const {
     int fbWidth, fbHeight, wWidth, wHeight;
-    glfwGetFramebufferSize(mGlfwWindow, &fbWidth, &fbHeight);
-    glfwGetWindowSize(mGlfwWindow, &wWidth, &wHeight);
+    SDL_GetWindowSize((SDL_Window *) mHandle, &wWidth, &wHeight);
+    // TODO use correct dimensions for scale
+    SDL_GetWindowSize((SDL_Window *) mHandle, &fbWidth, &fbHeight);
+    // SDL_GetRendererOutputSize((SDL_Renderer *) mRendererHandle, &fbWidth, &fbHeight);
 
+    // Assume uniform scaling
     float scale = (static_cast<float>(fbWidth) / static_cast<float>(wWidth));
-    return {
-            static_cast<uint32_t>(wWidth),
+    return {static_cast<uint32_t>(wWidth),
             static_cast<uint32_t>(wHeight),
             static_cast<uint32_t>(fbWidth),
             static_cast<uint32_t>(fbHeight),
@@ -100,7 +302,6 @@ Size Window::getSize() const {
 Window::~Window() {
     dn::log::d("Destroying Window");
 
-    glfwDestroyWindow(mGlfwWindow);
-
-    glfwTerminate();
+    SDL_DestroyWindow((SDL_Window *) mHandle);
+    SDL_Quit();
 }

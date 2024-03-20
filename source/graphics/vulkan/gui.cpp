@@ -53,7 +53,7 @@ Gui::Gui(Context &context,
     ImGui::StyleColorsDark();
 
     // Setup Platform / Renderer backends
-    ImGui_ImplGlfw_InitForVulkan(mWindow.mGlfwWindow, true);
+    ImGui_ImplGlfw_InitForVulkan((GLFWwindow *) mWindow.mHandle, true);
     ImGui_ImplVulkan_InitInfo initInfo{
             mContext.mInstance,
             mContext.mPhysicalDevice,
