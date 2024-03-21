@@ -7,36 +7,36 @@ set(CMAKE_CXX_STANDARD 20)
 
 # https://stackoverflow.com/questions/32183975/how-to-print-all-the-properties-of-a-target-in-cmake
 function(print_target_properties target)
-    if(NOT CMAKE_PROPERTY_LIST)
+    if (NOT CMAKE_PROPERTY_LIST)
         execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE CMAKE_PROPERTY_LIST)
 
         # Convert command output into a CMake list
         string(REGEX REPLACE ";" "\\\\;" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
         string(REGEX REPLACE "\n" ";" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
         list(REMOVE_DUPLICATES CMAKE_PROPERTY_LIST)
-    endif()
+    endif ()
 
-    if(NOT TARGET ${target})
+    if (NOT TARGET ${target})
         message(STATUS "There is no target named '${target}'")
         return()
-    endif()
+    endif ()
 
     message(STATUS "CMake target properties:")
 
-    foreach(property ${CMAKE_PROPERTY_LIST})
+    foreach (property ${CMAKE_PROPERTY_LIST})
         string(REPLACE "<CONFIG>" "DEBUG" property ${property})
 
-        if(${property} MATCHES "LOCATION")
+        if (${property} MATCHES "LOCATION")
             message(STATUS "Skipping LOCATION")
             continue()
         endif ()
 
         get_property(was_set TARGET ${target} PROPERTY ${property} SET)
-        if(was_set)
+        if (was_set)
             get_target_property(value ${target} ${property})
             message(STATUS "${target} ${property} = ${value}")
-        endif()
-    endforeach()
+        endif ()
+    endforeach ()
 endfunction()
 
 if (WIN32)
@@ -91,16 +91,28 @@ target_include_directories(Doughnut PUBLIC include)
 add_subdirectory(external)
 #set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${VK_LIB})
 
-find_package(SDL2 CONFIG REQUIRED)
-target_link_libraries(Doughnut PUBLIC ${SDL2_LIBRARIES})
+#option(FETCH_SDL2 "Fetch and Compile SDL2" OFF)
+#if (${FETCH_SDL2})
+#    message(STATUS "Fetching SDL2")
+#else ()
+#    message(STATUS "Linking Existing SDL2")
+#    find_package(SDL2 CONFIG REQUIRED)
+#    target_link_libraries(Doughnut PUBLIC ${SDL2_LIBRARIES})
+#endif ()
 
-target_link_directories(Doughnut PUBLIC ${VK_LIB})
+# vcpkg SDL2
+find_package(SDL2 CONFIG REQUIRED)
+target_link_libraries(Doughnut
+        PRIVATE
+        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+)
+
+#target_link_directories(Doughnut PUBLIC ${VK_LIB})
 target_include_directories(Doughnut PUBLIC ${VK_INCLUDE})
 
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
-find_package(glfw3 CONFIG REQUIRED)
-target_link_libraries(Doughnut PRIVATE glfw)
 find_package(Stb REQUIRED)
 target_include_directories(Doughnut PRIVATE ${Stb_INCLUDE_DIR})
 
