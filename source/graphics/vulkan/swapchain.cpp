@@ -59,9 +59,8 @@ vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities, Wi
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         out = capabilities.currentExtent;
     } else {
-        int w, h;
-        glfwGetFramebufferSize(window.mGlfwWindow, &w, &h);
-        out = vk::Extent2D{static_cast<uint32_t>(w), static_cast<uint32_t>(h)};
+        auto windowSize = window.getSize();
+        out = vk::Extent2D{windowSize.framebufferWidth, windowSize.framebufferHeight};
 
         out.width = std::clamp(out.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
         out.height = std::clamp(out.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
@@ -185,9 +184,8 @@ float Swapchain::getAspectRatio() const {
 }
 
 bool Swapchain::shouldRecreate() const {
-    int w, h;
-    glfwGetFramebufferSize(mContext.mWindow.mGlfwWindow, &w, &h);
-    bool framebufferChanged = w != mExtent.width || h != mExtent.height;
+    auto windowSize = mContext.mWindow.getSize();
+    bool framebufferChanged = windowSize.framebufferWidth != mExtent.width || windowSize.framebufferHeight != mExtent.height;
 
     return mNeedsNewSwapchain || framebufferChanged;
 }

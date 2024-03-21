@@ -7,19 +7,82 @@
 
 #include "preprocessor.h"
 
-#include <GLFW/glfw3.h>
 #include <memory>
 #include <string>
+#include <vector>
+
+// TODO abstract
+union SDL_Event;
+
+class WindowEventListener {
+public:
+    virtual void onWindowEvent(const SDL_Event &event) = 0;
+};
 
 namespace dn {
-    struct Size{
+    enum PixelFormat {
+        UNKNOWN,
+        INDEX1LSB,
+        INDEX1MSB,
+        INDEX4LSB,
+        INDEX4MSB,
+        INDEX8,
+        RGB332,
+        XRGB4444,
+        XBGR4444,
+        XRGB1555,
+        XBGR1555,
+        ARGB4444,
+        RGBA4444,
+        ABGR4444,
+        BGRA4444,
+        ARGB1555,
+        RGBA5551,
+        ABGR1555,
+        BGRA5551,
+        RGB565,
+        BGR565,
+        RGB24,
+        BGR24,
+        XRGB8888,
+        RGBX8888,
+        XBGR8888,
+        BGRX8888,
+        ARGB8888,
+        RGBA8888,
+        ABGR8888,
+        BGRA8888,
+        ARGB2101010,
+        YV12,
+        IYUV,
+        YUY2,
+        UYVY,
+        YVYU,
+        NV12,
+        NV21
+    };
+
+    struct Size {
         uint32_t windowWidth;
         uint32_t windowHeight;
         uint32_t framebufferWidth;
         uint32_t framebufferHeight;
         float scale;
     };
-    
+
+    struct DisplayMode {
+        uint32_t width;
+        uint32_t height;
+        uint32_t refreshRate;
+        PixelFormat format;
+        bool hasAlpha;
+    };
+
+    struct DisplayInfo {
+        std::vector<DisplayMode> displayModes{};
+        std::string name;
+    };
+
     class Window {
     public:
         explicit Window(std::string title, int32_t width = 640, int32_t height = 400, bool resizable = true);
@@ -34,9 +97,15 @@ namespace dn {
 
         void toggleFullscreen();
 
-        Size getSize() const;
-        
-        GLFWwindow *mGlfwWindow = nullptr;
+        void poll();
+
+        [[nodiscard]] Size getSize() const;
+
+        void listen(WindowEventListener *listener);
+
+        void deregister(WindowEventListener *listener);
+
+        void *mHandle = nullptr; // SDL_Window
         std::string mTitle;
 
     private:
@@ -45,11 +114,14 @@ namespace dn {
         void pollPosition();
 
         bool mIsMaximized = false;
-        int32_t mWidth, mHeight;
         int mWindowPosX = 0, mWindowPosY = 0;
 
-        GLFWmonitor *mMonitor = nullptr;
-        const GLFWvidmode *mMonitorParams = nullptr;
+        uint32_t mWindowID;
+        bool mShouldClose = false; // TODO Write when event received
+
+        std::vector<DisplayInfo> mDisplayInfos{};
+
+        std::vector<WindowEventListener *> mEventListeners{};
     };
 }
 

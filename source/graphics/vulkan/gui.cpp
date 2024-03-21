@@ -7,11 +7,12 @@
 
 #include <imgui.h>
 #include <imgui_impl_vulkan.h>
-#include <imgui_impl_glfw.h>
+#include <imgui_impl_sdl2.h>
 
 using namespace dn;
 using namespace dn::vulkan;
 
+// TODO
 void checkVkResult(VkResult err) {
     if (err == 0) return;
 
@@ -48,32 +49,33 @@ Gui::Gui(Context &context,
     io.WantCaptureMouse = true;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Gamepad Controls
 
     // Setup ImGui style
     ImGui::StyleColorsDark();
 
     // Setup Platform / Renderer backends
-    ImGui_ImplGlfw_InitForVulkan(mWindow.mGlfwWindow, true);
+    ImGui_ImplSDL2_InitForVulkan((SDL_Window *) mWindow.mHandle);
     ImGui_ImplVulkan_InitInfo initInfo{
             mContext.mInstance,
             mContext.mPhysicalDevice,
             mContext.mDevice,
             *mContext.mQueueFamilyIndices.graphicsFamily,
             mContext.mGraphicsQueue,
-            mPipelineCache, // TODO
             *mDescriptorPool,
-            0, // TODO
+            *renderPass, // TODO
             config.minImageCount,
             config.imageCount,
             VK_SAMPLE_COUNT_1_BIT,
-            false,
-            {},
             nullptr,
-            checkVkResult
+            0, // TODO
+            false,
+            {}, // VkPipelineRenderingCreateInfoKHR
+            nullptr,
+            checkVkResult,
+            1024 * 1024
     };
-    // init_info.RenderPass = wd->RenderPass;
-    // init_info.Allocator = g_Allocator;
-    ImGui_ImplVulkan_Init(&initInfo, *renderPass);
+    ImGui_ImplVulkan_Init(&initInfo);
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -90,6 +92,12 @@ Gui::Gui(Context &context,
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != nullptr);
+
+    mWindow.listen(this);
+}
+
+void Gui::onWindowEvent(const SDL_Event &event) {
+    ImGui_ImplSDL2_ProcessEvent(&event);
 }
 
 // TODO consider not calculating size twice per frame
@@ -101,7 +109,7 @@ void Gui::beginFrame() {
     ImGui::GetIO().DisplayFramebufferScale = scale;
 
     ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 }
 
@@ -125,6 +133,6 @@ Gui::~Gui() {
     log::d("Destroying GUI");
 
     ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 }

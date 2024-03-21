@@ -8,7 +8,6 @@
 #include "preprocessor.h"
 #include "util/timer.h"
 
-#include "GLFW/glfw3.h"
 #include <string>
 
 struct UiState {

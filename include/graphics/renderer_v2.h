@@ -11,7 +11,6 @@
 #include "io/resource_pool.h"
 #include "shader.h"
 
-#include <GLFW/glfw3.h>
 #include <string>
 
 #define WIREFRAME_MODE
