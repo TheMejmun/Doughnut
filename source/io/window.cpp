@@ -187,7 +187,7 @@ Window::Window(std::string title, int32_t width, int32_t height, bool resizable)
 
     SDL_version version;
     SDL_GetVersion(&version);
-    log::d("Initializing SDL2 with version", (uint32_t) version.major, (uint32_t) version.minor, (uint32_t) version.patch);
+    log::v("Initializing SDL2 with version", (uint32_t) version.major, (uint32_t) version.minor, (uint32_t) version.patch);
 
     // Specify SDL subsystems to init
     // SDL_INIT_GAMECONTROLLER for imgui?
