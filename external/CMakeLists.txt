@@ -1,12 +1,10 @@
-# Vulkan
-
-# ---------------------------------------- UNUSED CODE ----------------------------------------
 
 function(normalize paths)
     string(REPLACE "\\" "/" paths ${paths})
 endfunction()
 
-# Vulkan
+# ---------------------------------------- VULKAN ----------------------------------------
+
 if (WIN32)
     message(STATUS "Windows mode")
     set(VULKAN_BASE_DIR "C:/VulkanSDK")
@@ -56,34 +54,12 @@ endif ()
 set(VK_INCLUDE ${VK_INCLUDE} PARENT_SCOPE)
 set(VK_LIB ${VK_LIB} PARENT_SCOPE)
 
-# libs
-#if (WIN32)
-#    # TODO for some reason using the standard SDL2.lib does not work for release builds in Windows
-#    file(GLOB SDL_LIB CONFIGURE_DEPENDS "${VK_FOLDER}/Lib/SDL2.lib")
-#elseif (LINUX)
-#    file(GLOB SDL_LIB CONFIGURE_DEPENDS "${VK_FOLDER}/lib/libSDL2.a")
-#elseif (UNIX)
-#    file(GLOB SDL_LIB CONFIGURE_DEPENDS "${VK_FOLDER}/lib/libSDL2.a")
-#endif ()
+# ---------------------------------------- SDL ----------------------------------------
 
-#if (WIN32)
-#    file(GLOB VK_LIB CONFIGURE_DEPENDS "${VK_FOLDER}/Lib/vulkan-1.lib")
-#elseif (LINUX)
-#elseif (UNIX)
-#endif ()
+add_subdirectory(sdl)
 
-#set(VK_LIB ${SDL_LIB} ${VK_LIB} PARENT_SCOPE)
+# ---------------------------------------- IMGUI ----------------------------------------
 
-#message(STATUS "Before norm: ${VULKAN_LIB_SOURCE}")
-#normalize(VULKAN_LIB_SOURCE)
-#message(STATUS "After norm: ${VULKAN_LIB_SOURCE}")
-
-#file(COPY ${VULKAN_LIB_SOURCE} DESTINATION "${CMAKE_CURRENT_LIST_DIR}/vk_sdk/lib")
-#
-#file(GLOB VULKAN_INCLUDES CONFIGURE_DEPENDS "${VK_FOLDER}/Include/*")
-#file(COPY ${VULKAN_INCLUDES} DESTINATION "${CMAKE_CURRENT_LIST_DIR}/vk_sdk/include")
-
-# imgui
 set(IMGUI_SOURCES
         imgui/imgui.cpp
         imgui/imgui_demo.cpp
@@ -95,11 +71,12 @@ set(IMGUI_SOURCES
 )
 add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC imgui)
+target_include_directories(imgui PUBLIC imgui/backends)
 
 target_include_directories(imgui PRIVATE ${VK_INCLUDE})
 
-find_package(SDL2 CONFIG REQUIRED PATHS ${VK_FOLDER}/cmake/SDL2)
-target_link_libraries(imgui PRIVATE ${SDL2_LIBRARIES})
+#find_package(SDL2 CONFIG REQUIRED PATHS ${VK_FOLDER}/cmake/SDL2)
+target_link_libraries(imgui PRIVATE SDL2::SDL2)
 
 include(../util.cmake)
 print_target_properties(imgui)

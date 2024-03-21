@@ -21,34 +21,21 @@ target_include_directories(Doughnut PUBLIC include)
 # ----------------------------------- ADD DEPENDENCIES -----------------------------------
 
 add_subdirectory(external)
-# set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${VK_FOLDER}/cmake)
 
-#option(FETCH_SDL2 "Fetch and Compile SDL2" OFF)
-#if (${FETCH_SDL2})
-#    message(STATUS "Fetching SDL2")
-#else ()
-#    message(STATUS "Linking Existing SDL2")
-find_package(SDL2 CONFIG REQUIRED PATHS ${VK_FOLDER}/cmake/SDL2)
-target_link_libraries(Doughnut PRIVATE ${SDL2_LIBRARIES})
-#endif ()
+target_link_libraries(Doughnut PRIVATE SDL2::SDL2)
 
-# vcpkg SDL2
-#find_package(SDL2 CONFIG REQUIRED)
-#target_link_libraries(Doughnut
-#        PRIVATE
-#        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-#        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-#)
-
-target_link_directories(Doughnut PUBLIC ${VK_LIB})
+#target_link_directories(Doughnut PUBLIC ${VK_LIB})
 target_include_directories(Doughnut PUBLIC ${VK_INCLUDE})
+
+find_package(Vulkan REQUIRED)
+target_link_libraries(Doughnut PUBLIC Vulkan::Vulkan)
 
 target_link_libraries(Doughnut PUBLIC imgui)
 
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
 find_package(Stb REQUIRED)
-target_include_directories(Doughnut PRIVATE ${Stb_INCLUDE_DIR})
+target_include_directories(Doughnut PUBLIC ${Stb_INCLUDE_DIR})
 
 # output
 include(util.cmake)

@@ -12,6 +12,7 @@
 using namespace dn;
 using namespace dn::vulkan;
 
+// TODO
 void checkVkResult(VkResult err) {
     if (err == 0) return;
 
@@ -61,20 +62,20 @@ Gui::Gui(Context &context,
             mContext.mDevice,
             *mContext.mQueueFamilyIndices.graphicsFamily,
             mContext.mGraphicsQueue,
-            mPipelineCache, // TODO
             *mDescriptorPool,
-            0, // TODO
+            *renderPass, // TODO
             config.minImageCount,
             config.imageCount,
             VK_SAMPLE_COUNT_1_BIT,
-            false,
-            {},
             nullptr,
-            checkVkResult
+            0, // TODO
+            false,
+            {}, // VkPipelineRenderingCreateInfoKHR
+            nullptr,
+            checkVkResult,
+            1024 * 1024
     };
-    // init_info.RenderPass = wd->RenderPass;
-    // init_info.Allocator = g_Allocator;
-    ImGui_ImplVulkan_Init(&initInfo, *renderPass);
+    ImGui_ImplVulkan_Init(&initInfo);
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
