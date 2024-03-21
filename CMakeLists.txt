@@ -28,6 +28,11 @@ target_link_libraries(Doughnut PRIVATE SDL2::SDL2)
 target_include_directories(Doughnut PUBLIC ${VK_INCLUDE})
 
 find_package(Vulkan REQUIRED)
+message(STATUS "Found vulkan: ${VULKAN_FOUND}")
+if (${VULKAN_FOUND})
+    message("\tVulkan_LIBRARIES: ${Vulkan_LIBRARIES}")
+    message("\tVulkan_INCLUDE_DIRS: ${Vulkan_INCLUDE_DIRS}")
+endif ()
 target_link_libraries(Doughnut PUBLIC Vulkan::Vulkan)
 
 target_link_libraries(Doughnut PUBLIC imgui)
