@@ -185,24 +185,22 @@ std::string toString(PixelFormat pixelFormat) {
 Window::Window(std::string title, int32_t width, int32_t height, bool resizable) : mTitle(std::move(title)) {
     require(width > 0 && height > 0, "Can not set negative window dimensions");
 
+    SDL_version version;
+    SDL_GetVersion(&version);
+    log::d("Initializing SDL2 with version", (uint32_t) version.major, (uint32_t) version.minor, (uint32_t) version.patch);
+
     // Specify SDL subsystems to init
     // SDL_INIT_GAMECONTROLLER for imgui?
-    bool success = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
-    log::i("Test 1");
-    require(success == 0, SDL_GetError());
+    bool success = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) == 0;
+    require(success, SDL_GetError());
 
-    log::i("Test -1");
-    require(SDL_VideoInit(nullptr) == 0, SDL_GetError());
+    success = SDL_VideoInit(nullptr) == 0;
+    require(success, SDL_GetError());
 
-//#ifdef OS_WINDOWS
-//    success = SDL_Vulkan_LoadLibrary("vulkan-1.dll") == 0;
-//    require(success, SDL_GetError());
-//#endif
+//    success = SDL_Vulkan_LoadLibrary(nullptr) == 0;
+//    if(!success) log::e(SDL_GetError());
 
     pollMonitorResolution();
-
-    // TODO see what this does
-    SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 
     uint32_t windowFlags = SDL_WINDOW_VULKAN;
     if (resizable)
@@ -211,16 +209,13 @@ Window::Window(std::string title, int32_t width, int32_t height, bool resizable)
 //    windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 
     mHandle = SDL_CreateWindow(mTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, windowFlags);
-    log::i("Test 2");
     require(mHandle != nullptr, SDL_GetError());
 
     mWindowID = SDL_GetWindowID((SDL_Window *) mHandle);
 
     pollPosition();
 
-    dn::log::i("Video driver:", SDL_GetCurrentVideoDriver());
-
-    dn::log::d("Created Window");
+    dn::log::d("Created Window with driver:", SDL_GetCurrentVideoDriver());
 }
 
 void Window::updateTitle(const std::string &t) {

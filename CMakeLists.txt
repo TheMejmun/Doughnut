@@ -89,9 +89,13 @@ target_include_directories(Doughnut PUBLIC include)
 # ----------------------------------- ADD DEPENDENCIES -----------------------------------
 
 add_subdirectory(external)
+#set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${VK_LIB})
 
+find_package(SDL2 CONFIG REQUIRED)
+target_link_libraries(Doughnut PUBLIC ${SDL2_LIBRARIES})
+
+target_link_directories(Doughnut PUBLIC ${VK_LIB})
 target_include_directories(Doughnut PUBLIC ${VK_INCLUDE})
-target_link_libraries(Doughnut PUBLIC ${VK_LIB})
 
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
