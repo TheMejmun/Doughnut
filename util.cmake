@@ -31,3 +31,7 @@ function(print_target_properties target)
         endif ()
     endforeach ()
 endfunction()
+
+function(normalize paths)
+    string(REPLACE "\\" "/" paths ${paths})
+endfunction()
