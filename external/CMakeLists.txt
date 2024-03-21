@@ -90,3 +90,7 @@ print_target_properties(imgui)
 # ---------------------------------------- STB ----------------------------------------
 
 set(STB_INCLUDE_DIR "external/stb" PARENT_SCOPE)
+
+# ---------------------------------------- ASSIMP ----------------------------------------
+
+add_subdirectory(assimp)

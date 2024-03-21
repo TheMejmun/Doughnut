@@ -22,16 +22,15 @@ target_include_directories(Doughnut PUBLIC include)
 
 add_subdirectory(external)
 
-target_link_libraries(Doughnut PRIVATE SDL2::SDL2)
-
 target_include_directories(Doughnut PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(Doughnut PUBLIC ${Vulkan_LIBRARIES})
 
+target_link_libraries(Doughnut PRIVATE SDL2::SDL2)
+
 target_link_libraries(Doughnut PUBLIC imgui)
 
-target_include_directories(Doughnut PUBLIC ${STB_INCLUDE_DIR})
+target_include_directories(Doughnut PUBLIC ${STB_INCLUDE_DIR}) # TODO make private
 
-find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
 
 # output
