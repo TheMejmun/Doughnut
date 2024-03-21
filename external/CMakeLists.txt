@@ -86,3 +86,7 @@ target_link_libraries(imgui PRIVATE SDL2::SDL2)
 
 include(../util.cmake)
 print_target_properties(imgui)
+
+# ---------------------------------------- STB ----------------------------------------
+
+set(STB_INCLUDE_DIR "external/stb" PARENT_SCOPE)

@@ -29,10 +29,10 @@ target_link_libraries(Doughnut PUBLIC ${Vulkan_LIBRARIES})
 
 target_link_libraries(Doughnut PUBLIC imgui)
 
+target_include_directories(Doughnut PUBLIC ${STB_INCLUDE_DIR})
+
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
-find_package(Stb REQUIRED)
-target_include_directories(Doughnut PUBLIC ${Stb_INCLUDE_DIR})
 
 # output
 include(util.cmake)
