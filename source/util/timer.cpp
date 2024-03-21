@@ -5,7 +5,7 @@
 #include "util/timer.h"
 #include "io/logger.h"
 
-using namespace Doughnut::Timer;
+using namespace dn;
 
 void FPSCounter::update(double lastFrametime) {
     this->frametimesLastSecond.push_back(lastFrametime);
@@ -25,7 +25,7 @@ double FPSCounter::totalTime() {
 }
 
 ScopeTracer::~ScopeTracer() {
-    auto timeEnded = Doughnut::Timer::now();
-    auto duration = Doughnut::Timer::duration(mTimeStarted, timeEnded);
-    Doughnut::Log::t(mName, "took", duration, "s");
+    auto timeEnded = dn::now();
+    auto duration = dn::duration(mTimeStarted, timeEnded);
+    dn::log::t(mName, "took", lround(1000 * duration), "ms");
 }

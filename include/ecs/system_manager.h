@@ -25,7 +25,7 @@
 #include <memory>
 #include <execution>
 
-namespace ECS2 {
+namespace dn {
     template<class ENTITY_MANAGER>
     class System {
     public:
@@ -39,11 +39,11 @@ namespace ECS2 {
     public:
         explicit SystemManager(ENTITY_MANAGER *entityManager) : mEntityManager(entityManager) {
             static_assert(0 < LAYERS, "There must be at least one layer.");
-            Doughnut::Log::i("Creating SystemManager");
+            dn::log::d("Creating SystemManager");
         }
 
         ~SystemManager() {
-            Doughnut::Log::i("Destroying SystemManager");
+            dn::log::d("Destroying SystemManager");
         }
 
         template<class SYSTEM, uint32_t LAYER>
@@ -89,7 +89,7 @@ namespace ECS2 {
         ENTITY_MANAGER *mEntityManager;
         std::array<std::vector<std::unique_ptr<System<ENTITY_MANAGER>>>, LAYERS> mSystemVectorLayers{};
 #ifdef NEW_SCHEDULER
-        Doughnut::Scheduler mScheduler{};
+        dn::Scheduler mScheduler{};
 #endif
     };
 

@@ -2,26 +2,27 @@
 // Created by Sam on 2023-04-15.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_TRANSFORMER_H
-#define REALTIME_CELL_COLLAPSE_TRANSFORMER_H
+#ifndef DOUGHNUT_TRANSFORMER_H
+#define DOUGHNUT_TRANSFORMER_H
 
 #include "preprocessor.h"
 
 #include <glm/glm.hpp>
 
-class Transformer4 {
-public:
-    void translate(glm::vec3 translation);
+namespace dn {
+    class Transform {
+    public:
+        void translate(glm::vec3 translation);
 
-    void scale(float scale);
+        void scale(float scale);
 
-    void scale(glm::vec3 scale);
+        void scale(glm::vec3 scale);
 
-    void rotate(float radians, glm::vec3 axis);
+        void rotate(float radians, glm::vec3 axis);
 
-    glm::mat4 forward{1.0f}, inverse{1.0f};
+        glm::mat4 forward{1.0f}, inverse{1.0f};
 
-    [[nodiscard]] glm::vec3 getPosition() const;
-};
-
-#endif //REALTIME_CELL_COLLAPSE_TRANSFORMER_H
+        [[nodiscard]] glm::vec3 getPosition() const;
+    };
+}
+#endif //DOUGHNUT_TRANSFORMER_H

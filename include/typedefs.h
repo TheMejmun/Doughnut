@@ -14,17 +14,17 @@
 #include "physics/transformer.h"
 #include "ecs/components/ui_state.h"
 
-typedef ECS2::EntityManager<
+typedef dn::EntityManager<
         InputState,
         UiState,
         RenderMesh,
         RenderMeshSimplifiable,
-        Transformer4,
+        dn::Transform,
         Projector,
         RotatingSphere
 > EntityManagerSpec;
 
-typedef ECS2::EntitySystemManager<
+typedef dn::EntitySystemManager<
         1,
         EntityManagerSpec
 > EntitySystemManagerSpec;

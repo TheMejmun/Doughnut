@@ -2,8 +2,8 @@
 // Created by Sam on 2023-04-15.
 //
 
-#ifndef REALTIME_CELL_COLLAPSE_PROJECTOR_H
-#define REALTIME_CELL_COLLAPSE_PROJECTOR_H
+#ifndef DOUGHNUT_PROJECTOR_H
+#define DOUGHNUT_PROJECTOR_H
 
 #include "preprocessor.h"
 #include "physics/transformer.h"
@@ -21,7 +21,7 @@ struct Projector {
 
     [[nodiscard]] glm::mat4 getProjection(float aspectRatio) const;
 
-    [[nodiscard]] glm::mat4 getView(const Transformer4 &eye) const;
+    [[nodiscard]] glm::mat4 getView(const dn::Transform &eye) const;
 };
 
-#endif //REALTIME_CELL_COLLAPSE_PROJECTOR_H
+#endif //DOUGHNUT_PROJECTOR_H

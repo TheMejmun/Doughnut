@@ -9,7 +9,7 @@
 void DenseSphere::upload(EntityManagerSpec &em) {
     auto id = em.makeEntity();
 
-    auto mesh = Importinator::importMesh("resources/models/dense_sphere.glb");
+    auto mesh = dn::importMesh("resources/models/dense_sphere.glb");
 
     RenderMesh renderMesh{};
     renderMesh.indices = std::move(mesh.indices);
@@ -19,11 +19,9 @@ void DenseSphere::upload(EntityManagerSpec &em) {
     }
     em.insertComponent(renderMesh, id);
 
-    // Inplace creation, because mutexes can't be copied
-    auto renderMeshSimplifiable = em.template insertComponent<RenderMeshSimplifiable>(id);
-    renderMeshSimplifiable->simplifiedMeshMutex = std::make_unique<std::mutex>();
+    em.template insertComponent<RenderMeshSimplifiable>(id);
 
-    Transformer4 transform{};
+    dn::Transform transform{};
     em.insertComponent(transform, id);
 
     RotatingSphere rotatingSphereComponent{};

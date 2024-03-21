@@ -1,11 +1,17 @@
 #version 450
 
+layout(binding = 1) uniform sampler2D texSampler;
+
 layout(location = 0) in vec4 inPos;
 layout(location = 1) in vec4 inWorldPos;
 layout(location = 2) in vec3 inColor;
 layout(location = 3) in vec3 inNormal;
 layout(location = 4) in vec3 inUVW;
 layout(location = 5) in mat4 inModelTransform;
+
+layout(push_constant) uniform constants {
+    vec2 resolution;
+} pc;
 
 layout(location = 0) out vec4 outColor;
 
@@ -67,20 +73,19 @@ vec3 labToXyz(const vec3 lab) {
 }
 
 void main() {
-    vec3 N = normalize((transpose(inverse(inModelTransform)) * vec4(inNormal, 1.0)).xyz);
-    vec3 L = normalize(SUN_POS - inWorldPos.xyz);
-    vec3 V = normalize(CAMERA_POS - inWorldPos.xyz);
+    //    vec3 N = normalize((transpose(inverse(inModelTransform)) * vec4(inNormal, 1.0)).xyz);
+    //    vec3 L = normalize(SUN_POS - inWorldPos.xyz);
+    //    vec3 V = normalize(CAMERA_POS - inWorldPos.xyz);
+    //
+    //    float brightness = dot(N, L);
+    //
+    //    float lightFac = pow(clamp(brightness, 0, 1), LIGHT_POWER_FACTOR);
+    //    float shadowFac = pow(clamp(-brightness, 0, 1), LIGHT_POWER_FACTOR);
+    //
+    //    vec3 color = mix(SUN_COLOR_LAB, inColor, lightFac);
+    //    color = mix(SHADOW_COLOR_LAB, color, shadowFac);
+    //    color = inColor * brightness;
 
-    float brightness = dot(N, L);
-//    brightness = 1; // TODO
-
-    float lightFac = pow(clamp(brightness, 0, 1), LIGHT_POWER_FACTOR);
-    float shadowFac = pow(clamp(-brightness, 0, 1), LIGHT_POWER_FACTOR);
-
-    vec3 color = mix(SUN_COLOR_LAB, inColor, lightFac);
-    color = mix(SHADOW_COLOR_LAB, color, shadowFac);
-    color = inColor * brightness;
-
-    outColor = vec4(xyzToRgb(labToXyz(color)), 1.0f);
-//    outColor = vec4(inPos.xyz / inPos.w, 1.0f);
+    outColor = texture(texSampler, inUVW.xy);
+    //    outColor = vec4(inUVW, 1.0f);
 }

@@ -17,7 +17,7 @@ glm::mat4 Projector::getProjection(float aspectRatio) const {
 }
 
 // TODO static?
-glm::mat4 Projector::getView(const Transformer4 &eye) const {
+glm::mat4 Projector::getView(const dn::Transform &eye) const {
     auto position = eye.getPosition();
 
     auto centerVec4 = eye.forward * this->cameraFront;

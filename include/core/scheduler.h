@@ -11,7 +11,7 @@
 #include <thread>
 #include <functional>
 
-namespace Doughnut {
+namespace dn {
     class Scheduler {
     public:
         /**
@@ -54,9 +54,9 @@ namespace Doughnut {
         std::atomic<uint32_t> mWaitingJobCount = 0;
 
         std::vector<std::thread> mThreads{};
-        std::atomic<bool> mExitThreads = false;
         std::mutex mRunMutex{};
         std::condition_variable mRunCondition{};
+        bool mExitThreads = false;
     };
 
     void testScheduler();

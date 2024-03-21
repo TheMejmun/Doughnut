@@ -32,8 +32,8 @@ bool active = false;
 
 std::vector<FrameTimes> frames{};
 
-std::optional<Doughnut::Timer::Point> lastCalculationStarted{};
-std::optional<Doughnut::Timer::Point> lastUploadStarted{};
+std::optional<dn::Time> lastCalculationStarted{};
+std::optional<dn::Time> lastUploadStarted{};
 std::vector<double> calculationDurations{};
 std::vector<double> uploadDurations{};
 
@@ -46,28 +46,28 @@ void PerformanceLogging::newFrame(const FrameTimes &frameTimes) {
 
 void PerformanceLogging::meshCalculationStarted() {
     if (active)
-        lastCalculationStarted = Doughnut::Timer::now();
+        lastCalculationStarted = dn::now();
 }
 
 void PerformanceLogging::meshCalculationFinished() {
     if (lastCalculationStarted.has_value())
-        calculationDurations.push_back(Doughnut::Timer::duration(lastCalculationStarted.value(), Doughnut::Timer::now()));
+        calculationDurations.push_back(dn::duration(lastCalculationStarted.value(), dn::now()));
 }
 
 void PerformanceLogging::meshUploadStarted() {
     if (active)
-        lastUploadStarted = Doughnut::Timer::now();
+        lastUploadStarted = dn::now();
 }
 
 void PerformanceLogging::meshUploadFinished(const MeshStatistics &stats) {
     if (lastUploadStarted.has_value()) {
-        uploadDurations.push_back(Doughnut::Timer::duration(lastUploadStarted.value(), Doughnut::Timer::now()));
+        uploadDurations.push_back(dn::duration(lastUploadStarted.value(), dn::now()));
         meshStatistics.push_back(stats);
     }
 }
 
-void PerformanceLogging::update(UiState &uiState) {
-    if (uiState.loggingStarted) {
+void PerformanceLogging::update(UiState *uiState) {
+    if (uiState->loggingStarted) {
         if (!active) {
             // Reset and start
             frames.clear();
@@ -80,7 +80,7 @@ void PerformanceLogging::update(UiState &uiState) {
             active = true;
         }
 
-        if (Doughnut::Timer::duration(uiState.loggingStartTime, Doughnut::Timer::now()) >= PerformanceLogging::LOG_DURATION) {
+        if (dn::duration(uiState->loggingStartTime, dn::now()) >= PerformanceLogging::LOG_DURATION) {
             // Done
 
             // mkdir varies between OSes
@@ -93,12 +93,12 @@ void PerformanceLogging::update(UiState &uiState) {
             std::stringstream nameBuilder{};
             nameBuilder << std::setprecision(2) << std::fixed;
             nameBuilder << "output/performance_log";
-            nameBuilder << "_z" << uiState.cameraZ;
-            if (uiState.isMonkeyMesh)
+            nameBuilder << "_z" << uiState->cameraZ;
+            if (uiState->isMonkeyMesh)
                 nameBuilder << "_monkey";
             else
                 nameBuilder << "_sphere";
-            if (uiState.runMeshSimplifier)
+            if (uiState->runMeshSimplifier)
                 nameBuilder << "_with_cell_collapse";
             nameBuilder << ".txt";
 
@@ -161,7 +161,7 @@ void PerformanceLogging::update(UiState &uiState) {
             file.close();
 
             active = false;
-            uiState.loggingStarted = false;
+            uiState->loggingStarted = false;
         }
     }
 }

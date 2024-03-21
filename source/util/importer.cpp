@@ -4,18 +4,32 @@
 
 #include "util/importer.h"
 #include "io/logger.h"
+#include "util/require.h"
+#include "util/timer.h"
 
 #include <fstream>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <filesystem>
 
-std::vector<char> Importinator::readFile(const std::string &filename) {
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-    if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file " + filename);
+std::string dn::doughnutLocal(const std::string &filename) {
+    std::string localFilename = "external/Doughnut/";
+    localFilename.append(filename);
+    if (std::filesystem::exists(filename)) {
+        return filename;
+    } else if (std::filesystem::exists(localFilename)) {
+        return localFilename;
+    } else {
+        auto message = filename;
+        message.append(" could not be found");
+        throw std::runtime_error(message);
     }
+}
+
+std::vector<char> dn::readFile(const std::string &filename) {
+    std::string localFilename = doughnutLocal(filename);
+    std::ifstream file(localFilename, std::ios::ate | std::ios::binary);
 
     auto fileSize = file.tellg();
     std::vector<char> buffer(fileSize);
@@ -27,11 +41,14 @@ std::vector<char> Importinator::readFile(const std::string &filename) {
     return buffer;
 }
 
-Importinator::Mesh Importinator::importMesh(const std::string &filename) {
-    Importinator::Mesh out{};
-    Assimp::Importer importer{};
+dn::Mesh dn::importMesh(const std::string &filename) {
+    trace_scope("Mesh load")
 
-    const aiScene *scene = importer.ReadFile(filename,
+    dn::Mesh out{};
+    Assimp::Importer importer{};
+    std::string localFilename = doughnutLocal(filename);
+
+    const aiScene *scene = importer.ReadFile(localFilename,
                                              aiProcess_CalcTangentSpace |
                                              aiProcess_Triangulate |
                                              aiProcess_JoinIdenticalVertices |
@@ -93,7 +110,7 @@ Importinator::Mesh Importinator::importMesh(const std::string &filename) {
     stream << "\n\tIndices: " << out.indices.size();
     stream << "\n\tVertices: " << out.vertices.size();
 
-    Doughnut::Log::d(stream.str());
+    dn::log::d(stream.str());
 
     return out;
 }
