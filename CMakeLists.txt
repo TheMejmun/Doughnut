@@ -10,7 +10,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Add files
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS source/*.cpp)
-# message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 
 # Main library
 add_library(Doughnut STATIC ${SOURCE_FILES})
