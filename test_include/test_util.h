@@ -37,16 +37,13 @@ extern std::vector<std::function<void()>> TQ;
     } \
     static void _register_##unit_name##_body(const char *UNIT_NAME)
 
-#define TEST(test_name, body) \
-    TQ.emplace_back([=](){ \
-        dn::log::i(UNIT_NAME, "\b:", #test_name); \
-        body \
-    });
+#define TEST(test_name) \
+    TQ.emplace_back([=](){ dn::log::i(UNIT_NAME, "\b:", #test_name); ++testCounter; }); \
+    TQ.emplace_back([](){}); \
+    TQ[TQ.size() - 1] = [=]()
 
 
 static void expect(bool boolean, const char *label) {
-    ++testCounter;
-
     if (boolean) {
         dn::log::i("\tO", label);
     } else {

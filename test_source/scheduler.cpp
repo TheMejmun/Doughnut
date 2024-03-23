@@ -9,12 +9,12 @@
 #include <mutex>
 
 REGISTER(Scheduler) {
-    TEST(givenNewScheduler_whenCallingDone_thenTrue, {
+    TEST(givenNewScheduler_whenCallingDone_thenTrue) {
         dn::Scheduler scheduler{2};
         expect(scheduler.done(), "New Scheduler should be done");
-    })
+    };
 
-    TEST(testSchedulerFlow, {
+    TEST(testSchedulerFlow) {
         bool task1Done = false;
         bool task2Done = false;
         bool task3Done = false;
@@ -90,5 +90,5 @@ REGISTER(Scheduler) {
 
         expect(task4Done, "Task 3 should be done after unlocking mutex");
         expect(scheduler.done(), "Scheduler should be done");
-    })
+    };
 }

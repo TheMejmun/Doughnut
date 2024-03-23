@@ -11,8 +11,7 @@ int main() {
         test();
     }
 
-    dn::log::i("Tests executed:", TQ.size());
-    dn::log::i("Successful test cases:", testCounter - errorCounter, "/", testCounter);
+    dn::log::i("Found", errorCounter, "errors in", testCounter, "tests");
 
     return 0;
 }
