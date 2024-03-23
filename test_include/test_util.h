@@ -15,6 +15,8 @@ extern int errorCounter;
 extern std::mutex TQM;
 extern std::vector<std::function<void()>> TQ;
 
+// https://stackoverflow.com/questions/13923425/c-preprocessor-concatenation-with-variable
+
 #define TEST_REGISTRY \
     int testCounter = 0; \
     int errorCounter = 0; \
@@ -29,19 +31,18 @@ extern std::vector<std::function<void()>> TQ;
 #define REGISTER(unit_name) \
     static void _register_##unit_name##_body(const char *UNIT_NAME); \
     STATIC(_register_##unit_name) { \
-        const char* UNIT_NAME = #unit_name;               \
+        const char* UNIT_NAME = #unit_name; \
         std::lock_guard<std::mutex> GUARD{TQM}; \
         _register_##unit_name##_body(UNIT_NAME); \
     } \
     static void _register_##unit_name##_body(const char *UNIT_NAME)
 
-#define TEST_BODY(unit_name, test_name, body) TQ.emplace_back([=](){ \
-                    dn::log::i(UNIT_NAME, "\b:", #test_name); \
-                    body                                     \
-});
+#define TEST(test_name, body) \
+    TQ.emplace_back([=](){ \
+        dn::log::i(UNIT_NAME, "\b:", #test_name); \
+        body \
+    });
 
-// https://stackoverflow.com/questions/13923425/c-preprocessor-concatenation-with-variable
-#define TEST(test_name, body) TEST_BODY(unit_name, test_name, body)
 
 static void expect(bool boolean, const char *label) {
     ++testCounter;
