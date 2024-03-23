@@ -2,8 +2,8 @@
 // Created by Sam on 2024-03-19.
 //
 
-#ifndef DOUGHNUTSANDBOX_HANDLE_H
-#define DOUGHNUTSANDBOX_HANDLE_H
+#ifndef DOUGHNUT_HANDLE_H
+#define DOUGHNUT_HANDLE_H
 
 #include "io/logger.h"
 
@@ -59,4 +59,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_HANDLE_H
+#endif //DOUGHNUT_HANDLE_H

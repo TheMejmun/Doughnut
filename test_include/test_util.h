@@ -2,8 +2,8 @@
 // Created by Sam on 2024-03-23.
 //
 
-#ifndef DOUGHNUTSANDBOX_TEST_UTIL_H
-#define DOUGHNUTSANDBOX_TEST_UTIL_H
+#ifndef DOUGHNUT_TEST_UTIL_H
+#define DOUGHNUT_TEST_UTIL_H
 
 #include "io/logger.h"
 #include <functional>
@@ -56,4 +56,4 @@ static void expect(bool boolean, const char *label) {
 }
 
 
-#endif //DOUGHNUTSANDBOX_TEST_UTIL_H
+#endif //DOUGHNUT_TEST_UTIL_H

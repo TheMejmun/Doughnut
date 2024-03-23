@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-21.
 //
 
-#ifndef DOUGHNUTSANDBOX_PIPELINE_CACHE_H
-#define DOUGHNUTSANDBOX_PIPELINE_CACHE_H
+#ifndef DOUGHNUT_PIPELINE_CACHE_H
+#define DOUGHNUT_PIPELINE_CACHE_H
 
 #include "pipeline.h"
 
@@ -32,4 +32,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_PIPELINE_CACHE_H
+#endif //DOUGHNUT_PIPELINE_CACHE_H

@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-21.
 //
 
-#ifndef DOUGHNUTSANDBOX_RENDERABLE_H
-#define DOUGHNUTSANDBOX_RENDERABLE_H
+#ifndef DOUGHNUT_RENDERABLE_H
+#define DOUGHNUT_RENDERABLE_H
 
 #include "physics/transformer.h"
 
@@ -19,4 +19,4 @@ namespace dn {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_RENDERABLE_H
+#endif //DOUGHNUT_RENDERABLE_H
