@@ -26,11 +26,14 @@ extern std::vector<std::function<void()>> TQ;
     static int _##name##_var = (name(), 0) ; \
     static void name()
 
-#define REGISTER(unit_name, body) STATIC(unit_name) { \
-    const char* UNIT_NAME = #unit_name;               \
-    std::lock_guard<std::mutex> GUARD{TQM}; \
-    body \
-}
+#define REGISTER(unit_name) \
+    static void _register_##unit_name##_body(const char *UNIT_NAME); \
+    STATIC(_register_##unit_name) { \
+        const char* UNIT_NAME = #unit_name;               \
+        std::lock_guard<std::mutex> GUARD{TQM}; \
+        _register_##unit_name##_body(UNIT_NAME); \
+    } \
+    static void _register_##unit_name##_body(const char *UNIT_NAME)
 
 #define TEST_BODY(unit_name, test_name, body) TQ.emplace_back([=](){ \
                     dn::log::i(UNIT_NAME, "\b:", #test_name); \

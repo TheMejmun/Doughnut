@@ -5,9 +5,9 @@
 #include "test_util.h"
 
 
-REGISTER(hi, {
+REGISTER(hi) {
     TEST(hiya, {
             expect(true, "This should not fail");
             expect(false, "This should fail");
     })
-})
+}
