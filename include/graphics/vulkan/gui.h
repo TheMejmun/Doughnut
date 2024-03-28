@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-28.
 //
 
-#ifndef DOUGHNUTSANDBOX_GUI_H
-#define DOUGHNUTSANDBOX_GUI_H
+#ifndef DOUGHNUT_GUI_H
+#define DOUGHNUT_GUI_H
 
 #include "graphics/vulkan/context.h"
 #include "descriptor_pool.h"
@@ -41,4 +41,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_GUI_H
+#endif //DOUGHNUT_GUI_H

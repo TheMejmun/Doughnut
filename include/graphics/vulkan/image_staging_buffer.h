@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-19.
 //
 
-#ifndef DOUGHNUTSANDBOX_IMAGE_STAGING_BUFFER_H
-#define DOUGHNUTSANDBOX_IMAGE_STAGING_BUFFER_H
+#ifndef DOUGHNUT_IMAGE_STAGING_BUFFER_H
+#define DOUGHNUT_IMAGE_STAGING_BUFFER_H
 
 #include <vulkan/vulkan.hpp>
 #include "context.h"
@@ -51,4 +51,4 @@ namespace dn::vulkan {
         vk::DeviceMemory mStagingBufferMemory = nullptr;
     };
 }
-#endif //DOUGHNUTSANDBOX_IMAGE_STAGING_BUFFER_H
+#endif //DOUGHNUT_IMAGE_STAGING_BUFFER_H

@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-21.
 //
 
-#ifndef DOUGHNUTSANDBOX_MESH_CACHE_H
-#define DOUGHNUTSANDBOX_MESH_CACHE_H
+#ifndef DOUGHNUT_MESH_CACHE_H
+#define DOUGHNUT_MESH_CACHE_H
 
 #include "graphics/vulkan/buffer.h"
 
@@ -40,4 +40,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_MESH_CACHE_H
+#endif //DOUGHNUT_MESH_CACHE_H

@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-21.
 //
 
-#ifndef DOUGHNUTSANDBOX_TEXTURE_CACHE_H
-#define DOUGHNUTSANDBOX_TEXTURE_CACHE_H
+#ifndef DOUGHNUT_TEXTURE_CACHE_H
+#define DOUGHNUT_TEXTURE_CACHE_H
 
 #include "graphics/vulkan/context.h"
 #include "graphics/vulkan/image.h"
@@ -33,4 +33,4 @@ namespace dn::vulkan {
         std::mutex mInsertTextureMutex{};
     };
 }
-#endif //DOUGHNUTSANDBOX_TEXTURE_CACHE_H
+#endif //DOUGHNUT_TEXTURE_CACHE_H

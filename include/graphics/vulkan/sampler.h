@@ -2,8 +2,8 @@
 // Created by Sam on 2024-02-22.
 //
 
-#ifndef DOUGHNUTSANDBOX_SAMPLER_H
-#define DOUGHNUTSANDBOX_SAMPLER_H
+#ifndef DOUGHNUT_SAMPLER_H
+#define DOUGHNUT_SAMPLER_H
 
 #include "image.h"
 #include "handle.h"
@@ -35,4 +35,4 @@ class Sampler :public Handle<vk::Sampler, SamplerConfiguration>{
     };
 }
 
-#endif //DOUGHNUTSANDBOX_SAMPLER_H
+#endif //DOUGHNUT_SAMPLER_H
