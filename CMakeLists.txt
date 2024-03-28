@@ -19,7 +19,7 @@ target_include_directories(Doughnut PUBLIC include)
 
 # ----------------------------------- ADD DEPENDENCIES -----------------------------------
 
-add_subdirectory(external)
+include(FetchDependencies.cmake)
 
 target_include_directories(Doughnut PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(Doughnut PUBLIC ${Vulkan_LIBRARIES})
@@ -33,7 +33,7 @@ target_include_directories(Doughnut PUBLIC ${STB_INCLUDE_DIR}) # TODO make priva
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
 
 # output
-include(util.cmake)
+include(Util.cmake)
 print_target_properties(Doughnut)
 
 # ----------------------------------- ADD RESOURCES -----------------------------------
