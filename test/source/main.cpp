@@ -11,7 +11,7 @@ int main() {
         test();
     }
 
-    dn::log::i("Found", errorCounter, "errors in", testCounter, "tests");
+    dn::log::i(errorCounter, "/", testCaseCounter, "test cases failed in", testCounter, "tests");
 
     return 0;
 }

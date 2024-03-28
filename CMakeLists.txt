@@ -46,10 +46,10 @@ add_dependencies(Doughnut CopyAssets)
 
 enable_testing()
 
-file(GLOB_RECURSE TESTS CONFIGURE_DEPENDS test_source/*.cpp)
+file(GLOB_RECURSE TESTS CONFIGURE_DEPENDS test/source/*.cpp)
 
 add_executable(DoughnutTests ${TESTS})
-target_include_directories(DoughnutTests PRIVATE test_include)
+target_include_directories(DoughnutTests PRIVATE test/include)
 target_link_libraries(DoughnutTests PRIVATE Doughnut)
 
 add_test(TestAll DoughnutTests)

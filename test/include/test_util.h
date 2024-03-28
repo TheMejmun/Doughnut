@@ -11,6 +11,7 @@
 #include <iostream>
 
 extern int testCounter;
+extern int testCaseCounter;
 extern int errorCounter;
 extern std::mutex TQM;
 extern std::vector<std::function<void()>> TQ;
@@ -19,6 +20,7 @@ extern std::vector<std::function<void()>> TQ;
 
 #define TEST_REGISTRY \
     int testCounter = 0; \
+    int testCaseCounter = 0; \
     int errorCounter = 0; \
     std::mutex TQM{}; \
     std::vector<std::function<void()>> TQ{};
@@ -43,12 +45,11 @@ extern std::vector<std::function<void()>> TQ;
     TQ[TQ.size() - 1] = [=]()
 
 
-static void expect(bool boolean, const char *label) {
-    if (boolean) {
-        dn::log::i("\tO", label);
-    } else {
+static void expect(bool boolean, const char *message) {
+    ++testCaseCounter;
+    if (!boolean) {
         ++errorCounter;
-        dn::log::i("\tX", label);
+        dn::log::i("\tError:", message);
     }
 }
 
