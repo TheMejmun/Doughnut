@@ -31,7 +31,8 @@ void Shader::compile() {
     shaderc::Compiler compiler{};
     shaderc::CompileOptions options{};
 
-    options.SetOptimizationLevel(shaderc_optimization_level_size);
+    options.SetOptimizationLevel(shaderc_optimization_level_performance);
+    // TODO options.SetIncluder();
 
     shaderc_shader_kind kind;
     switch (mType) {
