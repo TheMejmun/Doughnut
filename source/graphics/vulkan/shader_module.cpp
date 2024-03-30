@@ -12,12 +12,13 @@ using namespace dn::vulkan;
 ShaderModule::ShaderModule(Context &context, const ShaderModuleConfiguration &config)
         : Handle<vk::ShaderModule, ShaderModuleConfiguration>(context, config) {
 
-    const auto fileBytes = dn::readFile(mConfig.filePath);
+    Shader shaderCode{config.filePath,config.type};
+    shaderCode.compile();
 
     vk::ShaderModuleCreateInfo createInfo{
             {},
             // Cast the pointer. Vectors already handle proper memory alignment.
-            fileBytes.size(), reinterpret_cast<const uint32_t *>(fileBytes.data())
+            shaderCode.size(), shaderCode.mBinary.data()
     };
 
     mVulkan = mContext.mDevice.createShaderModule(createInfo);

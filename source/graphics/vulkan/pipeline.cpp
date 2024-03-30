@@ -32,8 +32,8 @@ Pipeline::Pipeline(Context &context,
     );
 
     // TODO pull these out of here
-    ShaderModule vertexShader = ShaderModule{mContext, {config.vertexShader}};
-    ShaderModule fragmentShader = ShaderModule{mContext, {config.fragmentShader}};
+    ShaderModule vertexShader{mContext, {config.vertexShader, ShaderType::VERTEX}};
+    ShaderModule fragmentShader{mContext, {config.fragmentShader, ShaderType::FRAGMENT}};
 
     vk::PipelineShaderStageCreateInfo vertexShaderStageInfo{
             {},

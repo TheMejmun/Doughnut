@@ -7,6 +7,7 @@
 
 #include "graphics/vulkan/context.h"
 #include "handle.h"
+#include "graphics/shader.h"
 
 #include <string>
 #include <vulkan/vulkan.hpp>
@@ -14,6 +15,7 @@
 namespace dn::vulkan {
     struct ShaderModuleConfiguration {
         std::string filePath;
+        ShaderType type;
     };
 
     class ShaderModule : public Handle<vk::ShaderModule, ShaderModuleConfiguration> {

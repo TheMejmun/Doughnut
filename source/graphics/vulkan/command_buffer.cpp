@@ -30,7 +30,7 @@ void CommandBuffer::reset() const {
 }
 
 void CommandBuffer::startRecording() {
-    dnAssert(!mIsRecording, "Can not start recording a command buffer that is already recording");
+    require_d(!mIsRecording, "Can not start recording a command buffer that is already recording");
 
     reset();
 
@@ -45,7 +45,7 @@ void CommandBuffer::startRecording() {
 }
 
 void CommandBuffer::endRecording() {
-    dnAssert(mIsRecording, "Can not end recording a command buffer that is not recording");
+    require_d(mIsRecording, "Can not end recording a command buffer that is not recording");
 
     mVulkan.end();
     mIsRecording = false;

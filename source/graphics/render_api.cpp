@@ -110,12 +110,12 @@ bool VulkanAPI::nextImage() {
 }
 
 void VulkanAPI::startRecording() {
-    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    require_d(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
     mCommandBuffers[*mCurrentSwapchainFramebuffer].startRecording();
 }
 
 void VulkanAPI::beginRenderPass() {
-    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    require_d(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
 
     std::array<vk::ClearValue, 2> clearValues{
             vk::ClearValue{{0.1f, 0.1f, 0.1f, 1.0f}},
@@ -136,17 +136,17 @@ void VulkanAPI::beginRenderPass() {
 }
 
 void VulkanAPI::endRenderPass() {
-    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    require_d(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
     (*mCommandBuffers[*mCurrentSwapchainFramebuffer]).endRenderPass();
 }
 
 void VulkanAPI::endRecording() {
-    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    require_d(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
     mCommandBuffers[*mCurrentSwapchainFramebuffer].endRecording();
 }
 
 void VulkanAPI::recordDraw(const Renderable &renderable) {
-    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    require_d(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
 
     auto &pipeline = mPipelines->get({
                                              renderable.vertexShader,
@@ -251,12 +251,12 @@ void VulkanAPI::recordUiDraw() {
     mGui->beginFrame();
     ImGui::DockSpaceOverViewport(nullptr,ImGuiDockNodeFlags_PassthruCentralNode);
     ImGui::ShowDemoWindow();
-    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
+    require_d(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
     mGui->endFrame(mCommandBuffers[*mCurrentSwapchainFramebuffer]);
 }
 
 void VulkanAPI::drawFrame(double delta) {
-    dnAssert(mCurrentSwapchainFramebuffer.has_value(), "Can not draw if no image has been acquired.");
+    require_d(mCurrentSwapchainFramebuffer.has_value(), "Can not draw if no image has been acquired.");
 
     // mInFlightFence->resetFence();
 

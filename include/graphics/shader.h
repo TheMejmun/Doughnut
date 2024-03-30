@@ -9,16 +9,25 @@
 #include <vector>
 
 namespace dn {
+    enum ShaderType {
+        VERTEX,
+        FRAGMENT
+    };
+
     class Shader {
     public:
-        explicit Shader(const std::string &filename);
+        Shader(const std::string &filename, ShaderType type);
 
         ~Shader() = default;
 
         size_t size();
 
-    private:
-        std::vector<char> mRaw{};
+        void compile();
+
+        const std::string mFilename;
+        std::string mReadable{};
+        std::vector<uint32_t> mBinary{};
+        const ShaderType mType;
     };
 }
 
