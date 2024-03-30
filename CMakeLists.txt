@@ -32,6 +32,8 @@ target_include_directories(Doughnut PUBLIC ${STB_INCLUDE_DIR}) # TODO make priva
 
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
 
+target_link_libraries(Doughnut PRIVATE shaderc)
+
 # output
 include(Util.cmake)
 print_target_properties(Doughnut)

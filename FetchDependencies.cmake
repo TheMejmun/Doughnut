@@ -18,7 +18,7 @@ endif ()
 FetchContent_Declare(
         sdl
         GIT_REPOSITORY https://github.com/libsdl-org/SDL
-        GIT_TAG        0d8ce4a761a8e84e5b746d0d53e7b1dd8fc92d4d # SDL2 specifically
+        GIT_TAG 0d8ce4a761a8e84e5b746d0d53e7b1dd8fc92d4d # SDL2 specifically
 )
 FetchContent_MakeAvailable(sdl)
 
@@ -27,7 +27,7 @@ FetchContent_MakeAvailable(sdl)
 FetchContent_Declare(
         imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui
-        GIT_TAG        085781f5ca5372d5fc804d7e44b5bf27a8994af7 # Docking branch
+        GIT_TAG 085781f5ca5372d5fc804d7e44b5bf27a8994af7 # Docking branch
 )
 FetchContent_MakeAvailable(imgui)
 set(IMGUI_SOURCES
@@ -53,7 +53,7 @@ target_link_libraries(imgui PRIVATE SDL2::SDL2)
 FetchContent_Declare(
         stb
         GIT_REPOSITORY https://github.com/nothings/stb
-        GIT_TAG        ae721c50eaf761660b4f90cc590453cdb0c2acd0
+        GIT_TAG ae721c50eaf761660b4f90cc590453cdb0c2acd0
 )
 FetchContent_MakeAvailable(stb)
 set(STB_INCLUDE_DIR ${stb_SOURCE_DIR})
@@ -63,7 +63,44 @@ set(STB_INCLUDE_DIR ${stb_SOURCE_DIR})
 FetchContent_Declare(
         assimp
         GIT_REPOSITORY https://github.com/assimp/assimp
-        GIT_TAG        feb861f17bf937fd42e0591b3347b95009033eec
+        GIT_TAG feb861f17bf937fd42e0591b3347b95009033eec
 )
 set(ASSIMP_BUILD_TESTS OFF)
 FetchContent_MakeAvailable(assimp)
+
+# ---------------------------------------- SPIR-V HEADERS ----------------------------------------
+
+FetchContent_Declare(
+        spirv-headers
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers
+        GIT_TAG 4f7b471f1a66b6d06462cd4ba57628cc0cd087d7
+)
+FetchContent_MakeAvailable(spirv-headers)
+
+# ---------------------------------------- SPIR-V TOOLS ----------------------------------------
+
+FetchContent_Declare(
+        spirv-tools
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools
+        GIT_TAG 7fe5f75e581014e920ab5d9a218ea2f37bbaa0d4
+)
+FetchContent_MakeAvailable(spirv-tools)
+
+# ---------------------------------------- GLSLANG ----------------------------------------
+
+FetchContent_Declare(
+        glslang
+        GIT_REPOSITORY https://github.com/KhronosGroup/glslang
+        GIT_TAG 0015dc9345ff9572af60801948c82b7ebce5ddb3
+)
+FetchContent_MakeAvailable(glslang)
+
+# ---------------------------------------- SHADERC ----------------------------------------
+
+FetchContent_Declare(
+        shaderc
+        GIT_REPOSITORY https://github.com/google/shaderc
+        GIT_TAG 9a658e242ad4d1a4b3491383c1c58c780e3c01ff
+)
+set(SHADERC_SKIP_TESTS ON)
+FetchContent_MakeAvailable(shaderc)
