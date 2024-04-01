@@ -9,6 +9,8 @@
 #include "util/timer.h"
 #include "util/importer.h"
 
+#include <stb_image.h>
+
 using namespace dn;
 
 Texture::Texture(const std::string &filename) {

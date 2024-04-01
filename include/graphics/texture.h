@@ -9,7 +9,6 @@
 
 #include <string>
 #include <utility>
-#include <stb_image.h>
 
 namespace dn {
     class Texture {
@@ -20,7 +19,7 @@ namespace dn {
 
         [[nodiscard]] size_t size() const;
 
-        stbi_uc *mData = nullptr;
+        uint8_t *mData = nullptr;
 
         int mWidth = 0, mHeight = 0, mChannels = 4, mOriginalChannels = 0;
         bool mHasAlpha = false;
