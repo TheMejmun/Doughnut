@@ -34,6 +34,8 @@ target_link_libraries(Doughnut PRIVATE assimp::assimp)
 
 target_link_libraries(Doughnut PRIVATE shaderc)
 
+target_link_libraries(Doughnut PRIVATE tiny-file-dialogs)
+
 # output
 include(Util.cmake)
 print_target_properties(Doughnut)

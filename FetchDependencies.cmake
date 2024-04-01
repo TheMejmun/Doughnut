@@ -104,3 +104,17 @@ FetchContent_Declare(
 )
 set(SHADERC_SKIP_TESTS ON)
 FetchContent_MakeAvailable(shaderc)
+
+# ---------------------------------------- TINY FILE DIALOG ----------------------------------------
+
+FetchContent_Declare(
+        tiny-file-dialogs
+        GIT_REPOSITORY https://git.code.sf.net/p/tinyfiledialogs/code tinyfiledialogs-code
+        GIT_TAG ddaf6ea8efb5d19ae39c9d59bbd3ebedf5c4b136
+)
+FetchContent_MakeAvailable(tiny-file-dialogs)
+
+add_library(tiny-file-dialogs STATIC
+        ${tiny-file-dialogs_SOURCE_DIR}/tinyfiledialogs.c
+        ${tiny-file-dialogs_SOURCE_DIR}/more_dialogs/tinyfd_moredialogs.c)
+target_include_directories(tiny-file-dialogs PUBLIC ${tiny-file-dialogs_SOURCE_DIR})
