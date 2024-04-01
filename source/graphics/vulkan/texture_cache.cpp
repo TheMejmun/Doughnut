@@ -28,8 +28,7 @@ void TextureCache::preload(const std::string &texture) {
                         extent,
                         false,
                         true,
-                        true,
-                        textureImport.mHasAlpha
+                        textureImport.mLayout
                 }
         );
         Image &image = mImages.at(texture);

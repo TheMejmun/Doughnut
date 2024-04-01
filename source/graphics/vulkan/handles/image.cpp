@@ -35,14 +35,109 @@ vk::Format vulkan::findDepthFormat(vk::PhysicalDevice physicalDevice) {
     );
 }
 
+vk::Format vulkan::textureLayoutToVkFormat(dn::TextureLayout layout) {
+    if (layout.subpixelFormat == SubpixelFormat::SRGB) {
+
+        // SRGB
+
+        if (layout.subpixelStructure == SubpixelStructure::MONO) {
+            switch (layout.bytesPerPixel) {
+                case 1:
+                    return vk::Format::eR8Srgb;
+            }
+        } else if (layout.subpixelStructure == SubpixelStructure::RGB) {
+            switch (layout.bytesPerPixel) {
+                case 1:
+                    return vk::Format::eR8G8B8Srgb;
+            }
+        } else if (layout.subpixelStructure == SubpixelStructure::RGBA) {
+            switch (layout.bytesPerPixel) {
+                case 1:
+                    return vk::Format::eR8G8B8A8Srgb;
+            }
+        }
+    } else if (layout.subpixelFormat == SubpixelFormat::LINEAR_UINT) {
+
+        // UINT
+
+        if (layout.subpixelStructure == SubpixelStructure::MONO) {
+            switch (layout.bytesPerPixel) {
+                case 1:
+                    return vk::Format::eR8Uint;
+                case 2:
+                    return vk::Format::eR16Uint;
+                case 4:
+                    return vk::Format::eR32Uint;
+                case 8:
+                    return vk::Format::eR64Uint;
+            }
+        } else if (layout.subpixelStructure == SubpixelStructure::RGB) {
+            switch (layout.bytesPerPixel) {
+                case 3:
+                    return vk::Format::eR8G8B8Uint;
+                case 6:
+                    return vk::Format::eR16G16B16Uint;
+                case 12:
+                    return vk::Format::eR32G32B32Uint;
+                case 24:
+                    return vk::Format::eR64G64B64Uint;
+            }
+        } else if (layout.subpixelStructure == SubpixelStructure::RGBA) {
+            switch (layout.bytesPerPixel) {
+                case 4:
+                    return vk::Format::eR8G8B8A8Uint;
+                case 8:
+                    return vk::Format::eR16G16B16A16Uint;
+                case 16:
+                    return vk::Format::eR32G32B32A32Uint;
+                case 32:
+                    return vk::Format::eR64G64B64A64Uint;
+            }
+        }
+    } else if (layout.subpixelFormat == SubpixelFormat::LINEAR_FLOAT) {
+
+        // FLOAT
+
+        if (layout.subpixelStructure == SubpixelStructure::MONO) {
+            switch (layout.bytesPerPixel) {
+                case 2:
+                    return vk::Format::eR16Sfloat;
+                case 4:
+                    return vk::Format::eR32Sfloat;
+                case 8:
+                    return vk::Format::eR64Sfloat;
+            }
+        } else if (layout.subpixelStructure == SubpixelStructure::RGB) {
+            switch (layout.bytesPerPixel) {
+                case 6:
+                    return vk::Format::eR16G16B16Sfloat;
+                case 12:
+                    return vk::Format::eR32G32B32Sfloat;
+                case 24:
+                    return vk::Format::eR64G64B64Sfloat;
+            }
+        } else if (layout.subpixelStructure == SubpixelStructure::RGBA) {
+            switch (layout.bytesPerPixel) {
+                case 8:
+                    return vk::Format::eR16G16B16A16Sfloat;
+                case 16:
+                    return vk::Format::eR32G32B32A32Sfloat;
+                case 32:
+                    return vk::Format::eR64G64B64A64Sfloat;
+            }
+        }
+    }
+
+    error("Unable to parse the format");
+}
+
 ImageConfiguration constructConfiguration(vk::Extent2D extent, vk::Format format) {
     // TODO
     return {
             extent,
             false,
             false,
-            false,
-            false
+            {}
     };
 };
 
@@ -64,17 +159,21 @@ Image::Image(Context &context,
         : Handle<vk::Image, ImageConfiguration>(context, config),
           mLocallyConstructed(true) {
 
-    if (config.isTextureImage) {
+    if (config.textureLayout.has_value()) {
         // TODO format = config.hasAlpha ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8Srgb;
-        mFormat = vk::Format::eR8G8B8A8Srgb;
+        mFormat = textureLayoutToVkFormat(*config.textureLayout);
     } else if (config.isDepthImage) {
         mFormat = findDepthFormat(mContext.mPhysicalDevice);
+    } else {
+        error("Was not able to infer image format");
     }
 
-    if (config.isTextureImage) {
+    if (config.textureLayout.has_value()) {
         mUsageFlags |= vk::ImageUsageFlagBits::eSampled;
     } else if (config.isDepthImage) {
         mUsageFlags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    } else {
+        error("Was not able to infer image usage flags");
     }
 
     if (config.isTransferDestination) {

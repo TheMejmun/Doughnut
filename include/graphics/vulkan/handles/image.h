@@ -21,12 +21,13 @@ namespace dn::vulkan {
 
     vk::Format findDepthFormat(vk::PhysicalDevice physicalDevice);
 
+    vk::Format textureLayoutToVkFormat(TextureLayout layout);
+
     struct ImageConfiguration {
         vk::Extent2D extent;
         bool isDepthImage;
-        bool isTextureImage;
         bool isTransferDestination;
-        bool hasAlpha;
+        std::optional<TextureLayout> textureLayout;
     };
 
     class Image : public Handle<vk::Image, ImageConfiguration> {

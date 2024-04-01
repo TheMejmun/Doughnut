@@ -9,11 +9,32 @@
 
 #include <string>
 #include <utility>
+#include <vulkan/vulkan.hpp>
 
 namespace dn {
+    enum SubpixelStructure {
+        MONO,
+        RGB,
+        RGBA
+    };
+
+    enum SubpixelFormat {
+        LINEAR_FLOAT,
+        LINEAR_UINT,
+        SRGB
+    };
+
+    struct TextureLayout {
+        uint8_t bytesPerPixel;
+        SubpixelStructure subpixelStructure;
+        SubpixelFormat subpixelFormat;
+    };
+
     class Texture {
     public:
         explicit Texture(const std::string &filename);
+
+        Texture(uint8_t *data, uint32_t width, uint32_t height, TextureLayout layout);
 
         ~Texture();
 
@@ -21,8 +42,8 @@ namespace dn {
 
         uint8_t *mData = nullptr;
 
-        int mWidth = 0, mHeight = 0, mChannels = 4, mOriginalChannels = 0;
-        bool mHasAlpha = false;
+        uint32_t mWidth = 0, mHeight = 0;
+        TextureLayout mLayout;
     };
 }
 
