@@ -47,12 +47,12 @@ vk::Format vulkan::textureLayoutToVkFormat(dn::TextureLayout layout) {
             }
         } else if (layout.subpixelStructure == SubpixelStructure::RGB) {
             switch (layout.bytesPerPixel) {
-                case 1:
+                case 3:
                     return vk::Format::eR8G8B8Srgb;
             }
         } else if (layout.subpixelStructure == SubpixelStructure::RGBA) {
             switch (layout.bytesPerPixel) {
-                case 1:
+                case 4:
                     return vk::Format::eR8G8B8A8Srgb;
             }
         }
@@ -128,7 +128,7 @@ vk::Format vulkan::textureLayoutToVkFormat(dn::TextureLayout layout) {
         }
     }
 
-    error("Unable to parse the format");
+    error("Unable to parse the image format from the provided texture layout");
 }
 
 ImageConfiguration constructConfiguration(vk::Extent2D extent, vk::Format format) {
@@ -160,7 +160,6 @@ Image::Image(Context &context,
           mLocallyConstructed(true) {
 
     if (config.textureLayout.has_value()) {
-        // TODO format = config.hasAlpha ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8Srgb;
         mFormat = textureLayoutToVkFormat(*config.textureLayout);
     } else if (config.isDepthImage) {
         mFormat = findDepthFormat(mContext.mPhysicalDevice);

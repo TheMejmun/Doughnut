@@ -37,7 +37,6 @@ Texture::Texture(uint8_t *data, uint32_t width, uint32_t height, TextureLayout l
         : mData(data), mWidth(width), mHeight(height), mLayout(layout) {}
 
 size_t Texture::size() const {
-    // stbi_load loads 8 bit always, hence 1 byte per channel
     return mWidth * mHeight * mLayout.bytesPerPixel;
 }
 
