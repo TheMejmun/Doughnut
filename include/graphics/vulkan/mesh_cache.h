@@ -5,7 +5,7 @@
 #ifndef DOUGHNUT_MESH_CACHE_H
 #define DOUGHNUT_MESH_CACHE_H
 
-#include "graphics/vulkan/buffer.h"
+#include "graphics/vulkan/handles/buffer.h"
 
 namespace dn::vulkan {
     struct MeshReference {

@@ -6,7 +6,7 @@
 #define DOUGHNUT_FRAMEBUFFER_H
 
 #include "image_view.h"
-#include "context.h"
+#include "graphics/vulkan/context.h"
 #include "render_pass.h"
 
 #include <vulkan/vulkan.hpp>

@@ -5,12 +5,12 @@
 #ifndef DOUGHNUT_BUFFER_H
 #define DOUGHNUT_BUFFER_H
 
-#include "context.h"
+#include "graphics/vulkan/context.h"
 #include "graphics/vertex.h"
 #include "core/scheduler.h"
-#include "staging_buffer.h"
+#include "graphics/vulkan/staging_buffer.h"
 #include "core/late_init.h"
-#include "handle.h"
+#include "graphics/vulkan/handle.h"
 
 #include <vulkan/vulkan.hpp>
 

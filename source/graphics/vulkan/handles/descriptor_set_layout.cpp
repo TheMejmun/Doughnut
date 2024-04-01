@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-11.
 //
 
-#include "graphics/vulkan/descriptor_set_layout.h"
+#include "graphics/vulkan/handles/descriptor_set_layout.h"
 #include "util/require.h"
 #include "io/logger.h"
 

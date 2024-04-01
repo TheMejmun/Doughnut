@@ -5,8 +5,8 @@
 #ifndef DOUGHNUT_DESCRIPTOR_SET_LAYOUT_H
 #define DOUGHNUT_DESCRIPTOR_SET_LAYOUT_H
 
-#include "context.h"
-#include "handle.h"
+#include "graphics/vulkan/context.h"
+#include "graphics/vulkan/handle.h"
 
 #include <vulkan/vulkan.hpp>
 #include <vector>

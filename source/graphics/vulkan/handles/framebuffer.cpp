@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-10.
 //
 
-#include "graphics/vulkan/framebuffer.h"
+#include "graphics/vulkan/handles/framebuffer.h"
 #include "io/logger.h"
 #include "util/require.h"
 

@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-12.
 //
 
-#include "graphics/vulkan/semaphore.h"
+#include "graphics/vulkan/handles/semaphore.h"
 #include "io/logger.h"
 
 using namespace dn;

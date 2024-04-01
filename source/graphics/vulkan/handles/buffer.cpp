@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-11.
 //
 
-#include "graphics/vulkan/buffer.h"
+#include "graphics/vulkan/handles/buffer.h"
 #include "io/logger.h"
 #include "graphics/vulkan/memory.h"
 #include "util/require.h"

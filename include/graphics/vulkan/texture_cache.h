@@ -6,8 +6,8 @@
 #define DOUGHNUT_TEXTURE_CACHE_H
 
 #include "graphics/vulkan/context.h"
-#include "graphics/vulkan/image.h"
-#include "graphics/vulkan/image_view.h"
+#include "graphics/vulkan/handles/image.h"
+#include "graphics/vulkan/handles/image_view.h"
 #include "graphics/vulkan/image_staging_buffer.h"
 
 #include <string>

@@ -2,9 +2,9 @@
 // Created by Sam on 2024-02-11.
 //
 
-#include "graphics/vulkan/render_pass.h"
+#include "graphics/vulkan/handles/render_pass.h"
 #include "io/logger.h"
-#include "graphics/vulkan/image.h"
+#include "graphics/vulkan/handles/image.h"
 
 using namespace dn;
 using namespace dn::vulkan;

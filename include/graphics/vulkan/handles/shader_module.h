@@ -6,7 +6,7 @@
 #define DOUGHNUT_SHADER_MODULE_H
 
 #include "graphics/vulkan/context.h"
-#include "handle.h"
+#include "graphics/vulkan/handle.h"
 #include "graphics/shader.h"
 
 #include <string>

@@ -5,9 +5,9 @@
 #ifndef DOUGHNUT_COMMAND_BUFFER_H
 #define DOUGHNUT_COMMAND_BUFFER_H
 
-#include "context.h"
+#include "graphics/vulkan/context.h"
 #include "command_pool.h"
-#include "handle.h"
+#include "graphics/vulkan/handle.h"
 
 #include <vulkan/vulkan.hpp>
 

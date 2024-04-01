@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-09.
 //
 
-#include "graphics/vulkan/image_view.h"
+#include "graphics/vulkan/handles/image_view.h"
 #include "io/logger.h"
 
 using namespace dn;

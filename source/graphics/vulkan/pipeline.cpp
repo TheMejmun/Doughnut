@@ -5,9 +5,9 @@
 #include "graphics/vulkan/pipeline.h"
 #include "io/logger.h"
 #include "util/importer.h"
-#include "graphics/vulkan/shader_module.h"
+#include "graphics/vulkan/handles/shader_module.h"
 #include "util/require.h"
-#include "graphics/vulkan/buffer.h"
+#include "graphics/vulkan/handles/buffer.h"
 #include "graphics/uniform_buffer_object.h"
 #include "graphics/push_constants_object.h"
 

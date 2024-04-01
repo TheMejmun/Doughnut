@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-11.
 //
 
-#include "graphics/vulkan/shader_module.h"
+#include "graphics/vulkan/handles/shader_module.h"
 #include "io/logger.h"
 #include "util/importer.h"
 

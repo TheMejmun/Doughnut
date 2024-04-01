@@ -6,9 +6,9 @@
 #define DOUGHNUT_GUI_H
 
 #include "graphics/vulkan/context.h"
-#include "descriptor_pool.h"
-#include "render_pass.h"
-#include "command_buffer.h"
+#include "graphics/vulkan/handles/descriptor_pool.h"
+#include "graphics/vulkan/handles/render_pass.h"
+#include "graphics/vulkan/handles/command_buffer.h"
 
 namespace dn::vulkan {
     struct GuiConfiguration {

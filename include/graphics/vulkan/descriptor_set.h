@@ -6,11 +6,11 @@
 #define DOUGHNUT_DESCRIPTOR_SET_H
 
 #include "context.h"
-#include "descriptor_set_layout.h"
-#include "descriptor_pool.h"
-#include "buffer.h"
-#include "sampler.h"
-#include "image_view.h"
+#include "graphics/vulkan/handles/descriptor_set_layout.h"
+#include "graphics/vulkan/handles/descriptor_pool.h"
+#include "graphics/vulkan/handles/buffer.h"
+#include "graphics/vulkan/handles/sampler.h"
+#include "graphics/vulkan/handles/image_view.h"
 
 #include <vulkan/vulkan.hpp>
 #include <vector>

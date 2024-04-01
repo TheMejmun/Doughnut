@@ -5,8 +5,8 @@
 #ifndef DOUGHNUT_COMMAND_POOL_H
 #define DOUGHNUT_COMMAND_POOL_H
 
-#include "context.h"
-#include "handle.h"
+#include "graphics/vulkan/context.h"
+#include "graphics/vulkan/handle.h"
 
 #include <vulkan/vulkan.hpp>
 

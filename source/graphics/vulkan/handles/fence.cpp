@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-12.
 //
 
-#include "graphics/vulkan/fence.h"
+#include "graphics/vulkan/handles/fence.h"
 #include "io/logger.h"
 #include "util/require.h"
 #include "util/timer.h"

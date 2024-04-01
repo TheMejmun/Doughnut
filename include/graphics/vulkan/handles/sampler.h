@@ -5,8 +5,8 @@
 #ifndef DOUGHNUT_SAMPLER_H
 #define DOUGHNUT_SAMPLER_H
 
-#include "image.h"
-#include "handle.h"
+#include "graphics/vulkan/handles/image.h"
+#include "graphics/vulkan/handle.h"
 
 #include <vulkan/vulkan.hpp>
 

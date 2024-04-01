@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-22.
 //
 
-#include "graphics/vulkan/sampler.h"
+#include "graphics/vulkan/handles/sampler.h"
 #include "io/logger.h"
 
 using namespace dn;

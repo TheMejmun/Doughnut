@@ -2,7 +2,7 @@
 // Created by Sam on 2024-02-12.
 //
 
-#include "graphics/vulkan/descriptor_pool.h"
+#include "graphics/vulkan/handles/descriptor_pool.h"
 #include "util/require.h"
 #include "io/logger.h"
 

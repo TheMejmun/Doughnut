@@ -6,7 +6,7 @@
 #define DOUGHNUT_SEMAPHORE_H
 
 #include "graphics/vulkan/context.h"
-#include "handle.h"
+#include "graphics/vulkan/handle.h"
 
 #include <vulkan/vulkan.hpp>
 
