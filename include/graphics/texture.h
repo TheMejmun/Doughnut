@@ -34,16 +34,20 @@ namespace dn {
     public:
         explicit Texture(const std::string &filename);
 
-        Texture(uint8_t *data, uint32_t width, uint32_t height, TextureLayout layout);
+        Texture(std::vector<uint8_t> &&data, uint32_t width, uint32_t height, TextureLayout layout);
 
         ~Texture();
 
         [[nodiscard]] size_t size() const;
 
-        uint8_t *mData = nullptr;
+        [[nodiscard]] const uint8_t *data() const;
 
         uint32_t mWidth = 0, mHeight = 0;
         TextureLayout mLayout;
+
+    private:
+        uint8_t *mDataPointer = nullptr;
+        std::vector<uint8_t> mDataVector{};
     };
 }
 

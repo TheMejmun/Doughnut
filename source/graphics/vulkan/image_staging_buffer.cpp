@@ -57,7 +57,7 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
 
     // Upload To Transfer Buffer
     void *mappedMemory = mContext.mDevice.mapMemory(mStagingBufferMemory, 0, texture.size(), {});
-    memcpy(mappedMemory, texture.mData, texture.size());
+    memcpy(mappedMemory, texture.data(), texture.size());
     mContext.mDevice.unmapMemory(mStagingBufferMemory);
 
     // -------------------- TRANSITION --------------------

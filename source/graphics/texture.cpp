@@ -8,6 +8,7 @@
 #include "io/logger.h"
 #include "util/timer.h"
 #include "util/importer.h"
+#include "util/require.h"
 
 #include <stb_image.h>
 
@@ -20,27 +21,42 @@ Texture::Texture(const std::string &filename)
         trace_scope("Texture load")
         int width, height;
         std::string localFilename = doughnutLocal(filename);
-        mData = stbi_load(localFilename.c_str(), &width, &height, nullptr, STBI_rgb_alpha);
+        mDataPointer = stbi_load(localFilename.c_str(), &width, &height, nullptr, STBI_rgb_alpha);
         mWidth = width;
         mHeight = height;
     }
 
-    if (!mData) {
-        dn::log::e("Failed to load texture", filename);
+    if (!mDataPointer) {
+        log::e("Failed to load texture", filename);
+        log::flush();
         throw std::runtime_error("Failed to load texture!");
     } else {
-        dn::log::i("Loaded", filename, "with", mWidth, "*", mHeight);
+        log::i("Loaded", filename, "with", mWidth, "*", mHeight);
     }
 }
 
-Texture::Texture(uint8_t *data, uint32_t width, uint32_t height, TextureLayout layout)
-        : mData(data), mWidth(width), mHeight(height), mLayout(layout) {}
+Texture::Texture(std::vector<uint8_t> &&data, uint32_t width, uint32_t height, TextureLayout layout)
+        : mDataVector(data), mWidth(width), mHeight(height), mLayout(layout) {
+    require(!mDataVector.empty(), "Texture was created with empty data");
+    require(mWidth > 1 && mHeight > 1, "Texture was created with invalid size");
+}
 
 size_t Texture::size() const {
     return mWidth * mHeight * mLayout.bytesPerPixel;
 }
 
+const uint8_t *Texture::data() const {
+    if (mDataVector.empty()) {
+        require_d(mDataPointer != nullptr, "Texture data is null");
+        return mDataPointer;
+    } else {
+        return mDataVector.data();
+    }
+}
+
 Texture::~Texture() {
-    dn::log::i("Freed texture");
-    stbi_image_free(mData);
+    log::d("Freed texture");
+    if (mDataVector.empty()) {
+        stbi_image_free(mDataPointer);
+    }
 }

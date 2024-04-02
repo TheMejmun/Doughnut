@@ -16,7 +16,7 @@
 #define require_d(result, message) // noop
 #endif
 
-#define error(message) log::e(message); log::flush(); throw std::runtime_error(message);
+#define error(message) dn::log::e(message); dn::log::flush(); throw std::runtime_error(message);
 
 namespace dn {
     inline void require(bool result, const char *error) {
