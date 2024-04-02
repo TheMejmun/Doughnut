@@ -39,7 +39,7 @@ Sampler::Sampler(Context &context, const SamplerConfiguration &config)
             {},
             vk::Filter::eNearest, // TODO check if eCubicEXT needs some extension to be enabled
             vk::Filter::eNearest, // TODO check if eCubicEXT needs some extension to be enabled
-            vk::SamplerMipmapMode::eLinear,
+            vk::SamplerMipmapMode::eNearest, // TODO uint textures don't support linear mipmapping
             addressMode, addressMode, addressMode,
             0.0f,
             mContext.mOptionalFeatures.supportsAnisotropicFiltering,

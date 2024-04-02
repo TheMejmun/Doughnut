@@ -116,7 +116,6 @@ void ImageStagingBuffer::upload(const Texture &texture, vk::Image target) {
 
     // -------------------- TRANSITION --------------------
 
-
     vk::ImageMemoryBarrier barrier2{
             vk::AccessFlagBits::eTransferWrite,
             vk::AccessFlagBits::eShaderRead,

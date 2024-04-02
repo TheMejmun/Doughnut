@@ -63,35 +63,23 @@ vk::Format vulkan::textureLayoutToVkFormat(dn::TextureLayout layout) {
         if (layout.subpixelStructure == SubpixelStructure::MONO) {
             switch (layout.bytesPerPixel) {
                 case 1:
-                    return vk::Format::eR8Uint;
+                    return vk::Format::eR8Unorm;
                 case 2:
-                    return vk::Format::eR16Uint;
-                case 4:
-                    return vk::Format::eR32Uint;
-                case 8:
-                    return vk::Format::eR64Uint;
+                    return vk::Format::eR16Unorm;
             }
         } else if (layout.subpixelStructure == SubpixelStructure::RGB) {
             switch (layout.bytesPerPixel) {
                 case 3:
-                    return vk::Format::eR8G8B8Uint;
+                    return vk::Format::eR8G8B8Unorm;
                 case 6:
-                    return vk::Format::eR16G16B16Uint;
-                case 12:
-                    return vk::Format::eR32G32B32Uint;
-                case 24:
-                    return vk::Format::eR64G64B64Uint;
+                    return vk::Format::eR16G16B16Unorm;
             }
         } else if (layout.subpixelStructure == SubpixelStructure::RGBA) {
             switch (layout.bytesPerPixel) {
                 case 4:
-                    return vk::Format::eR8G8B8A8Uint;
+                    return vk::Format::eR8G8B8A8Unorm;
                 case 8:
-                    return vk::Format::eR16G16B16A16Uint;
-                case 16:
-                    return vk::Format::eR32G32B32A32Uint;
-                case 32:
-                    return vk::Format::eR64G64B64A64Uint;
+                    return vk::Format::eR16G16B16A16Unorm;
             }
         }
     } else if (layout.subpixelFormat == SubpixelFormat::LINEAR_FLOAT) {

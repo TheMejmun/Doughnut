@@ -9,6 +9,7 @@
 #include "graphics/vulkan/handles/image.h"
 #include "graphics/vulkan/handles/image_view.h"
 #include "graphics/vulkan/image_staging_buffer.h"
+#include "graphics/vulkan/render_texture.h"
 
 #include <string>
 
@@ -25,11 +26,16 @@ namespace dn::vulkan {
 
         ImageView &getImageView(const std::string &texture);
 
+        void preload(const Texture &texture);
+
+        Image &getImage(const Texture &texture);
+
+        ImageView &getImageView(const Texture &texture);
+
     private:
         Context &mContext;
         ImageStagingBuffer mStagingBuffer;
-        std::unordered_map<std::string, Image> mImages{};
-        std::unordered_map<std::string, ImageView> mImageViews{};
+        std::unordered_map<std::string, RenderTexture> mRenderTextures{};
         std::mutex mInsertTextureMutex{};
     };
 }

@@ -32,9 +32,17 @@ namespace dn {
 
     class Texture {
     public:
-        explicit Texture(const std::string &filename);
+        explicit Texture(const std::string &filename = "resources/textures/debug.png");
 
-        Texture(std::vector<uint8_t> &&data, uint32_t width, uint32_t height, TextureLayout layout);
+        Texture(const std::string &filename,
+                std::vector<uint8_t> &&data,
+                uint32_t width,
+                uint32_t height,
+                TextureLayout layout);
+
+        Texture(Texture &&other);
+
+        Texture &operator=(Texture &&other) noexcept;
 
         ~Texture();
 
@@ -42,12 +50,22 @@ namespace dn {
 
         [[nodiscard]] const uint8_t *data() const;
 
+        [[nodiscard]] double min();
+
+        [[nodiscard]] double max();
+
+        void printData(size_t count);
+
+        std::string mFilename;
         uint32_t mWidth = 0, mHeight = 0;
         TextureLayout mLayout;
 
     private:
+        void calculateMinMax();
+
         uint8_t *mDataPointer = nullptr;
         std::vector<uint8_t> mDataVector{};
+        std::optional<std::array<double, 2>> mMinMaxValues{};
     };
 }
 
