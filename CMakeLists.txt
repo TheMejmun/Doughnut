@@ -19,6 +19,7 @@ target_include_directories(Doughnut PUBLIC include)
 
 # ----------------------------------- ADD DEPENDENCIES -----------------------------------
 
+set(SKIP_EXTERNAL_TESTS ON)
 include(FetchDependencies.cmake)
 
 target_include_directories(Doughnut PUBLIC ${Vulkan_INCLUDE_DIRS})
@@ -31,6 +32,8 @@ target_link_libraries(Doughnut PUBLIC imgui)
 target_include_directories(Doughnut PRIVATE ${STB_INCLUDE_DIR})
 
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
+
+target_link_libraries(Doughnut PRIVATE SPIRV SPIRV-Tools)
 
 target_link_libraries(Doughnut PRIVATE shaderc)
 

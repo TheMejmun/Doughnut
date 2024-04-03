@@ -10,6 +10,7 @@
 #include <mutex>
 #include <thread>
 #include <functional>
+#include <condition_variable>
 
 namespace dn {
     class Scheduler {

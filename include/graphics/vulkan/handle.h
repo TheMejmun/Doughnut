@@ -8,6 +8,7 @@
 #include "io/logger.h"
 
 #include <typeinfo>
+#include <utility>
 
 namespace dn::vulkan {
     template<class VK_TYPE, class CONFIG_TYPE>

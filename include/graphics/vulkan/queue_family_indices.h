@@ -6,6 +6,7 @@
 #define DOUGHNUT_QUEUE_FAMILY_INDICES_H
 
 #include <optional>
+#include <cstdint>
 
 namespace dn::vulkan {
     struct QueueFamilyIndices {

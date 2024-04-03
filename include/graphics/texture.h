@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 #include <vulkan/vulkan.hpp>
+#include <optional>
 
 namespace dn {
     enum SubpixelStructure {

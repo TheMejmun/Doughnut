@@ -1,6 +1,8 @@
 
 include(FetchContent)
 
+option(SKIP_EXTERNAL_TESTS "Skip external dependency testing" ON)
+
 # ---------------------------------------- VULKAN ----------------------------------------
 
 find_package(Vulkan REQUIRED)
@@ -10,9 +12,6 @@ if (${VULKAN_FOUND})
     message("\tVulkan_INCLUDE_DIRS: ${Vulkan_INCLUDE_DIRS}")
 endif ()
 
-#set(Vulkan_LIBRARIES ${Vulkan_LIBRARIES} PARENT_SCOPE)
-#set(Vulkan_INCLUDE_DIRS ${Vulkan_INCLUDE_DIRS} PARENT_SCOPE)
-
 # ---------------------------------------- SDL ----------------------------------------
 
 FetchContent_Declare(
@@ -20,6 +19,9 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/libsdl-org/SDL
         GIT_TAG 0d8ce4a761a8e84e5b746d0d53e7b1dd8fc92d4d # SDL2 specifically
 )
+if (${SKIP_EXTERNAL_TESTS})
+    set(SDL_TEST OFF)
+endif ()
 FetchContent_MakeAvailable(sdl)
 
 # ---------------------------------------- IMGUI ----------------------------------------
@@ -65,7 +67,11 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/assimp/assimp
         GIT_TAG feb861f17bf937fd42e0591b3347b95009033eec
 )
-set(ASSIMP_BUILD_TESTS OFF)
+if (${SKIP_EXTERNAL_TESTS})
+    set(ASSIMP_BUILD_TESTS OFF)
+endif ()
+# Building assimp as a shared library does not seem to work with MSVC. Not sure why.
+set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(assimp)
 
 # ---------------------------------------- SPIR-V HEADERS ----------------------------------------
@@ -84,6 +90,7 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools
         GIT_TAG 7fe5f75e581014e920ab5d9a218ea2f37bbaa0d4
 )
+#set(SPIRV_TOOLS_BUILD_STATIC OFF)
 FetchContent_MakeAvailable(spirv-tools)
 
 # ---------------------------------------- GLSLANG ----------------------------------------
@@ -93,7 +100,15 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/KhronosGroup/glslang
         GIT_TAG 0015dc9345ff9572af60801948c82b7ebce5ddb3
 )
+if (${SKIP_EXTERNAL_TESTS})
+    set(GLSLANG_TESTS OFF)
+endif ()
+#set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(glslang)
+
+# https://github.com/KhronosGroup/glslang/issues/3509
+add_library(glslang::glslang ALIAS glslang)
+add_library(glslang::SPIRV ALIAS SPIRV)
 
 # ---------------------------------------- SHADERC ----------------------------------------
 
@@ -102,7 +117,11 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/google/shaderc
         GIT_TAG 9a658e242ad4d1a4b3491383c1c58c780e3c01ff
 )
-set(SHADERC_SKIP_TESTS ON)
+if (${SKIP_EXTERNAL_TESTS})
+    set(SHADERC_SKIP_TESTS ON)
+endif ()
+# MSVC does not link the CRT correctly. Setting this option fixes Windows builds.
+set(SHADERC_ENABLE_SHARED_CRT ON)
 FetchContent_MakeAvailable(shaderc)
 
 # ---------------------------------------- TINY FILE DIALOG ----------------------------------------
