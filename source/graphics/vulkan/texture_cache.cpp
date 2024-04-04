@@ -44,6 +44,8 @@ RenderTexture &TextureCache::get(const std::string &texture) {
 }
 
 RenderTexture &TextureCache::get(const Texture &texture) {
+    preload(texture);
+    mStagingBuffer.awaitUpload();
     return get(texture.mFilename);
 }
 
