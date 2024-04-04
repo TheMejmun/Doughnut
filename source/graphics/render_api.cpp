@@ -21,7 +21,10 @@ using namespace dn::vulkan;
 VulkanAPI::VulkanAPI(Window &window)
         : mContext(window, ContextConfiguration{}),
           mSwapchain(mContext, SwapchainConfiguration{false}),
-          mCommandPipeline(mContext, CommandPipelineConfiguration{GRAPHICS, mSwapchain.mImageCount}) {
+          mCommandPipeline(mContext, CommandPipelineConfiguration{GRAPHICS, mSwapchain.mImageCount}),
+          mImageAvailableSemaphore(mContext, SemaphoreConfiguration{}),
+          mRenderFinishedSemaphore(mContext, SemaphoreConfiguration{}),
+          mInFlightFence(mContext, FenceConfiguration{true}) {
 
     mMeshes.emplace(
             mContext
@@ -45,18 +48,6 @@ VulkanAPI::VulkanAPI(Window &window)
     );
     // }
 
-    mImageAvailableSemaphore.emplace(
-            mContext,
-            SemaphoreConfiguration{}
-    );
-    mRenderFinishedSemaphore.emplace(
-            mContext,
-            SemaphoreConfiguration{}
-    );
-    mInFlightFence.emplace(
-            mContext,
-            FenceConfiguration{true}
-    );
 
     mSampler.emplace(
             mContext,
@@ -79,16 +70,16 @@ VulkanAPI::VulkanAPI(Window &window)
 }
 
 bool VulkanAPI::nextImage() {
-    mInFlightFence->await();
+    mInFlightFence.await();
 
     if (mSwapchain.shouldRecreate()) {
         log::d("Requesting swapchain recreation");
         mSwapchain.recreate();
     }
 
-    auto acquireImageResult = mSwapchain.acquireNextImage(*mImageAvailableSemaphore);
+    auto acquireImageResult = mSwapchain.acquireNextImage(mImageAvailableSemaphore);
 
-    mInFlightFence->resetFence();
+    mInFlightFence.resetFence();
 
     if (!acquireImageResult.has_value()) {
         log::d("No swapchain image was acquired. Skipping frame.");
@@ -135,7 +126,7 @@ void VulkanAPI::endRenderPass() {
 
 void VulkanAPI::endRecording() {
     require_d(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
-   mCommandPipeline->endRecording();
+    mCommandPipeline->endRecording();
 }
 
 void VulkanAPI::recordDraw(const Renderable &renderable) {
@@ -155,7 +146,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
                                      });
     // TODO put this somewhere reasonable
     (**mCommandPipeline).bindPipeline(vk::PipelineBindPoint::eGraphics,
-                                                                   pipeline.mGraphicsPipeline);
+                                      pipeline.mGraphicsPipeline);
 
     auto &mesh = mMeshes->get(renderable.model);
 
@@ -242,7 +233,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
 void VulkanAPI::recordUiDraw() {
     // TODO maybe this is not the most ideal way to do this.
     mGui->beginFrame();
-    ImGui::DockSpaceOverViewport(nullptr,ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
     ImGui::ShowDemoWindow();
     require_d(mCurrentSwapchainFramebuffer.has_value(), "Can not record a command buffer if no image has been acquired.");
     mGui->endFrame(*mCommandPipeline);
@@ -257,9 +248,9 @@ void VulkanAPI::drawFrame(double delta) {
 
     // or VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
 
-    std::array<vk::Semaphore, 1> waitSemaphores{**mImageAvailableSemaphore}; // index corresponding to wait stage
+    std::array<vk::Semaphore, 1> waitSemaphores{*mImageAvailableSemaphore}; // index corresponding to wait stage
     std::array<vk::PipelineStageFlags, 1> waitStages{vk::PipelineStageFlagBits::eColorAttachmentOutput}; // Wait in fragment stage
-    std::array<vk::Semaphore, 1> signalSemaphores{**mRenderFinishedSemaphore};
+    std::array<vk::Semaphore, 1> signalSemaphores{*mRenderFinishedSemaphore};
     vk::SubmitInfo submitInfo{
             static_cast<uint32_t>(waitSemaphores.size()),
             waitSemaphores.data(),
@@ -270,7 +261,7 @@ void VulkanAPI::drawFrame(double delta) {
             signalSemaphores.data(),
     };
 
-    mContext.mGraphicsQueue.submit(submitInfo, **mInFlightFence);
+    mContext.mGraphicsQueue.submit(submitInfo, *mInFlightFence);
 
     vk::PresentInfoKHR presentInfo{
             static_cast<uint32_t>(signalSemaphores.size()),
@@ -295,9 +286,6 @@ VulkanAPI::~VulkanAPI() {
     mGui.reset();
 
     mSampler.reset();
-    mInFlightFence.reset();
-    mImageAvailableSemaphore.reset();
-    mRenderFinishedSemaphore.reset();
 
     mUniformBuffer.reset();
     mMeshes.reset();

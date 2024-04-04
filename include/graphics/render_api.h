@@ -58,9 +58,9 @@ namespace dn {
         vulkan::Swapchain mSwapchain;
         vulkan::CommandPipeline mCommandPipeline;
 
-        LateInit<vulkan::Semaphore> mImageAvailableSemaphore{};
-        LateInit<vulkan::Semaphore> mRenderFinishedSemaphore{};
-        LateInit<vulkan::Fence> mInFlightFence{};
+        vulkan::Semaphore mImageAvailableSemaphore;
+        vulkan::Semaphore mRenderFinishedSemaphore;
+        vulkan::Fence mInFlightFence;
         LateInit<vulkan::Sampler> mSampler{};
 
         std::optional<uint32_t> mCurrentSwapchainFramebuffer{};
