@@ -26,6 +26,8 @@ namespace dn::vulkan {
 
         ~Context();
 
+        void awaitIdle(bool graphicsQueue = true, bool presentQueue = true, bool transferQueue = true) const;
+
         Window &mWindow;
 
         vk::Instance mInstance = nullptr;
