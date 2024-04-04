@@ -23,18 +23,6 @@ void TextureCache::preload(const std::string &texture) {
     }
 }
 
-Image &TextureCache::getImage(const std::string &texture) {
-    preload(texture);
-    mStagingBuffer.awaitUpload();
-    return mRenderTextures.at(texture).mImage;
-}
-
-ImageView &TextureCache::getImageView(const std::string &texture) {
-    preload(texture);
-    mStagingBuffer.awaitUpload();
-    return mRenderTextures.at(texture).mImageView;
-}
-
 void TextureCache::preload(const Texture &texture) {
     std::lock_guard<std::mutex> guard{mInsertTextureMutex};
     if (!mRenderTextures.contains(texture.mFilename)) {
@@ -49,16 +37,14 @@ void TextureCache::preload(const Texture &texture) {
     }
 }
 
-Image &TextureCache::getImage(const Texture &texture) {
+RenderTexture &TextureCache::get(const std::string &texture) {
     preload(texture);
     mStagingBuffer.awaitUpload();
-    return getImage(texture.mFilename);
+    return mRenderTextures.at(texture);
 }
 
-ImageView &TextureCache::getImageView(const Texture &texture) {
-    preload(texture);
-    mStagingBuffer.awaitUpload();
-    return getImageView(texture.mFilename);
+RenderTexture &TextureCache::get(const Texture &texture) {
+    return get(texture.mFilename);
 }
 
 TextureCache::~TextureCache() {

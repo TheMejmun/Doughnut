@@ -61,7 +61,6 @@ namespace dn {
         vulkan::Semaphore mImageAvailableSemaphore;
         vulkan::Semaphore mRenderFinishedSemaphore;
         vulkan::Fence mInFlightFence;
-        LateInit<vulkan::Sampler> mSampler{};
 
         std::optional<uint32_t> mCurrentSwapchainFramebuffer{};
 

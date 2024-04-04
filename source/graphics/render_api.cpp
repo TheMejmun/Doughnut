@@ -48,14 +48,6 @@ VulkanAPI::VulkanAPI(Window &window)
     );
     // }
 
-
-    mSampler.emplace(
-            mContext,
-            SamplerConfiguration{
-                    CLAMP
-            }
-    );
-
     mGui.emplace(
             mContext,
             window,
@@ -139,8 +131,7 @@ void VulkanAPI::recordDraw(const Renderable &renderable) {
                                                      1u, // TODO this must not be higher than maxFramesInFlight of Descriptor Pool! Crashes otherwise
                                                      sizeof(UniformBufferObject),
                                                      *mUniformBuffer,
-                                                     *mSampler,
-                                                     mTextures->getImageView(renderable.texture)
+                                                     mTextures->get(renderable.texture)
                                              },
                                              false
                                      });
@@ -284,8 +275,6 @@ VulkanAPI::~VulkanAPI() {
     mContext.awaitIdle();
 
     mGui.reset();
-
-    mSampler.reset();
 
     mUniformBuffer.reset();
     mMeshes.reset();
