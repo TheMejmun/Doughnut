@@ -13,7 +13,6 @@ CommandBuffer::CommandBuffer(Context &context,
                              CommandPool &pool,
                              const CommandBufferConfiguration& config)
         : Handle<vk::CommandBuffer, CommandBufferConfiguration>(context, config) {
-    log::d("Creating CommandBuffer");
 
     // TODO multiple? so we won't have to re-record all of them
     vk::CommandBufferAllocateInfo allocInfo{
