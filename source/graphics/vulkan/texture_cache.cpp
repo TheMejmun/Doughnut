@@ -38,15 +38,19 @@ void TextureCache::preload(const Texture &texture) {
 }
 
 RenderTexture &TextureCache::get(const std::string &texture) {
-    preload(texture);
-    mStagingBuffer.awaitUpload();
+    if (!mRenderTextures.contains(texture)) {
+        preload(texture);
+        mStagingBuffer.awaitUpload();
+    }
     return mRenderTextures.at(texture);
 }
 
 RenderTexture &TextureCache::get(const Texture &texture) {
-    preload(texture);
-    mStagingBuffer.awaitUpload();
-    return get(texture.mFilename);
+    if (!mRenderTextures.contains(texture.mFilename)) {
+        preload(texture);
+        mStagingBuffer.awaitUpload();
+    }
+    return mRenderTextures.at(texture.mFilename);
 }
 
 TextureCache::~TextureCache() {
