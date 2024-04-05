@@ -9,20 +9,19 @@
 #include "graphics/vulkan/handles/descriptor_set_layout.h"
 #include "graphics/vulkan/handles/descriptor_pool.h"
 #include "graphics/vulkan/handles/buffer.h"
-#include "graphics/vulkan/handles/sampler.h"
-#include "graphics/vulkan/handles/image_view.h"
+#include "render_texture.h"
 
 #include <vulkan/vulkan.hpp>
 #include <vector>
 
 namespace dn::vulkan {
     // TODO These objects being inside the config object feels wrong
+    // TODO What happens when the DescriptorSet lives longer than the referenced objects?
     struct DescriptorSetConfiguration {
         uint32_t setCount;
         uint32_t uboSize;
         Buffer &uboBuffer;
-        Sampler &sampler;
-        ImageView &imageView;
+        RenderTexture &texture; // TODO array with binding indices
     };
 
     class DescriptorSet {

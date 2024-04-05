@@ -9,6 +9,12 @@
 #include <cstdint>
 
 namespace dn::vulkan {
+    enum Queue{
+        GRAPHICS,
+        PRESENT,
+        TRANSFER
+    };
+
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;

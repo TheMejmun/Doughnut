@@ -14,8 +14,7 @@
 #include "core/late_init.h"
 #include "graphics/vulkan/pipeline.h"
 #include "graphics/vulkan/handles/buffer.h"
-#include "graphics/vulkan/handles/command_pool.h"
-#include "graphics/vulkan/handles/command_buffer.h"
+#include "graphics/vulkan/command_pipeline.h"
 #include "graphics/vulkan/handles/semaphore.h"
 #include "graphics/vulkan/handles/fence.h"
 #include "graphics/vulkan/pipeline_cache.h"
@@ -57,13 +56,11 @@ namespace dn {
     private:
         vulkan::Context mContext;
         vulkan::Swapchain mSwapchain;
-        vulkan::CommandPool mCommandPool;
+        vulkan::CommandPipeline mCommandPipeline;
 
-        std::vector<vulkan::CommandBuffer> mCommandBuffers{};
-        LateInit<vulkan::Semaphore> mImageAvailableSemaphore{};
-        LateInit<vulkan::Semaphore> mRenderFinishedSemaphore{};
-        LateInit<vulkan::Fence> mInFlightFence{};
-        LateInit<vulkan::Sampler> mSampler{};
+        vulkan::Semaphore mImageAvailableSemaphore;
+        vulkan::Semaphore mRenderFinishedSemaphore;
+        vulkan::Fence mInFlightFence;
 
         std::optional<uint32_t> mCurrentSwapchainFramebuffer{};
 

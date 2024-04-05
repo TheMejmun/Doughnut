@@ -23,22 +23,9 @@ void TextureCache::preload(const std::string &texture) {
     }
 }
 
-Image &TextureCache::getImage(const std::string &texture) {
-    preload(texture);
-    mStagingBuffer.awaitUpload();
-    return mRenderTextures.at(texture).mImage;
-}
-
-ImageView &TextureCache::getImageView(const std::string &texture) {
-    preload(texture);
-    mStagingBuffer.awaitUpload();
-    return mRenderTextures.at(texture).mImageView;
-}
-
 void TextureCache::preload(const Texture &texture) {
     std::lock_guard<std::mutex> guard{mInsertTextureMutex};
     if (!mRenderTextures.contains(texture.mFilename)) {
-        vk::Extent2D extent{static_cast<uint32_t>(texture.mWidth), static_cast<uint32_t>(texture.mHeight)};
 
         // https://stackoverflow.com/questions/68828864/how-can-you-emplace-directly-a-mapped-value-into-an-unordered-map
         mRenderTextures.try_emplace(
@@ -49,16 +36,20 @@ void TextureCache::preload(const Texture &texture) {
     }
 }
 
-Image &TextureCache::getImage(const Texture &texture) {
-    preload(texture);
-    mStagingBuffer.awaitUpload();
-    return getImage(texture.mFilename);
+RenderTexture &TextureCache::get(const std::string &texture) {
+    if (!mRenderTextures.contains(texture)) {
+        preload(texture);
+        mStagingBuffer.awaitUpload();
+    }
+    return mRenderTextures.at(texture);
 }
 
-ImageView &TextureCache::getImageView(const Texture &texture) {
-    preload(texture);
-    mStagingBuffer.awaitUpload();
-    return getImageView(texture.mFilename);
+RenderTexture &TextureCache::get(const Texture &texture) {
+    if (!mRenderTextures.contains(texture.mFilename)) {
+        preload(texture);
+        mStagingBuffer.awaitUpload();
+    }
+    return mRenderTextures.at(texture.mFilename);
 }
 
 TextureCache::~TextureCache() {

@@ -22,15 +22,11 @@ namespace dn::vulkan {
 
         void preload(const std::string &texture);
 
-        Image &getImage(const std::string &texture);
-
-        ImageView &getImageView(const std::string &texture);
-
         void preload(const Texture &texture);
 
-        Image &getImage(const Texture &texture);
+        RenderTexture &get(const std::string &texture);
 
-        ImageView &getImageView(const Texture &texture);
+        RenderTexture &get(const Texture &texture);
 
     private:
         Context &mContext;
