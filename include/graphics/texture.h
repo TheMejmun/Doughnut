@@ -6,6 +6,7 @@
 #define DOUGHNUT_TEXTURE_H
 
 #include "io/logger.h"
+#include "util/require.h"
 
 #include <string>
 #include <utility>
@@ -29,44 +30,73 @@ namespace dn {
         uint8_t bytesPerPixel;
         SubpixelStructure subpixelStructure;
         SubpixelFormat subpixelFormat;
+
+        [[nodiscard]] uint8_t bytesPerSubpixel() const;
     };
 
     class Texture {
     public:
         explicit Texture(const std::string &filename = "resources/textures/debug.png");
 
-        Texture(const std::string &filename,
-                std::vector<uint8_t> &&data,
+        Texture(std::string filename,
+                const std::vector<uint8_t> &data,
                 uint32_t width,
                 uint32_t height,
                 TextureLayout layout);
 
-        Texture(Texture &&other);
+        Texture(Texture &&other) noexcept;
 
+        // Move assignment
         Texture &operator=(Texture &&other) noexcept;
 
         ~Texture();
 
         [[nodiscard]] size_t size() const;
 
-        [[nodiscard]] const uint8_t *data() const;
-
         [[nodiscard]] double min();
 
         [[nodiscard]] double max();
 
-        void printData(size_t count);
-
         std::string mFilename;
         uint32_t mWidth = 0, mHeight = 0;
-        TextureLayout mLayout;
+        TextureLayout mLayout{};
+
+        size_t mSize = 0;
+        void *mData = nullptr;
 
     private:
         void calculateMinMax();
 
-        uint8_t *mDataPointer = nullptr;
-        std::vector<uint8_t> mDataVector{};
         std::optional<std::array<double, 2>> mMinMaxValues{};
+    };
+
+    // This is not really useful...
+    template<TextureLayout LAYOUT>
+    struct SubpixelType {
+        using Type = typename std::conditional<LAYOUT.subpixelFormat == LINEAR_FLOAT,
+                // FLOAT
+                typename std::conditional<LAYOUT.bytesPerSubpixel() == 4,
+                        float, // 4
+                        typename std::conditional<LAYOUT.bytesPerSubpixel() == 8,
+                                double, // 8
+                                void // ERROR
+                        >::type
+                >::type,
+                // UINT
+                typename std::conditional<LAYOUT.bytesPerSubpixel() <= 2,
+                        typename std::conditional<LAYOUT.bytesPerSubpixel() == 1,
+                                uint8_t, // 1
+                                uint16_t // 2
+                        >::type,
+                        typename std::conditional<LAYOUT.bytesPerSubpixel() == 4,
+                                uint32_t, // 4
+                                typename std::conditional<LAYOUT.bytesPerSubpixel() == 8,
+                                        uint64_t, // 8
+                                        void // ERROR
+                                >::type
+                        >::type
+                >::type
+        >::type;
     };
 }
 

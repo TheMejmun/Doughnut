@@ -12,12 +12,12 @@ layout(push_constant) uniform constants {
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    uint xPos = uint((inPos.x + 1.0f) * 0.5f * pc.resolution.x);
-    uint yPos = uint((inPos.y + 1.0f) * 0.5f * pc.resolution.y);
+//    uint xPos = uint((inPos.x + 1.0f) * 0.5f * pc.resolution.x);
+//    uint yPos = uint((inPos.y + 1.0f) * 0.5f * pc.resolution.y);
 
     outColor = texture(texSampler, inUVW.xy);
 
-    float checker = float((xPos % 8 < 4) ^^ (yPos % 8 < 4));
-
-    outColor.xyz = outColor.xyz * checker;
+//    float checker = float((xPos % 8 < 4) ^^ (yPos % 8 < 4));
+//
+//    outColor.xyz = outColor.xyz * checker;
 }
