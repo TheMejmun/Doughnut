@@ -47,8 +47,6 @@ const std::type_info &calculateType(TextureLayout layout) {
                 return typeid(uint16_t);
             case 4:
                 return typeid(uint32_t);
-            case 8:
-                return typeid(uint64_t);
         }
     }
 
@@ -73,6 +71,20 @@ std::array<double, 2> calculateTemplatedMinMax(T *data, size_t count) {
 
     log::v("Calculated image min", minValue, "/", "max", maxValue);
     return {minValue, maxValue};
+}
+
+template<class FROM, class TO>
+TO *convertType(FROM *data, size_t count) {
+    // float = (float) uint / (float) max uint
+    // uint = (uint) (float * max uint)
+
+    TO *out = malloc(sizeof(TO) * count);
+
+    for (size_t i = 0; i < count; ++i) {
+     out[i] = static_cast<TO>(data[i]);
+    }
+
+    return out;
 }
 
 // TODO provide different loaders as options
@@ -140,9 +152,11 @@ void Texture::calculateMinMax() {
         mMinMaxValues = calculateTemplatedMinMax((uint16_t *) mData, mWidth * mHeight);
     } else if (type == typeid(uint32_t)) {
         mMinMaxValues = calculateTemplatedMinMax((uint32_t *) mData, mWidth * mHeight);
-    } else if (type == typeid(uint64_t)) {
-        mMinMaxValues = calculateTemplatedMinMax((uint64_t *) mData, mWidth * mHeight);
     }
+}
+
+Texture Texture::convertTo(dn::TextureLayout layout) {
+
 }
 
 Texture &Texture::operator=(dn::Texture &&other) noexcept {

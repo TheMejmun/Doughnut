@@ -57,11 +57,14 @@ namespace dn {
 
         [[nodiscard]] double max();
 
+        Texture convertTo(TextureLayout layout);
+
         std::string mFilename;
         uint32_t mWidth = 0, mHeight = 0;
         TextureLayout mLayout{};
 
         size_t mSize = 0;
+        // Supports float, double, uint8, uint16, and uint32
         void *mData = nullptr;
 
     private:
@@ -90,10 +93,7 @@ namespace dn {
                         >::type,
                         typename std::conditional<LAYOUT.bytesPerSubpixel() == 4,
                                 uint32_t, // 4
-                                typename std::conditional<LAYOUT.bytesPerSubpixel() == 8,
-                                        uint64_t, // 8
-                                        void // ERROR
-                                >::type
+                                void // ERROR
                         >::type
                 >::type
         >::type;
