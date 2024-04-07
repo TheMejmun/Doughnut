@@ -27,7 +27,7 @@ uint8_t TextureLayout::bytesPerSubpixel() const {
             require_d(bytesPerPixel % 4 == 0, "TextureLayout is malformed");
             return bytesPerPixel / 4;
         default:
-        error("TextureLayout is malformed");
+        error("TextureLayout is malformed")
     }
 }
 
@@ -55,7 +55,7 @@ const std::type_info &calculateType(TextureLayout layout) {
         }
     }
 
-    error("Failed to calculate type for given TextureLayout");
+    error("Failed to calculate type for given TextureLayout")
 }
 
 template<class T>
@@ -112,6 +112,7 @@ void *convertTypeTemplated(const std::type_info &to, FROM *data, size_t count) {
     } else if (to == typeid(uint32_t)) {
         return convertTypeTemplated<FROM, uint32_t>(data, count);
     }
+    error("Invalid type was provided")
 }
 
 void *convertTypeTemplated(const std::type_info &from, const std::type_info &to, void *data, size_t count) {
@@ -126,6 +127,7 @@ void *convertTypeTemplated(const std::type_info &from, const std::type_info &to,
     } else if (from == typeid(uint32_t)) {
         return convertTypeTemplated(to, (uint32_t *) data, count);
     }
+    error("Invalid type was provided")
 }
 
 // TODO provide different loaders as options
