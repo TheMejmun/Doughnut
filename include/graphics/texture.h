@@ -44,6 +44,12 @@ namespace dn {
                 uint32_t height,
                 TextureLayout layout);
 
+        Texture(std::string filename,
+                void *data,
+                uint32_t width,
+                uint32_t height,
+                TextureLayout layout);
+
         Texture(Texture &&other) noexcept;
 
         // Move assignment
@@ -57,7 +63,7 @@ namespace dn {
 
         [[nodiscard]] double max();
 
-        Texture convertTo(TextureLayout layout);
+        Texture convertTo(const TextureLayout &layout) const;
 
         std::string mFilename;
         uint32_t mWidth = 0, mHeight = 0;
@@ -69,6 +75,8 @@ namespace dn {
 
     private:
         void calculateMinMax();
+
+        Texture convertType(const TextureLayout &layout) const;
 
         std::optional<std::array<double, 2>> mMinMaxValues{};
     };

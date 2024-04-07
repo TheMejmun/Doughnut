@@ -82,7 +82,7 @@ REGISTER(EntityManager) {
                                     auto allIntsAndDoubles = em.getArchetype<int, double>();
                                     expect(allIntsAndDoubles.empty(), "Empty archetypes should be empty");
 
-                                    em.insertComponent(test(4), id2);
+                                    em.insertComponent(test{4}, id2);
                                     expect(em.componentCount<test>() == 1
                                            && em.componentCount<int>() == 2
                                            && em.componentCount<double>() == 0, "Component counts should be correct after adding a third component");

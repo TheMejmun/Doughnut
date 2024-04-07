@@ -31,6 +31,11 @@ uint8_t TextureLayout::bytesPerSubpixel() const {
     }
 }
 
+template<class T>
+bool isFloat() {
+    return typeid(T) == typeid(float) || typeid(T) == typeid(double);
+}
+
 const std::type_info &calculateType(TextureLayout layout) {
     if (layout.subpixelFormat == LINEAR_FLOAT) {
         switch (layout.bytesPerSubpixel()) {
@@ -74,17 +79,53 @@ std::array<double, 2> calculateTemplatedMinMax(T *data, size_t count) {
 }
 
 template<class FROM, class TO>
-TO *convertType(FROM *data, size_t count) {
+TO *convertTypeTemplated(FROM *data, size_t count) {
     // float = (float) uint / (float) max uint
     // uint = (uint) (float * max uint)
 
-    TO *out = malloc(sizeof(TO) * count);
+    double maxTo = isFloat<TO>() ? 1.0 : std::numeric_limits<TO>::max();
+    double maxFrom = isFloat<FROM>() ? 1.0 : std::numeric_limits<FROM>::max();
+
+    double normFactor = maxTo / maxFrom;
+
+    double preCastAddition = (isFloat<FROM>() && !isFloat<TO>()) ? 0.5 : 0.0;
+
+    TO *out = (TO *) std::malloc(sizeof(TO) * count);
 
     for (size_t i = 0; i < count; ++i) {
-     out[i] = static_cast<TO>(data[i]);
+        out[i] = static_cast<TO>(data[i] * normFactor + preCastAddition);
     }
 
     return out;
+}
+
+template<class FROM>
+void *convertTypeTemplated(const std::type_info &to, FROM *data, size_t count) {
+    if (to == typeid(float)) {
+        return convertTypeTemplated<FROM, float>(data, count);
+    } else if (to == typeid(double)) {
+        return convertTypeTemplated<FROM, double>(data, count);
+    } else if (to == typeid(uint8_t)) {
+        return convertTypeTemplated<FROM, uint8_t>(data, count);
+    } else if (to == typeid(uint16_t)) {
+        return convertTypeTemplated<FROM, uint16_t>(data, count);
+    } else if (to == typeid(uint32_t)) {
+        return convertTypeTemplated<FROM, uint32_t>(data, count);
+    }
+}
+
+void *convertTypeTemplated(const std::type_info &from, const std::type_info &to, void *data, size_t count) {
+    if (from == typeid(float)) {
+        return convertTypeTemplated(to, (float *) data, count);
+    } else if (from == typeid(double)) {
+        return convertTypeTemplated(to, (double *) data, count);
+    } else if (from == typeid(uint8_t)) {
+        return convertTypeTemplated(to, (uint8_t *) data, count);
+    } else if (from == typeid(uint16_t)) {
+        return convertTypeTemplated(to, (uint16_t *) data, count);
+    } else if (from == typeid(uint32_t)) {
+        return convertTypeTemplated(to, (uint32_t *) data, count);
+    }
 }
 
 // TODO provide different loaders as options
@@ -116,10 +157,23 @@ Texture::Texture(std::string filename,
                  TextureLayout layout)
         : mFilename(std::move(filename)), mWidth(width), mHeight(height), mLayout(layout) {
     require(!data.empty(), "Texture was created with empty data");
-    require(mWidth > 1 && mHeight > 1, "Texture was created with invalid size");
+    require(mWidth >= 1 && mHeight >= 1, "Texture was created with invalid size");
 
     mData = std::malloc(data.size());
     std::memcpy(mData, data.data(), data.size());
+}
+
+Texture::Texture(std::string filename,
+                 void *data,
+                 uint32_t width,
+                 uint32_t height,
+                 TextureLayout layout)
+        : mFilename(std::move(filename)), mWidth(width), mHeight(height), mLayout(layout) {
+    require(mWidth >= 1 && mHeight >= 1, "Texture was created with invalid size");
+
+    size_t size = width * height * layout.bytesPerPixel;
+    mData = std::malloc(size);
+    std::memcpy(mData, data, size);
 }
 
 size_t Texture::size() const {
@@ -155,8 +209,20 @@ void Texture::calculateMinMax() {
     }
 }
 
-Texture Texture::convertTo(dn::TextureLayout layout) {
+Texture Texture::convertType(const TextureLayout &layout) const {
+    return Texture{
+            mFilename,
+            convertTypeTemplated(calculateType(mLayout), calculateType(layout), mData, mWidth * mHeight),
+            mWidth,
+            mHeight,
+            layout
+    };
+}
 
+Texture Texture::convertTo(const TextureLayout &layout) const {
+    // TODO channel transform
+    // TODO SRGB transform
+    return convertType(layout);
 }
 
 Texture &Texture::operator=(dn::Texture &&other) noexcept {
