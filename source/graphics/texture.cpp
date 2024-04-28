@@ -13,6 +13,7 @@
 #include <stb_image.h>
 #include <utility>
 #include <typeinfo>
+#include <cmath>
 
 using namespace dn;
 
@@ -80,20 +81,22 @@ std::array<double, 2> calculateTemplatedMinMax(T *data, size_t count) {
 
 template<class FROM, class TO>
 TO *convertTypeTemplated(FROM *data, size_t count) {
-    // float = (float) uint / (float) max uint
-    // uint = (uint) (float * max uint)
-
-    double maxTo = isFloat<TO>() ? 1.0 : std::numeric_limits<TO>::max();
-    double maxFrom = isFloat<FROM>() ? 1.0 : std::numeric_limits<FROM>::max();
-
-    double normFactor = maxTo / maxFrom;
-
-    double preCastAddition = (isFloat<FROM>() && !isFloat<TO>()) ? 0.5 : 0.0;
+    const long double maxTo = isFloat<TO>() ? 1.0 : std::numeric_limits<TO>::max();
+    const long double maxFrom = isFloat<FROM>() ? 1.0 : std::numeric_limits<FROM>::max();
+    const long double normFactor = maxTo / maxFrom;
 
     TO *out = (TO *) std::malloc(sizeof(TO) * count);
 
-    for (size_t i = 0; i < count; ++i) {
-        out[i] = static_cast<TO>(data[i] * normFactor + preCastAddition);
+    if (!isFloat<TO>()) {
+        // Round
+        for (size_t i = 0; i < count; ++i) {
+            out[i] = static_cast<TO>(std::roundl(data[i] * normFactor));
+        }
+    } else {
+        // Don't round
+        for (size_t i = 0; i < count; ++i) {
+            out[i] = static_cast<TO>(data[i] * normFactor);
+        }
     }
 
     return out;
@@ -212,9 +215,14 @@ void Texture::calculateMinMax() {
 }
 
 Texture Texture::convertType(const TextureLayout &layout) const {
+    const std::type_info &oldType = calculateType(mLayout);
+    const std::type_info &newType = calculateType(layout);
+
+    log::v("Converting texture", mFilename, "from", oldType.name(), "to", newType.name());
+
     return Texture{
             mFilename,
-            convertTypeTemplated(calculateType(mLayout), calculateType(layout), mData, mWidth * mHeight),
+            convertTypeTemplated(oldType, newType, mData, mWidth * mHeight),
             mWidth,
             mHeight,
             layout
