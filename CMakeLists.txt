@@ -60,3 +60,7 @@ target_include_directories(DoughnutTests PRIVATE test/include)
 target_link_libraries(DoughnutTests PRIVATE Doughnut)
 
 add_test(TestAll DoughnutTests)
+
+# ----------------------------------- DEMO -----------------------------------
+
+add_subdirectory(demo)
