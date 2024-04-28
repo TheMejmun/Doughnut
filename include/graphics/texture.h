@@ -63,20 +63,19 @@ namespace dn {
 
         [[nodiscard]] double max();
 
-        Texture convertTo(const TextureLayout &layout) const;
+        [[nodiscard]] Texture convertTo(const TextureLayout &layout) const;
 
         std::string mFilename;
         uint32_t mWidth = 0, mHeight = 0;
         TextureLayout mLayout{};
 
-        size_t mSize = 0;
         // Supports float, double, uint8, uint16, and uint32
         void *mData = nullptr;
 
     private:
         void calculateMinMax();
 
-        Texture convertType(const TextureLayout &layout) const;
+        [[nodiscard]] Texture convertType(const TextureLayout &layout) const;
 
         std::optional<std::array<double, 2>> mMinMaxValues{};
     };
