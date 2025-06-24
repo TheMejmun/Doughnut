@@ -43,7 +43,13 @@ namespace dn {
          * Insert jobs into queue and execute
          * @param functions List of jobs to perform
          */
-        void queue(std::initializer_list<std::function<void()>> functions);
+        void queue(const std::initializer_list<std::function<void()>>& functions);
+
+        /**
+         * Insert single job into queue and execute
+         * @param function The job to perform
+         */
+        void queue(const std::function<void()>& function);
 
         uint32_t activeWorkerCount();
 

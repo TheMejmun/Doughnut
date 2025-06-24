@@ -77,7 +77,7 @@ bool Scheduler::done() {
     return mWaitingJobCount == 0;
 }
 
-void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
+void Scheduler::queue(const std::initializer_list<std::function<void()>> &functions) {
     std::lock_guard<std::mutex> runGuard{mRunMutex};
     std::lock_guard<std::mutex> queueGuard(mQueueMutex);
     for (auto &job: functions) {
@@ -85,6 +85,14 @@ void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
         mQueue.emplace(job);
         mRunCondition.notify_one();
     }
+}
+
+void Scheduler::queue(const std::function<void()> &function) {
+    std::lock_guard<std::mutex> runGuard{mRunMutex};
+    std::lock_guard<std::mutex> queueGuard(mQueueMutex);
+    ++mWaitingJobCount;
+    mQueue.emplace(function);
+    mRunCondition.notify_one();
 }
 
 uint32_t Scheduler::activeWorkerCount() {
