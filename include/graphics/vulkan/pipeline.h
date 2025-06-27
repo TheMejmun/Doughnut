@@ -5,10 +5,10 @@
 #ifndef DOUGHNUT_PIPELINE_H
 #define DOUGHNUT_PIPELINE_H
 
-#include "descriptor_set_layout.h"
+#include "graphics/vulkan/handles/descriptor_set_layout.h"
 #include "core/late_init.h"
-#include "graphics/vulkan/render_pass.h"
-#include "descriptor_pool.h"
+#include "graphics/vulkan/handles/render_pass.h"
+#include "graphics/vulkan/handles/descriptor_pool.h"
 #include "descriptor_set.h"
 
 #include <vulkan/vulkan.hpp>

@@ -77,7 +77,7 @@ bool Scheduler::done() {
     return mWaitingJobCount == 0;
 }
 
-void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
+void Scheduler::queue(const std::initializer_list<std::function<void()>> &functions) {
     std::lock_guard<std::mutex> runGuard{mRunMutex};
     std::lock_guard<std::mutex> queueGuard(mQueueMutex);
     for (auto &job: functions) {
@@ -85,6 +85,14 @@ void Scheduler::queue(std::initializer_list<std::function<void()>> functions) {
         mQueue.emplace(job);
         mRunCondition.notify_one();
     }
+}
+
+void Scheduler::queue(const std::function<void()> &function) {
+    std::lock_guard<std::mutex> runGuard{mRunMutex};
+    std::lock_guard<std::mutex> queueGuard(mQueueMutex);
+    ++mWaitingJobCount;
+    mQueue.emplace(function);
+    mRunCondition.notify_one();
 }
 
 uint32_t Scheduler::activeWorkerCount() {
@@ -110,83 +118,4 @@ Scheduler::~Scheduler() {
             thread.join();
         }
     }
-}
-
-void dn::testScheduler() {
-    bool task1Done = false;
-    bool task2Done = false;
-    bool task3Done = false;
-    bool task4Done = false;
-
-    dn::Scheduler scheduler{2};
-
-    assert(scheduler.done());
-
-    std::atomic<uint32_t> runningThreads = 0;
-    std::mutex m1{}, m2{};
-    m1.lock();
-    m2.lock();
-    scheduler.queue({
-                            [&]() {
-                                ++runningThreads;
-                                std::lock_guard<std::mutex> guard(m1);
-                                task1Done = true;
-                                --runningThreads;
-                            },
-                            [&]() {
-                                ++runningThreads;
-                                std::lock_guard<std::mutex> guard(m2);
-                                task2Done = true;
-                                --runningThreads;
-                            },
-                            [&]() {
-                                ++runningThreads;
-                                task3Done = true;
-                                --runningThreads;
-                            }
-                    });
-
-    assert(!scheduler.done());
-
-    while (runningThreads < 2) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-
-    assert(!scheduler.done());
-    assert(scheduler.activeWorkerCount() == 2);
-
-    m1.unlock();
-    m2.unlock();
-    scheduler.await();
-
-    assert(scheduler.done());
-    assert(task1Done);
-    assert(task2Done);
-    assert(task3Done);
-
-    m1.lock();
-    scheduler.queue({
-                            [&]() {
-                                ++runningThreads;
-                                std::lock_guard<std::mutex> guard(m1);
-                                task4Done = true;
-                                --runningThreads;
-                            }
-                    });
-
-    assert(!scheduler.done());
-
-    while (runningThreads < 1) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-
-    assert(scheduler.activeWorkerCount() == 1);
-
-    m1.unlock();
-    scheduler.await();
-
-    assert(scheduler.done());
-    assert(task4Done);
-
-   log::i("Scheduler test successful.");
 }

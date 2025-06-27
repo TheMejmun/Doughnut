@@ -50,8 +50,8 @@ DescriptorSet::DescriptorSet(Context &context,
         );
 
         vk::DescriptorImageInfo imageInfo{
-                *mConfig.sampler,
-                *mConfig.imageView,
+                *mConfig.texture.mSampler,
+                *mConfig.texture.mImageView,
                 vk::ImageLayout::eShaderReadOnlyOptimal,
         };
 

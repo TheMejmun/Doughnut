@@ -9,10 +9,10 @@
 #include "context.h"
 #include "graphics/vertex.h"
 #include "core/scheduler.h"
-#include "command_pool.h"
-#include "command_buffer.h"
+#include "graphics/vulkan/handles/command_pool.h"
+#include "graphics/vulkan/handles/command_buffer.h"
 #include "core/late_init.h"
-#include "fence.h"
+#include "graphics/vulkan/handles/fence.h"
 
 namespace dn::vulkan {
     struct StagingBufferConfiguration {

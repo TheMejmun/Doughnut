@@ -10,7 +10,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Add files
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS source/*.cpp)
-# message(STATUS "SOURCE_FILES: ${SOURCE_FILES}")
 
 # Main library
 add_library(Doughnut STATIC ${SOURCE_FILES})
@@ -20,7 +19,8 @@ target_include_directories(Doughnut PUBLIC include)
 
 # ----------------------------------- ADD DEPENDENCIES -----------------------------------
 
-add_subdirectory(external)
+set(SKIP_EXTERNAL_TESTS ON)
+include(FetchDependencies.cmake)
 
 target_include_directories(Doughnut PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(Doughnut PUBLIC ${Vulkan_LIBRARIES})
@@ -29,12 +29,18 @@ target_link_libraries(Doughnut PRIVATE SDL2::SDL2)
 
 target_link_libraries(Doughnut PUBLIC imgui)
 
-target_include_directories(Doughnut PUBLIC ${STB_INCLUDE_DIR}) # TODO make private
+target_include_directories(Doughnut PRIVATE ${STB_INCLUDE_DIR})
 
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
 
+target_link_libraries(Doughnut PRIVATE SPIRV SPIRV-Tools)
+
+target_link_libraries(Doughnut PRIVATE shaderc)
+
+target_link_libraries(Doughnut PRIVATE tiny-file-dialogs)
+
 # output
-include(util.cmake)
+include(Util.cmake)
 print_target_properties(Doughnut)
 
 # ----------------------------------- ADD RESOURCES -----------------------------------
@@ -45,34 +51,12 @@ add_dependencies(Doughnut CopyAssets)
 
 # ----------------------------------- ADD TEST EXECUTABLE -----------------------------------
 
-get_target_property(TEST_LINK_LIBRARIES Doughnut LINK_LIBRARIES)
-get_target_property(TEST_INCLUDE_DIRS Doughnut INCLUDE_DIRECTORIES)
-get_target_property(TEST_SOURCES Doughnut SOURCES)
+enable_testing()
 
-add_executable(DoughnutTests source/test.cpp ${TEST_SOURCES})
-target_include_directories(DoughnutTests PRIVATE ${TEST_INCLUDE_DIRS})
-target_link_libraries(DoughnutTests PRIVATE ${TEST_LINK_LIBRARIES})
+file(GLOB_RECURSE TESTS CONFIGURE_DEPENDS test/source/*.cpp)
 
-# https://stackoverflow.com/questions/32901679/unit-testing-as-part-of-the-build
+add_executable(DoughnutTests ${TESTS})
+target_include_directories(DoughnutTests PRIVATE test/include)
+target_link_libraries(DoughnutTests PRIVATE Doughnut)
 
-#enable_testing()
-#
-##add_dependencies(DoughnutTests Doughnut)
-#
-#add_test(TestsBuild
-#        "${CMAKE_COMMAND}"
-#        --build "${CMAKE_BINARY_DIR}"
-#        --config "$<CONFIG>"
-#        --target DoughnutTests
-#)
-#set_tests_properties(TestsBuild PROPERTIES FIXTURES_SETUP TestsFixture)
-#add_test(Doughnut DoughnutTests)
-#set_tests_properties(Doughnut PROPERTIES FIXTURES_REQUIRED TestsFixture)
-#
-#add_custom_command(
-#        TARGET Doughnut
-#        COMMENT "Run tests"
-#        POST_BUILD
-#        COMMAND ctest
-#        ARGS -C $<CONFIGURATION> -R "^DoughnutTests$" --output-on-failures
-#)
+add_test(TestAll DoughnutTests)

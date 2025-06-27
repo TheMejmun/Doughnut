@@ -2,13 +2,13 @@
 // Created by Sam on 2024-02-28.
 //
 
-#ifndef DOUGHNUTSANDBOX_GUI_H
-#define DOUGHNUTSANDBOX_GUI_H
+#ifndef DOUGHNUT_GUI_H
+#define DOUGHNUT_GUI_H
 
 #include "graphics/vulkan/context.h"
-#include "descriptor_pool.h"
-#include "render_pass.h"
-#include "command_buffer.h"
+#include "graphics/vulkan/handles/descriptor_pool.h"
+#include "graphics/vulkan/handles/render_pass.h"
+#include "graphics/vulkan/handles/command_buffer.h"
 
 namespace dn::vulkan {
     struct GuiConfiguration {
@@ -41,4 +41,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_GUI_H
+#endif //DOUGHNUT_GUI_H

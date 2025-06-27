@@ -264,6 +264,12 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
     log::d("Created Context");
 }
 
+void Context::awaitIdle(bool graphicsQueue, bool presentQueue, bool transferQueue) const {
+    if (graphicsQueue && mGraphicsQueue != nullptr) mGraphicsQueue.waitIdle();
+    if (presentQueue && mPresentQueue != nullptr) mPresentQueue.waitIdle();
+    if (transferQueue && mTransferQueue != nullptr) mTransferQueue.waitIdle();
+}
+
 Context::~Context() {
     log::d("Destroying Context");
     if (mDevice != nullptr) { mDevice.destroy(); }

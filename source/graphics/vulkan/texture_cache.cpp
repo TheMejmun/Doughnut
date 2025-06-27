@@ -15,52 +15,41 @@ TextureCache::TextureCache(Context &context)
 }
 
 void TextureCache::preload(const std::string &texture) {
-    std::lock_guard<std::mutex> guard{mInsertTextureMutex};
-    if (!mImages.contains(texture) || !mImageViews.contains(texture)) {
+    std::unique_lock<std::mutex> guard{mInsertTextureMutex};
+    if (!mRenderTextures.contains(texture)) {
         auto textureImport = Texture(texture);
-        vk::Extent2D extent{static_cast<uint32_t>(textureImport.mWidth), static_cast<uint32_t>(textureImport.mHeight)};
-
-        // https://stackoverflow.com/questions/68828864/how-can-you-emplace-directly-a-mapped-value-into-an-unordered-map
-        mImages.try_emplace(
-                texture,
-                mContext,
-                ImageConfiguration{
-                        extent,
-                        false,
-                        true,
-                        true,
-                        textureImport.mHasAlpha
-                }
-        );
-        Image &image = mImages.at(texture);
-
-        mStagingBuffer.upload(textureImport, *image);
-
-        mImageViews.emplace(
-                texture,
-                ImageView{
-                        mContext,
-                        image,
-                        ImageViewConfiguration{
-                                extent,
-                                image.mFormat,
-                                vk::ImageAspectFlagBits::eColor
-                        }
-                }
-        );
-
-        mStagingBuffer.awaitUpload();
+        guard.unlock();
+        preload(textureImport);
     }
 }
 
-Image &TextureCache::getImage(const std::string &texture) {
-    preload(texture);
-    return mImages.at(texture);
+void TextureCache::preload(const Texture &texture) {
+    std::lock_guard<std::mutex> guard{mInsertTextureMutex};
+    if (!mRenderTextures.contains(texture.mFilename)) {
+
+        // https://stackoverflow.com/questions/68828864/how-can-you-emplace-directly-a-mapped-value-into-an-unordered-map
+        mRenderTextures.try_emplace(
+                texture.mFilename,
+                mContext,
+                texture
+        );
+    }
 }
 
-ImageView &TextureCache::getImageView(const std::string &texture) {
-    preload(texture);
-    return mImageViews.at(texture);
+RenderTexture &TextureCache::get(const std::string &texture) {
+    if (!mRenderTextures.contains(texture)) {
+        preload(texture);
+        mStagingBuffer.awaitUpload();
+    }
+    return mRenderTextures.at(texture);
+}
+
+RenderTexture &TextureCache::get(const Texture &texture) {
+    if (!mRenderTextures.contains(texture.mFilename)) {
+        preload(texture);
+        mStagingBuffer.awaitUpload();
+    }
+    return mRenderTextures.at(texture.mFilename);
 }
 
 TextureCache::~TextureCache() {

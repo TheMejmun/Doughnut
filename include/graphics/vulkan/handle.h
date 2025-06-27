@@ -2,12 +2,13 @@
 // Created by Sam on 2024-03-19.
 //
 
-#ifndef DOUGHNUTSANDBOX_HANDLE_H
-#define DOUGHNUTSANDBOX_HANDLE_H
+#ifndef DOUGHNUT_HANDLE_H
+#define DOUGHNUT_HANDLE_H
 
 #include "io/logger.h"
 
 #include <typeinfo>
+#include <utility>
 
 namespace dn::vulkan {
     template<class VK_TYPE, class CONFIG_TYPE>
@@ -59,4 +60,4 @@ namespace dn::vulkan {
     };
 }
 
-#endif //DOUGHNUTSANDBOX_HANDLE_H
+#endif //DOUGHNUT_HANDLE_H

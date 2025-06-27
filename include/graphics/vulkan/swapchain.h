@@ -7,13 +7,13 @@
 
 #include "io/window.h"
 #include "graphics/vulkan/queue_family_indices.h"
-#include "image.h"
-#include "image_view.h"
-#include "framebuffer.h"
+#include "graphics/vulkan/handles/image.h"
+#include "graphics/vulkan/handles/image_view.h"
+#include "graphics/vulkan/handles/framebuffer.h"
 #include "context.h"
-#include "render_pass.h"
+#include "graphics/vulkan/handles/render_pass.h"
 #include "core/late_init.h"
-#include "semaphore.h"
+#include "graphics/vulkan/handles/semaphore.h"
 
 #include <vulkan/vulkan.hpp>
 

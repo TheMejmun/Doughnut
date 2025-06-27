@@ -5,9 +5,9 @@
 #include "graphics/vulkan/pipeline.h"
 #include "io/logger.h"
 #include "util/importer.h"
-#include "graphics/vulkan/shader_module.h"
+#include "graphics/vulkan/handles/shader_module.h"
 #include "util/require.h"
-#include "graphics/vulkan/buffer.h"
+#include "graphics/vulkan/handles/buffer.h"
 #include "graphics/uniform_buffer_object.h"
 #include "graphics/push_constants_object.h"
 
@@ -32,8 +32,8 @@ Pipeline::Pipeline(Context &context,
     );
 
     // TODO pull these out of here
-    ShaderModule vertexShader = ShaderModule{mContext, {config.vertexShader}};
-    ShaderModule fragmentShader = ShaderModule{mContext, {config.fragmentShader}};
+    ShaderModule vertexShader{mContext, {config.vertexShader, ShaderType::VERTEX}};
+    ShaderModule fragmentShader{mContext, {config.fragmentShader, ShaderType::FRAGMENT}};
 
     vk::PipelineShaderStageCreateInfo vertexShaderStageInfo{
             {},

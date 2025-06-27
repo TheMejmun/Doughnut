@@ -276,8 +276,8 @@ void Window::poll() {
 
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0) {
-        for (auto &listener: mEventListeners) {
-            listener->onWindowEvent(event);
+        for (auto listener: mEventListeners) {
+            if (listener != nullptr) listener->onWindowEvent(event);
         }
 
         switch (event.type) {

@@ -2,13 +2,14 @@
 // Created by Sam on 2024-02-21.
 //
 
-#ifndef DOUGHNUTSANDBOX_TEXTURE_CACHE_H
-#define DOUGHNUTSANDBOX_TEXTURE_CACHE_H
+#ifndef DOUGHNUT_TEXTURE_CACHE_H
+#define DOUGHNUT_TEXTURE_CACHE_H
 
 #include "graphics/vulkan/context.h"
-#include "graphics/vulkan/image.h"
-#include "graphics/vulkan/image_view.h"
+#include "graphics/vulkan/handles/image.h"
+#include "graphics/vulkan/handles/image_view.h"
 #include "graphics/vulkan/image_staging_buffer.h"
+#include "graphics/vulkan/render_texture.h"
 
 #include <string>
 
@@ -21,16 +22,17 @@ namespace dn::vulkan {
 
         void preload(const std::string &texture);
 
-        Image &getImage(const std::string &texture);
+        void preload(const Texture &texture);
 
-        ImageView &getImageView(const std::string &texture);
+        RenderTexture &get(const std::string &texture);
+
+        RenderTexture &get(const Texture &texture);
 
     private:
         Context &mContext;
         ImageStagingBuffer mStagingBuffer;
-        std::unordered_map<std::string, Image> mImages{};
-        std::unordered_map<std::string, ImageView> mImageViews{};
+        std::unordered_map<std::string, RenderTexture> mRenderTextures{};
         std::mutex mInsertTextureMutex{};
     };
 }
-#endif //DOUGHNUTSANDBOX_TEXTURE_CACHE_H
+#endif //DOUGHNUT_TEXTURE_CACHE_H
