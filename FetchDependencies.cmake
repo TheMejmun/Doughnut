@@ -129,7 +129,7 @@ ELSE(${glslang_FOUND})
     FetchContent_Declare(
             glslang
             GIT_REPOSITORY https://github.com/KhronosGroup/glslang
-            GIT_TAG 0015dc9345ff9572af60801948c82b7ebce5ddb3
+            GIT_TAG 8a85691a0740d390761a1008b4696f57facd02c4
     )
     if (${SKIP_EXTERNAL_TESTS})
         set(GLSLANG_TESTS OFF)
@@ -137,9 +137,14 @@ ELSE(${glslang_FOUND})
     #set(BUILD_SHARED_LIBS OFF)
     FetchContent_MakeAvailable(glslang)
     # https://github.com/KhronosGroup/glslang/issues/3509
-    add_library(glslang::glslang ALIAS glslang)
-    add_library(glslang::SPIRV ALIAS SPIRV)
 ENDIF (${glslang_FOUND})
+
+if(NOT TARGET glslang)
+    add_library(glslang ALIAS glslang::glslang)
+endif (NOT TARGET glslang)
+if(NOT TARGET SPIRV)
+    add_library(SPIRV ALIAS glslang::SPIRV)
+endif (NOT TARGET SPIRV)
 
 # ---------------------------------------- SHADERC ----------------------------------------
 
@@ -151,7 +156,7 @@ ELSE(${shaderc_FOUND})
     FetchContent_Declare(
             shaderc
             GIT_REPOSITORY https://github.com/google/shaderc
-            GIT_TAG 9a658e242ad4d1a4b3491383c1c58c780e3c01ff
+            GIT_TAG 8c2e602ce440b7739c95ff3d69cecb1adf6becda
     )
     if (${SKIP_EXTERNAL_TESTS})
         set(SHADERC_SKIP_TESTS ON)
