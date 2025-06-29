@@ -22,6 +22,8 @@ CommandBuffer::CommandBuffer(Context &context,
     };
 
     mVulkan = mContext.mDevice.allocateCommandBuffers(allocInfo)[0];
+
+    this->registerDebug();
 }
 
 void CommandBuffer::reset() const {

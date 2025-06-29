@@ -34,6 +34,8 @@ Framebuffer::Framebuffer(Context &context,
     };
 
     mVulkan = mContext.mDevice.createFramebuffer(createInfo);
+
+    this->registerDebug();
 }
 
 Framebuffer::~Framebuffer() {

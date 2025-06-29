@@ -16,16 +16,15 @@ using namespace dn;
 using namespace dn::vulkan;
 
 // Constants
-const std::vector<const char *> REQUIRED_DEVICE_EXTENSIONS = {
+const std::array<const char *, 1> REQUIRED_DEVICE_EXTENSIONS = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
+
 const std::string PORTABILITY_EXTENSION = "VK_KHR_portability_subset";
 
-#ifndef NDEBUG
-#define ENABLE_VALIDATION_LAYERS
-#endif
+const std::string VALIDATION_EXTENSION = "VK_EXT_debug_utils";
 
-const std::vector<const char *> VALIDATION_LAYERS = {
+const std::array<const char *, 1> VALIDATION_LAYERS = {
         "VK_LAYER_KHRONOS_validation"
 };
 
@@ -48,6 +47,53 @@ bool checkValidationLayerSupport() {
     }
 
     return true;
+}
+
+// Signature for the vulkan api to call
+//static VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(
+//        vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+//        vk::DebugUtilsMessageTypeFlagsEXT messageType,
+//        const vk::DebugUtilsMessengerCallbackDataEXT *pCallbackData,
+//        void *pUserData) {
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+        void *pUserData) {
+    const char *severityString;
+    switch ((size_t) messageSeverity) {
+        case (size_t) vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose: {
+            severityString = "verbose";
+            break;
+        }
+        case (size_t) vk::DebugUtilsMessageSeverityFlagBitsEXT::eError: {
+            severityString = "error";
+            break;
+        }
+        case (size_t) vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning: {
+            severityString = "warning";
+            break;
+        }
+        case (size_t) vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo: {
+            severityString = "info";
+            break;
+        }
+    }
+
+    std::stringstream objectStream{};
+    for (size_t i = 0; i < pCallbackData->objectCount; ++i) {
+        void *ptr = (void *) pCallbackData->pObjects[i].objectHandle;
+        if (debugInfos.contains(ptr))
+            objectStream << "\n\t" << debugInfos.at(ptr);
+    }
+
+    if ((size_t) messageSeverity >= (size_t) vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning) {
+        log::e("vk", severityString, "\b:", pCallbackData->pMessage, "\nObjects:", objectStream.str());
+    } else {
+        log::d("vk", severityString, "\b:", pCallbackData->pMessage, "\nObjects:", objectStream.str());
+    }
+
+    return vk::False;
 }
 
 QueueFamilyIndices findQueueFamilies(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface) {
@@ -125,6 +171,25 @@ bool checkPortabilityMode(const vk::PhysicalDevice &device) {
     });
 }
 
+// https://github.com/KhronosGroup/Vulkan-Hpp/issues/1717
+PFN_vkCreateDebugUtilsMessengerEXT getDebugMessengerCreateFn(vk::Instance instance) {
+    auto createFnPtr = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+            instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
+    if (!createFnPtr) {
+        throw std::runtime_error("Unable to find pfnVkCreateDebugUtilsMessengerEXT function.");
+    }
+    return createFnPtr;
+}
+
+PFN_vkDestroyDebugUtilsMessengerEXT getDebugMessengerDestroyFn(vk::Instance instance) {
+    auto destroyFnPtr = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+            instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
+    if (!destroyFnPtr) {
+        throw std::runtime_error("Unable to find pfnVkDestroyDebugUtilsMessengerEXT function.");
+    }
+    return destroyFnPtr;
+}
+
 Context::Context(Window &window, ContextConfiguration config) : mWindow(window) {
 
     // INSTANCE
@@ -148,7 +213,8 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
     );
     sdlExtensionNames.resize(sdlExtensionCount);
     require(
-            SDL_Vulkan_GetInstanceExtensions((SDL_Window *) mWindow.mHandle, &sdlExtensionCount, sdlExtensionNames.data()) == SDL_TRUE,
+            SDL_Vulkan_GetInstanceExtensions((SDL_Window *) mWindow.mHandle, &sdlExtensionCount,
+                                             sdlExtensionNames.data()) == SDL_TRUE,
             "Error getting SDL Vulkan extensions"
     );
 
@@ -159,6 +225,21 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
     // MacOS compatibility
     requiredInstanceExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 
+    // Validation layers
+#ifdef ENABLE_VALIDATION_LAYERS
+    if (!checkValidationLayerSupport())
+        throw std::runtime_error("Validation layers not available!");
+
+    requiredInstanceExtensions.emplace_back(VALIDATION_EXTENSION.c_str());
+
+    // Info on which extensions and features we need
+    vk::InstanceCreateInfo instanceCreateInfo(
+            {vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR},
+            &applicationInfo,
+            VALIDATION_LAYERS.size(), VALIDATION_LAYERS.data(),
+            requiredInstanceExtensions.size(), requiredInstanceExtensions.data()
+    );
+#else
     // Info on which extensions and features we need
     vk::InstanceCreateInfo instanceCreateInfo(
             {vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR},
@@ -166,20 +247,13 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
             0, {},
             requiredInstanceExtensions.size(), requiredInstanceExtensions.data()
     );
-
-    // Validation layers
-#ifdef ENABLE_VALIDATION_LAYERS
-    if (!checkValidationLayerSupport())
-        throw std::runtime_error("Validation layers not available!");
-
-    instanceCreateInfo.enabledLayerCount = VALIDATION_LAYERS.size();
-    instanceCreateInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
 #endif
 
     mInstance = vk::createInstance(instanceCreateInfo);
 
     require(
-            SDL_Vulkan_CreateSurface((SDL_Window *) mWindow.mHandle, mInstance, reinterpret_cast<VkSurfaceKHR *>(&mSurface)) == SDL_TRUE,
+            SDL_Vulkan_CreateSurface((SDL_Window *) mWindow.mHandle, mInstance,
+                                     reinterpret_cast<VkSurfaceKHR *>(&mSurface)) == SDL_TRUE,
             "Failed to create window surface!"
     );
 
@@ -236,7 +310,9 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
     deviceFeatures.fillModeNonSolid = mOptionalFeatures.supportsWireframeMode;
     deviceFeatures.samplerAnisotropy = mOptionalFeatures.supportsAnisotropicFiltering;
 
-    std::vector<const char *> requiredDeviceExtensions = REQUIRED_DEVICE_EXTENSIONS;
+    std::vector<const char *> requiredDeviceExtensions{};
+    requiredDeviceExtensions.insert(requiredDeviceExtensions.end(), REQUIRED_DEVICE_EXTENSIONS.begin(),
+                                    REQUIRED_DEVICE_EXTENSIONS.end());
     if (checkPortabilityMode(mPhysicalDevice)) {
         requiredDeviceExtensions.push_back(PORTABILITY_EXTENSION.c_str());
     }
@@ -261,6 +337,33 @@ Context::Context(Window &window, ContextConfiguration config) : mWindow(window) 
     mPresentQueue = mDevice.getQueue(mQueueFamilyIndices.presentFamily.value(), 0);
     mTransferQueue = mDevice.getQueue(mQueueFamilyIndices.transferFamily.value(), 0);
 
+#ifdef ENABLE_VALIDATION_LAYERS
+    auto createFun = getDebugMessengerCreateFn(mInstance);
+//    vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo(
+//            vk::DebugUtilsMessengerCreateFlagsEXT{},
+//            {vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
+//             vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
+//             vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+//             vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
+//            {vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
+//             vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance},
+//            debugCallback
+//    );
+    VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo{};
+    debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    debugMessengerCreateInfo.messageSeverity =
+            VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    debugMessengerCreateInfo.messageType =
+            VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    debugMessengerCreateInfo.pfnUserCallback = debugCallback;
+    VkDebugUtilsMessengerEXT messenger;
+    auto result = createFun(mInstance, &debugMessengerCreateInfo, nullptr, &messenger);
+    require(result, "Failed to create debug messenger!");
+    mDebugMessenger = messenger;
+#endif
+
     log::d("Created Context");
 }
 
@@ -272,6 +375,12 @@ void Context::awaitIdle(bool graphicsQueue, bool presentQueue, bool transferQueu
 
 Context::~Context() {
     log::d("Destroying Context");
+#ifdef ENABLE_VALIDATION_LAYERS
+    auto destroy = getDebugMessengerDestroyFn(mInstance);
+
+    if (mDebugMessenger != nullptr) { destroy(mInstance, mDebugMessenger, nullptr); }
+
+#endif
     if (mDevice != nullptr) { mDevice.destroy(); }
     if (mSurface != nullptr) { mInstance.destroySurfaceKHR(mSurface); }
     if (mInstance != nullptr) { mInstance.destroy(); }

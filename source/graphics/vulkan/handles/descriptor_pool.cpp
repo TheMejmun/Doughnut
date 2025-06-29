@@ -46,6 +46,8 @@ DescriptorPool::DescriptorPool(Context &context, const DescriptorPoolConfigurati
     };
 
     mVulkan = mContext.mDevice.createDescriptorPool(poolInfo);
+
+    this->registerDebug();
 }
 
 DescriptorPool::~DescriptorPool() {

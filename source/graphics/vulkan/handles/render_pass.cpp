@@ -79,6 +79,8 @@ RenderPass::RenderPass(Context &context, const RenderPassConfiguration &config)
     };
 
     mVulkan = mContext.mDevice.createRenderPass(renderPassCreateInfo);
+
+    this->registerDebug();
 }
 
 RenderPass::~RenderPass() {

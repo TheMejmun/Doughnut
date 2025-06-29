@@ -53,6 +53,8 @@ Sampler::Sampler(Context &context, const SamplerConfiguration &config)
     };
 
     mVulkan = mContext.mDevice.createSampler(samplerInfo);
+
+    this->registerDebug();
 }
 
 Sampler::~Sampler() {

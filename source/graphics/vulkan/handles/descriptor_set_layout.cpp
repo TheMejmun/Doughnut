@@ -36,6 +36,8 @@ DescriptorSetLayout::DescriptorSetLayout(Context &context, const DescriptorSetLa
     };
 
     mVulkan = mContext.mDevice.createDescriptorSetLayout(createInfo);
+
+    this->registerDebug();
 }
 
 DescriptorSetLayout::~DescriptorSetLayout() {

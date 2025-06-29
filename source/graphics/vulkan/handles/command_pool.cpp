@@ -18,6 +18,8 @@ CommandPool::CommandPool(Context &context, const CommandPoolConfiguration &confi
     };
 
     mVulkan = mContext.mDevice.createCommandPool(poolInfo);
+
+    this->registerDebug();
 }
 
 CommandPool::~CommandPool() {

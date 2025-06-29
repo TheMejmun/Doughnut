@@ -34,6 +34,8 @@ ImageView::ImageView(Context &context,
     };
 
     mVulkan = mContext.mDevice.createImageView(viewCreateInfo);
+
+    this->registerDebug();
 }
 
 ImageView::~ImageView() {

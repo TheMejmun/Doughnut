@@ -12,6 +12,8 @@ Semaphore::Semaphore(Context &context, const SemaphoreConfiguration &config)
         : Handle<vk::Semaphore, SemaphoreConfiguration>(context, config) {
     vk::SemaphoreCreateInfo semaphoreInfo{};
     mVulkan = mContext.mDevice.createSemaphore(semaphoreInfo);
+
+    this->registerDebug();
 }
 
 Semaphore::~Semaphore() {

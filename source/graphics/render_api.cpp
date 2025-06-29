@@ -26,6 +26,9 @@ VulkanAPI::VulkanAPI(Window &window)
           mRenderFinishedSemaphore(mContext, SemaphoreConfiguration{}),
           mInFlightFence(mContext, FenceConfiguration{true}) {
 
+    mImageAvailableSemaphore.setDebugInfo("VulkanAPI.mImageAvailableSemaphore");
+    mRenderFinishedSemaphore.setDebugInfo("VulkanAPI.mRenderFinishedSemaphore");
+
     mMeshes.emplace(
             mContext
     );

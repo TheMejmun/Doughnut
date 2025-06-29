@@ -22,6 +22,8 @@ Fence::Fence(Context &context,
             vk::FenceCreateFlags{}
     };
     mVulkan = mContext.mDevice.createFence(fenceInfo);
+
+    this->registerDebug();
 }
 
 double Fence::await() const {

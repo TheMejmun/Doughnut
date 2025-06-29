@@ -140,6 +140,8 @@ Image::Image(Context &context,
           mUsageFlags(),
           mLocallyConstructed(false) {
     mVulkan = image;
+
+    this->registerDebug();
 }
 
 Image::Image(Context &context,
@@ -195,6 +197,8 @@ Image::Image(Context &context,
 
     mMemory = mContext.mDevice.allocateMemory(allocateInfo);
     mContext.mDevice.bindImageMemory(mVulkan, mMemory, 0);
+
+    this->registerDebug();
 }
 
 Image::~Image() {

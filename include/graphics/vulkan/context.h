@@ -12,6 +12,10 @@
 #include <vulkan/vulkan.hpp>
 #include <string>
 
+#ifndef NDEBUG
+#define ENABLE_VALIDATION_LAYERS
+#endif
+
 namespace dn::vulkan {
     struct ContextConfiguration {
     };
@@ -34,6 +38,10 @@ namespace dn::vulkan {
         vk::SurfaceKHR mSurface = nullptr;
         vk::PhysicalDevice mPhysicalDevice = nullptr;
         vk::Device mDevice = nullptr;
+
+#ifdef ENABLE_VALIDATION_LAYERS
+        vk::DebugUtilsMessengerEXT mDebugMessenger= nullptr;
+#endif
 
         // TODO move Queue creation somewhere else?
         vk::Queue mGraphicsQueue = nullptr;

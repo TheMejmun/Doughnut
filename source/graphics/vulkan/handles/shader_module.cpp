@@ -22,6 +22,8 @@ ShaderModule::ShaderModule(Context &context, const ShaderModuleConfiguration &co
     };
 
     mVulkan = mContext.mDevice.createShaderModule(createInfo);
+
+    this->registerDebug();
 }
 
 ShaderModule::~ShaderModule() {

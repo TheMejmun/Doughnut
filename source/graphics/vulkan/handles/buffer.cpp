@@ -80,6 +80,8 @@ Buffer::Buffer(dn::vulkan::Context &context, dn::vulkan::BufferConfiguration con
     if (mConfig.hostDirectAccessible) {
         mMappedBuffer = static_cast<uint8_t *>(mContext.mDevice.mapMemory(mBufferMemory, 0, ALLOC_SIZE, {}));
     }
+
+    this->registerDebug();
 }
 
 UploadResult Buffer::calculateMemoryIndex(const uint32_t size) {
