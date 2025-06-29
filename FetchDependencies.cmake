@@ -156,7 +156,8 @@ ELSE(${shaderc_FOUND})
     FetchContent_Declare(
             shaderc
             GIT_REPOSITORY https://github.com/google/shaderc
-            GIT_TAG 8c2e602ce440b7739c95ff3d69cecb1adf6becda
+            # Newer version fails compilation on macOS
+            GIT_TAG ff84893dd52d28f0b1737d2635733d952013bd9c
     )
     if (${SKIP_EXTERNAL_TESTS})
         set(SHADERC_SKIP_TESTS ON)
