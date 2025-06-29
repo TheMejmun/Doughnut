@@ -88,9 +88,9 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     }
 
     if ((size_t) messageSeverity >= (size_t) vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning) {
-        log::e("vk", severityString, "\b:", pCallbackData->pMessage, "\nObjects:", objectStream.str());
+        log::e("vk", severityString, pCallbackData->messageIdNumber,"\b:", pCallbackData->pMessage, "\nObjects:", objectStream.str());
     } else {
-        log::d("vk", severityString, "\b:", pCallbackData->pMessage, "\nObjects:", objectStream.str());
+        log::d("vk", severityString, pCallbackData->messageIdNumber, "\b:", pCallbackData->pMessage, "\nObjects:", objectStream.str());
     }
 
     return vk::False;
