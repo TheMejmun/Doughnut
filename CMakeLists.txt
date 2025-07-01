@@ -29,7 +29,7 @@ target_link_libraries(Doughnut PRIVATE SDL2::SDL2)
 
 target_link_libraries(Doughnut PUBLIC imgui)
 
-target_include_directories(Doughnut PRIVATE ${STB_INCLUDE_DIR})
+target_include_directories(Doughnut PUBLIC ${STB_INCLUDE_DIR})
 
 target_link_libraries(Doughnut PRIVATE assimp::assimp)
 
