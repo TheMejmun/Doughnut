@@ -38,10 +38,10 @@ namespace dn::log {
 
         template<typename... ARGS>
         void logFormattedAsync(Level level, ARGS &&... args) {
-            internal::scheduler.queue({[=]() {
+            internal::scheduler.queue([=]() {
                 auto formatted = internal::format(args...);
                 internal::log(level, formatted);
-            }});
+            });
         }
     }
 

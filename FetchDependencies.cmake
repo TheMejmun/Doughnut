@@ -68,7 +68,7 @@ ENDIF (${imgui_FOUND})
 FetchContent_Declare(
         stb
         GIT_REPOSITORY https://github.com/nothings/stb
-        GIT_TAG ae721c50eaf761660b4f90cc590453cdb0c2acd0
+        GIT_TAG f58f558c120e9b32c217290b80bad1a0729fbb2c
 )
 FetchContent_MakeAvailable(stb)
 set(STB_INCLUDE_DIR ${stb_SOURCE_DIR})
